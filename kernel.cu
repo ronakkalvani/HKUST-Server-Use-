@@ -1,6 +1,3 @@
-﻿
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 #include <cuda.h>
 #include <stdio.h>
@@ -11,7 +8,7 @@ __global__ void cuda_hello() {
 
 int main() {
     printf("Hello World from CPU!\n");
-    cuda_hello<<<1,1>>>();
+    cuda_hello<<<1,10>>>();
     cudaDeviceSynchronize();
     return 0;
 }
