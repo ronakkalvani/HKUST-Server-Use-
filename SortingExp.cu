@@ -45,7 +45,7 @@ int main()
     cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_data, d_sorted_data, num_items);
 
     // Print sorted data
-    // print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
+    print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
     cudaDeviceSynchronize();
 
     // Cleanup
