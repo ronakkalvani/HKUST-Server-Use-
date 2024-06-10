@@ -23,7 +23,7 @@ __global__ void print_sorted_data(int* device_data, int num_items)
 int main()
 {
     // Initialize host data
-    int num_items = 1e4;
+    int num_items = 1e6;
 
     // Initialize device data
     int* d_data;
@@ -33,7 +33,7 @@ int main()
     int* d_sorted_data;
     cudaMalloc(&d_sorted_data, num_items);
 
-    allocate_data<<<1000,10>>>(d_data, num_items);
+    allocate_data<<<1000,1000>>>(d_data, num_items);
 
     // Allocate temporary storage
     void* d_temp_storage = NULL;
@@ -45,7 +45,7 @@ int main()
     cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_data, d_sorted_data, num_items);
 
     // Print sorted data
-    print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
+    // print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
     cudaDeviceSynchronize();
 
     // Cleanup
