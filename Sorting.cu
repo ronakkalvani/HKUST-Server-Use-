@@ -40,11 +40,6 @@ int main()
     // Print sorted data
     print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
     cudaDeviceSynchronize();
-    
-    cudaError_t err = cudaGetLastError();  // add
-    if (err != cudaSuccess) std::cout << "CUDA error: " << cudaGetErrorString(err) << std::endl; // add
-    cudaProfilerStop();
-    return 0;
 
     // Cleanup
     cudaFree(d_data);
