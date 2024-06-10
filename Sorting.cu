@@ -16,7 +16,11 @@ __global__ void print_sorted_data(int* device_data, int num_items)
 int main()
 {
     // Initialize host data
-    int h_data[] = {1, 5, 2, 4, 3};
+    const int N=1e5;
+    int h_data[N];
+    for (int i=0;i<N;i++) {
+        h_data[i]=N-i;
+    }
     int num_items = sizeof(h_data) / sizeof(h_data[0]);
 
     // Initialize device data
