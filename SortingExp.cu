@@ -21,13 +21,13 @@ __global__ void print_sorted_data(int* device_data, int num_items)
 int main()
 {
     // Initialize host data
-    const int num_items = 1000;
+    const int num_items = 1e6;
 
     // Initialize device data
     int* d_data;
     cudaMalloc(&d_data, num_items*sizeof(int));
 
-    get_attr<<<1,1000>>>(d_data,num_items);
+    get_attr<<<1000,1000>>>(d_data,num_items);
 
     // Allocate device memory for sorted data
     int* d_sorted_data;
