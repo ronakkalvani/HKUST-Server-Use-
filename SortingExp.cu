@@ -20,7 +20,7 @@ int main()
     int h_data[num_items];
 
     for (int i=0;i<num_items;i++) {
-        h_data[i]=rand()%1000;
+        h_data[i]=(i*i)%1000;
     }
 
     // Initialize device data
