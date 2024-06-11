@@ -1,6 +1,11 @@
 #include <cub/cub.cuh>
 #include <iostream>
 
+__global__ void get_attr(int* device_data, int num_items) {
+    int ind=threadIdx.x+blockDim.x*blockIdx.x;
+    device_data[ind]=rand()%num_items;
+}
+
 // Kernel function to print the sorted data
 __global__ void print_sorted_data(int* device_data, int num_items)
 {
@@ -19,14 +24,12 @@ int main()
     const int num_items = 1000;
     int h_data[num_items];
 
-    for (int i=0;i<num_items;i++) {
-        h_data[i]=(i*i)%1000;
-    }
-
     // Initialize device data
     int* d_data;
     cudaMalloc(&d_data, sizeof(h_data));
     cudaMemcpy(d_data, h_data, sizeof(h_data), cudaMemcpyHostToDevice);
+
+    get_attr<<<1,1000>>>(d_data,num_items);
 
     // Allocate device memory for sorted data
     int* d_sorted_data;
