@@ -31,7 +31,7 @@ int main()
 
     // Allocate device memory for sorted data
     int* d_sorted_data;
-    cudaMalloc(&d_sorted_data, sizeof(h_data));
+    cudaMalloc(&d_sorted_data, num_items*sizeof(int));
 
     // Allocate temporary storage
     void* d_temp_storage = NULL;
