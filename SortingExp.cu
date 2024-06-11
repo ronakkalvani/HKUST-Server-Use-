@@ -3,7 +3,7 @@
 
 __global__ void get_attr(int* device_data, int num_items) {
     int ind=threadIdx.x+blockDim.x*blockIdx.x;
-    device_data[ind]=rand()%num_items;
+    device_data[ind]=(ind*ind*7)%num_items;
 }
 
 // Kernel function to print the sorted data
@@ -22,12 +22,10 @@ int main()
 {
     // Initialize host data
     const int num_items = 1000;
-    int h_data[num_items];
 
     // Initialize device data
     int* d_data;
-    cudaMalloc(&d_data, sizeof(h_data));
-    cudaMemcpy(d_data, h_data, sizeof(h_data), cudaMemcpyHostToDevice);
+    cudaMalloc(&d_data, num_items*sizeof(int));
 
     get_attr<<<1,1000>>>(d_data,num_items);
 
