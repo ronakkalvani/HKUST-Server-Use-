@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "/csproject/yike/intern/ronak/cuCollections/include/cuco/static_map.cuh"
+#include <cuco/static_map.cuh>
 
 #include <cub/block/block_reduce.cuh>
 #include <cuda/std/atomic>
@@ -54,7 +54,7 @@
  * @param[in] num_keys The total number of keys and values
  * @param[out] num_unique_keys The total number of distinct keys inserted
  */
-
+ 
 template <int64_t BlockSize, typename Map, typename KeyIter, typename UniqueIter>
 __global__ void count_by_key(Map map_ref,
                              KeyIter keys,
