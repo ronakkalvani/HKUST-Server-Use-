@@ -1,46 +1,78 @@
-#include "/csproject/yike/intern/ronak/cuCollections/include/cuco/dynamic_map.cuh"
+#include <stdio.h>
 
-__global__ void hash_join(cuco::dynamic_map<int, int> map, int* keys, int* values, int* output, int size) {
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-    if (tid < size) {
-        auto search = map.find(keys[tid]);
-        if (search != map.end()) {
-            output[tid] = search->second;
-        } else {
-            output[tid] = -1;
-        }
+#define THREADS_PER_BLOCK 256
+
+// Hash function
+__device__ int hashFunction(int key, int tableSize) {
+    return key % tableSize;
+}
+
+// Kernel for building hash table
+__global__ void buildHashTable(int *keys, int *values, int *hashTable, int tableSize, int numElements) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < numElements) {
+        int key = keys[tid];
+        int hashIndex = hashFunction(key, tableSize);
+        hashTable[hashIndex] = values[tid]; // Assuming no collisions for simplicity
+    }
+}
+
+// Kernel for probing hash table and performing join
+__global__ void probeHashTable(int *keys, int *hashTable, int tableSize, int numElements) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < numElements) {
+        int key = keys[tid];
+        int hashIndex = hashFunction(key, tableSize);
+        int value = hashTable[hashIndex]; // Assuming no collisions for simplicity
+        // Process value as needed
     }
 }
 
 int main() {
-    int size = 10000;
+    // Example input data
+    int numElements = 10000;
+    int tableSize = 1000;
+    int *keys, *values, *hashTable;
+    int *d_keys, *d_values, *d_hashTable;
 
-    // Initialize keys and values
-    int* keys = new int[size];
-    int* values = new int[size];
-    for (int i = 0; i < size; i++) {
-        keys[i] = i;
-        values[i] = i * 2;
+    // Allocate memory on host
+    keys = (int*)malloc(numElements * sizeof(int));
+    values = (int*)malloc(numElements * sizeof(int));
+    hashTable = (int*)malloc(tableSize * sizeof(int));
+
+    // Initialize keys and values (assuming some data)
+    for (int i = 0; i < numElements; i++) {
+        keys[i] = i; // Example keys
+        values[i] = i * 10; // Example values
     }
 
-    // Create a cuco::dynamic_map
-    cuco::dynamic_map<int, int> map(size);
+    // Allocate memory on device
+    cudaMalloc(&d_keys, numElements * sizeof(int));
+    cudaMalloc(&d_values, numElements * sizeof(int));
+    cudaMalloc(&d_hashTable, tableSize * sizeof(int));
 
-    // Insert keys and values into the map
-    for (int i = 0; i < size; i++) {
-        map.insert({keys[i], values[i]});
-    }
+    // Copy data from host to device
+    cudaMemcpy(d_keys, keys, numElements * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_values, values, numElements * sizeof(int), cudaMemcpyHostToDevice);
 
-    // Allocate output array
-    int* output = new int[size];
+    // Launch kernel to build hash table
+    int numBlocks = (numElements + THREADS_PER_BLOCK - 1) / THREADS_PER_BLOCK;
+    buildHashTable<<<numBlocks, THREADS_PER_BLOCK>>>(d_keys, d_values, d_hashTable, tableSize, numElements);
+    cudaDeviceSynchronize();
 
-    // Perform hash join
-    hash_join<<<size/256, 256>>>(map, keys, values, output, size);
+    // Launch kernel to probe hash table and perform join
+    probeHashTable<<<numBlocks, THREADS_PER_BLOCK>>>(d_keys, d_hashTable, tableSize, numElements);
+    cudaDeviceSynchronize();
 
-    // Cleanup
-    delete[] keys;
-    delete[] values;
-    delete[] output;
+    // Free memory on device
+    cudaFree(d_keys);
+    cudaFree(d_values);
+    cudaFree(d_hashTable);
+
+    // Free memory on host
+    free(keys);
+    free(values);
+    free(hashTable);
 
     return 0;
 }
