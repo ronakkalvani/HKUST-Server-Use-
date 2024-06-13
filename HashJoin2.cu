@@ -18,8 +18,8 @@ __global__ void buildHashTable(int *keys, int *values, int *hash_table_keys, int
             bucket = (bucket + 1) % num_buckets;
         }
         hash_table_values[bucket] = value;
+        printf("index: %d , key: %d, value: %d, bucket: %d\n",idx,key,value,bucket);
     }
-    
 }
 
 __global__ void probeHashTable(int *keys, int *hash_table_keys, int *hash_table_values, int *results, int num_elements, int num_buckets) {
@@ -36,7 +36,6 @@ __global__ void probeHashTable(int *keys, int *hash_table_keys, int *hash_table_
             results[idx] = -1; // Key not found
         }
     }
-    printf("index: %d , results: %d",idx,results[idx]);
 }
 
 void checkCudaError(cudaError_t result, const char *msg) {
