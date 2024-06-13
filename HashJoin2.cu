@@ -19,6 +19,7 @@ __global__ void buildHashTable(int *keys, int *values, int *hash_table_keys, int
         }
         hash_table_values[bucket] = value;
     }
+    
 }
 
 __global__ void probeHashTable(int *keys, int *hash_table_keys, int *hash_table_values, int *results, int num_elements, int num_buckets) {
@@ -35,6 +36,7 @@ __global__ void probeHashTable(int *keys, int *hash_table_keys, int *hash_table_
             results[idx] = -1; // Key not found
         }
     }
+    std::cout << idx <<" "<<results[idx]<<"\n";
 }
 
 void checkCudaError(cudaError_t result, const char *msg) {
