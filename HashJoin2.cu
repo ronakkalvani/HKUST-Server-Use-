@@ -18,7 +18,6 @@ __global__ void buildHashTable(int *keys, int *values, int *hash_table_keys, int
             bucket = (bucket + 1) % num_buckets;
         }
         hash_table_values[bucket] = value;
-        printf("index: %d , key: %d, value: %d, bucket: %d\n",idx,key,value,bucket);
     }
 }
 
@@ -73,7 +72,6 @@ int main() {
     checkCudaError(cudaMemcpy(d_values, h_values, num_elements * sizeof(int),cudaMemcpyHostToDevice), "cudaMemcpy d_values");
 
     // Kernel launch for building hash table
-    printf("cdbn\n");
     buildHashTable<<<(num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(d_keys, d_values, d_hash_table_keys, d_hash_table_values, num_elements, num_buckets);
     checkCudaError(cudaGetLastError(), "Kernel launch failed (buildHashTable)");
 
