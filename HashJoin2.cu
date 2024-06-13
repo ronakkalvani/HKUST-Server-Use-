@@ -36,7 +36,7 @@ __global__ void probeHashTable(int *keys, int *hash_table_keys, int *hash_table_
             results[idx] = -1; // Key not found
         }
     }
-    std::cout << idx <<" "<<results[idx]<<std::endl;
+    printf("index: %d , results: %d",idx,results[idx]);
 }
 
 void checkCudaError(cudaError_t result, const char *msg) {
