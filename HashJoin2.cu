@@ -68,8 +68,10 @@ int main() {
     checkCudaError(cudaMemset(d_hash_table_keys, -1, num_buckets * sizeof(int)), "cudaMemset d_hash_table_keys");
 
     // Copy data to device
-    checkCudaError(cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int)), "cudaMemcpy d_keys");
-    checkCudaError(cudaMemcpy(d_values, h_values, num_elements * sizeof(int)), "cudaMemcpy d_values");
+    // checkCudaError(cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int)), "cudaMemcpy d_keys");
+    cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int));
+    // checkCudaError(cudaMemcpy(d_values, h_values, num_elements * sizeof(int)), "cudaMemcpy d_values");
+    cudaMemcpy(d_values, h_values, num_elements * sizeof(int));
 
     // Kernel launch for building hash table
     buildHashTable<<<(num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(d_keys, d_values, d_hash_table_keys, d_hash_table_values, num_elements, num_buckets);
@@ -79,9 +81,10 @@ int main() {
     probeHashTable<<<(num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(d_keys, d_hash_table_keys, d_hash_table_values, d_results, num_elements, num_buckets);
     checkCudaError(cudaGetLastError(), "Kernel launch failed (probeHashTable)");
 
-    // Copy results back to host
+    // Copy results back to host 
     int h_results[num_elements];
-    checkCudaError(cudaMemcpy(h_results, d_results, num_elements * sizeof(int)), "cudaMemcpy h_results");
+    // checkCudaError(cudaMemcpy(h_results, d_results, num_elements * sizeof(int)), "cudaMemcpy h_results");
+    cudaMemcpy(h_results, d_results, num_elements * sizeof(int));
 
     // Verify results
     for (int i = 0; i < num_elements; ++i) {
