@@ -84,11 +84,11 @@ int main() {
     checkCudaError(cudaMemcpy(h_results, d_results, num_elements * sizeof(int),cudaMemcpyDeviceToHost), "cudaMemcpy h_results");
 
     // Verify results
-    // for (int i = 0; i < num_elements; ++i) {
-    //     if (h_results[i] != -1) {
-    //         std::cout << "Key: " << h_keys[i] << ", Value: " << h_results[i] << std::endl;
-    //     }
-    // }
+    for (int i = 0; i < num_elements; ++i) {
+        if (h_results[i] != -1) {
+            std::cout << "Key: " << h_keys[i] << ", Value: " << h_results[i] << std::endl;
+        }
+    }
 
     // Free device memory
     cudaFree(d_keys);
