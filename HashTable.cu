@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cuda_runtime.h>
 
-#define BLOCK_SIZE 1024
+#define BLOCK_SIZE 512
 
 __device__ int hash(int key, int num_buckets) {
     return key % num_buckets;
@@ -45,8 +45,8 @@ void checkCudaError(cudaError_t result, const char *msg) {
 }
 
 int main() {
-    const int num_elements = 1e8;
-    const int num_buckets = 1e9+7;
+    const int num_elements = 1e6;
+    const int num_buckets = 1e7;
 
     int h_keys[num_elements], h_values[num_elements];
     int *d_keys, *d_values, *d_hash_table_keys, *d_hash_table_values, *d_results;
