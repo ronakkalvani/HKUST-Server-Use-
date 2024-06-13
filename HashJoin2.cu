@@ -62,16 +62,14 @@ int main() {
     checkCudaError(cudaMalloc(&d_values, num_elements * sizeof(int)), "cudaMalloc d_values");
     checkCudaError(cudaMalloc(&d_hash_table_keys, num_buckets * sizeof(int)), "cudaMalloc d_hash_table_keys");
     checkCudaError(cudaMalloc(&d_hash_table_values, num_buckets * sizeof(int)), "cudaMalloc d_hash_table_values");
-    checkCudaError(cudaM alloc(&d_results, num_elements * sizeof(int)), "cudaMalloc d_results");
+    checkCudaError(cudaMalloc(&d_results, num_elements * sizeof(int)), "cudaMalloc d_results");
 
     // Initialize hash table keys to -1 (indicating empty)
     checkCudaError(cudaMemset(d_hash_table_keys, -1, num_buckets * sizeof(int)), "cudaMemset d_hash_table_keys");
 
     // Copy data to device
-    // checkCudaError(cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int)), "cudaMemcpy d_keys");
-    cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int));
-    // checkCudaError(cudaMemcpy(d_values, h_values, num_elements * sizeof(int)), "cudaMemcpy d_values");
-    cudaMemcpy(d_values, h_values, num_elements * sizeof(int));
+    checkCudaError(cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int),cudaMemcpyHostToDevice), "cudaMemcpy d_keys");
+    checkCudaError(cudaMemcpy(d_values, h_values, num_elements * sizeof(int),cudaMemcpyHostToDevice), "cudaMemcpy d_values");
 
     // Kernel launch for building hash table
     buildHashTable<<<(num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE, BLOCK_SIZE>>>(d_keys, d_values, d_hash_table_keys, d_hash_table_values, num_elements, num_buckets);
@@ -83,8 +81,7 @@ int main() {
 
     // Copy results back to host 
     int h_results[num_elements];
-    // checkCudaError(cudaMemcpy(h_results, d_results, num_elements * sizeof(int)), "cudaMemcpy h_results");
-    cudaMemcpy(h_results, d_results, num_elements * sizeof(int));
+    checkCudaError(cudaMemcpy(h_results, d_results, num_elements * sizeof(int),cudaMemcpyDeviceToHost), "cudaMemcpy h_results");
 
     // Verify results
     for (int i = 0; i < num_elements; ++i) {
