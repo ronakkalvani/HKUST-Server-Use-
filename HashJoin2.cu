@@ -62,7 +62,7 @@ int main() {
     checkCudaError(cudaMalloc(&d_values, num_elements * sizeof(int)), "cudaMalloc d_values");
     checkCudaError(cudaMalloc(&d_hash_table_keys, num_buckets * sizeof(int)), "cudaMalloc d_hash_table_keys");
     checkCudaError(cudaMalloc(&d_hash_table_values, num_buckets * sizeof(int)), "cudaMalloc d_hash_table_values");
-    checkCudaError(cudaMalloc(&d_results, num_elements * sizeof(int)), "cudaMalloc d_results");
+    checkCudaError(cudaM alloc(&d_results, num_elements * sizeof(int)), "cudaMalloc d_results");
 
     // Initialize hash table keys to -1 (indicating empty)
     checkCudaError(cudaMemset(d_hash_table_keys, -1, num_buckets * sizeof(int)), "cudaMemset d_hash_table_keys");
