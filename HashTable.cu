@@ -45,8 +45,8 @@ void checkCudaError(cudaError_t result, const char *msg) {
 }
 
 int main() {
-    const int num_elements = 7868;
-    const int num_buckets = 10000;
+    const int num_elements = 252648;
+    const int num_buckets = 1000000;
 
     int h_keys[num_elements], h_values[num_elements];
     int *d_keys, *d_values, *d_hash_table_keys, *d_hash_table_values, *d_results;
