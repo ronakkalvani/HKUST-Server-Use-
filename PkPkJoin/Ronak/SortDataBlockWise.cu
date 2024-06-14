@@ -7,8 +7,8 @@
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
-template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
-__global__ void BlockSortKernel(int *d_in, int *d_out)
+template<int BLOCK_THREADS, int ITEMS_PER_THREAD>
+__global__ void BlockSortKernel(int *d_in, int *d_out) 
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
     typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
