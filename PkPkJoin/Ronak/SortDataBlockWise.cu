@@ -57,10 +57,10 @@ int main() {
     // Copy data to device
     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
 
-    int numBlocks = (n + (BLOCK_SIZE * ITEMS_PER_THREAD) - 1) / (BLOCK_SIZE * ITEMS_PER_THREAD);
+    int numBlocks = (n + (BLOCK_THREADS * ITEMS_PER_THREAD) - 1) / (BLOCK_THREADS * ITEMS_PER_THREAD);
 
     // Launch kernel to sort blocks
-    BlockSortKernel<BLOCK_SIZE, ITEMS_PER_THREAD><<<numBlocks, BLOCK_SIZE>>>(d_data, d_sorted_data);
+    BlockSortKernel<BLOCK_THREADS, ITEMS_PER_THREAD><<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
