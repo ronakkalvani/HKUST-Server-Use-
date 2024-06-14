@@ -13,12 +13,9 @@ template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
 __global__ void BlockSortKernel(int *d_in, int *d_out)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
-    typedef cub::BlockLoad<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
-    typedef cub::BlockStore<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
-    typedef cub::BlockRadixSort<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
+    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
+    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockRadixSort<int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
     // Allocate type-safe, repurposable shared memory for collectives
     __shared__ union {
@@ -77,17 +74,3 @@ int main() {
 
     return 0;
 }
-
-
-
-// Data Initialization: We initialize the data on the host and copy it to the device.\
-
-// Kernel Launch: We launch a kernel with a number of blocks that covers the entire dataset. Each block operates on a chunk of the data.
-
-// Shared Memory and Synchronization: Each block loads its chunk of data into shared memory. This local shared memory is used to avoid race conditions.
-
-// Radix Sort: We implement the radix sort within each block, ensuring thread synchronization using __syncthreads().
-
-// Copy Back to Host: After sorting, the data is copied back to the host and printed.
-
-
