@@ -4,6 +4,7 @@
 #include <vector>
 
 #define BLOCK_SIZE 256
+#define ITEMS_PER_THREAD 1
 
 //
 // Block-sorting CUDA kernel
@@ -56,13 +57,13 @@ int main() {
     // Copy data to device
     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
 
-    int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    int numBlocks = (n + (BLOCK_SIZE * ITEMS_PER_THREAD) - 1) / (BLOCK_SIZE * ITEMS_PER_THREAD);
 
     // Launch kernel to sort blocks
-    BlockSortKernel<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, d_sorted_data);
+    BlockSortKernel<BLOCK_SIZE, ITEMS_PER_THREAD><<<numBlocks, BLOCK_SIZE>>>(d_data, d_sorted_data);
 
     // Copy sorted data back to host
-    cudaMemcpy(h_data.data(), d_data, n * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
     // Print sorted blocks
     for (int i = 0; i < h_data.size(); i++) {
@@ -72,9 +73,11 @@ int main() {
 
     // Free device memory
     cudaFree(d_data);
+    cudaFree(d_sorted_data);
 
     return 0;
 }
+
 
 
 // Data Initialization: We initialize the data on the host and copy it to the device.\
