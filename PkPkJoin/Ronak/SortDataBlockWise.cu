@@ -50,6 +50,8 @@ int main() {
     // Allocate device memory
     int* d_data;
     cudaMalloc(&d_data, n * sizeof(int));
+    int* d_sorted_data;
+    cudaMalloc(&d_sorted_data, n * sizeof(int));
 
     // Copy data to device
     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
@@ -57,7 +59,7 @@ int main() {
     int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
     // Launch kernel to sort blocks
-    BlockSortKernel<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, n);
+    BlockSortKernel<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, d_sorted_data);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_data, n * sizeof(int), cudaMemcpyDeviceToHost);
