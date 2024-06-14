@@ -48,7 +48,7 @@ __global__ void BlockSortKernel(int *d_in, int *d_out, int num_elements)
 int main() {
     // Initialize host data
     // std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
-    std::vector<int> h_data(1e5);
+    std::vector<int> h_data(1e7);
     for (int i=0;i<h_data.size();i++) {
         h_data[i]=rand()%37;
     }
