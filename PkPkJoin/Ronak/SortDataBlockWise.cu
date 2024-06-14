@@ -1,77 +1,59 @@
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
+#include <cub/cub.cuh>
 #include <iostream>
-#include <thrust/device_vector.h>
-#include <thrust/host_vector.h>
-#include <thrust/sort.h>
+#include <vector>
 
-#define BLOCK_SIZE 256  // Define the block size
+#define BLOCK_SIZE 256
 
-// Kernel to initialize block with sorted data
-__global__ void radixSortBlocks(int* d_data, int n) {
-    int blockIdx = blockIdx.x;
-    int threadId = threadIdx.x;
-    int blockOffset = blockIdx * BLOCK_SIZE;
-    int offset = blockOffset + threadId;
+// Kernel to sort each block individually using CUB's radix sort
+__global__ void sortBlocks(int* d_data, int n) {
+    int offset = blockIdx.x * BLOCK_SIZE + threadIdx.x;
 
+    // Allocate shared memory for sorting within the block
     extern __shared__ int sharedData[];
 
     // Load data into shared memory
     if (offset < n) {
-        sharedData[threadId] = d_data[offset];
-    } else {
-        sharedData[threadId] = INT_MAX;
+        sharedData[threadIdx.x] = d_data[offset];
+    } 
+    else {
+        sharedData[threadIdx.x] = INT_MAX;
     }
     __syncthreads();
 
-    // Perform radix sort on the data within this block
-    for (int exp = 1; exp <= 1000000; exp *= 10) {
-        int bucket[10] = { 0 };
+    // Sorting within the block using CUB
+    typedef cub::BlockRadixSort<int, BLOCK_SIZE> BlockRadixSort;
+    __shared__ typename BlockRadixSort::TempStorage temp_storage;
 
-        // Count occurrences in shared memory
-        if (sharedData[threadId] != INT_MAX) {
-            atomicAdd(&bucket[(sharedData[threadId] / exp) % 10], 1);
-        }
-        __syncthreads();
+    BlockRadixSort(temp_storage).Sort(sharedData);
 
-        // Prefix sum
-        int prefixSum = 0;
-        for (int i = 0; i <= (sharedData[threadId] / exp) % 10; ++i) {
-            prefixSum += bucket[i];
-        }
-        __syncthreads();
-
-        // Re-arrange data in shared memory
-        if (sharedData[threadId] != INT_MAX) {
-            sharedData[--prefixSum] = d_data[offset];
-        }
-        __syncthreads();
-    }
+    __syncthreads();
 
     // Write sorted data back to global memory
     if (offset < n) {
-        d_data[offset] = sharedData[threadId];
+        d_data[offset] = sharedData[threadIdx.x];
     }
 }
 
 int main() {
     // Initialize host data
-    thrust::host_vector<int> h_data = { 34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78 };
-
+    std::vector<int> h_data = { 34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78 };
     int n = h_data.size();
 
-    // Copy data to device
-    thrust::device_vector<int> d_data = h_data;
+    // Allocate device memory
+    int* d_data;
+    cudaMalloc(&d_data, n * sizeof(int));
 
-    int* raw_d_data = thrust::raw_pointer_cast(d_data.data());
+    // Copy data to device
+    cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
 
     int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
     // Launch kernel to sort blocks
-    radixSortBlocks<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(raw_d_data, n);
+    sortBlocks<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, n);
 
     // Copy sorted data back to host
-    thrust::copy(d_data.begin(), d_data.end(), h_data.begin());
+    cudaMemcpy(h_data.data(), d_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
     // Print sorted blocks
     for (int i = 0; i < h_data.size(); i++) {
@@ -79,8 +61,12 @@ int main() {
     }
     std::cout << std::endl;
 
+    // Free device memory
+    cudaFree(d_data);
+
     return 0;
 }
+
 
 // Data Initialization: We initialize the data on the host and copy it to the device.\
 
