@@ -1,71 +1,84 @@
-#include <stdio.h>
-#include <cuda.h>
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <iostream>
+#include <thrust/device_vector.h>
+#include <thrust/host_vector.h>
+#include <thrust/sort.h>
 
-#define N 1024 // Total number of elements in the dataset
-#define BLOCK_SIZE 256 // Number of elements in each block
+#define BLOCK_SIZE 256  // Define the block size
 
-// CUDA kernel to sort a block of data
-__global__ void sort_block(int *data, int blockSize) {
-    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+// Kernel to initialize block with sorted data
+__global__ void radixSortBlocks(int* d_data, int n) {
+    int blockIdx = blockIdx.x;
+    int threadId = threadIdx.x;
+    int blockOffset = blockIdx * BLOCK_SIZE;
+    int offset = blockOffset + threadId;
 
-    // Each thread handles sorting within a block
-    for (int i = 0; i < blockSize; i++) {
-        for (int j = 0; j < blockSize - 1; j++) {
-            int k = idx * blockSize + j;
-            if (data[k] > data[k + 1]) {
-                // Swap elements
-                int temp = data[k];
-                data[k] = data[k + 1];
-                data[k + 1] = temp;
-            }
+    extern __shared__ int sharedData[];
+
+    // Load data into shared memory
+    if (offset < n) {
+        sharedData[threadId] = d_data[offset];
+    } else {
+        sharedData[threadId] = INT_MAX;
+    }
+    __syncthreads();
+
+    // Perform radix sort on the data within this block
+    for (int exp = 1; exp <= 1000000; exp *= 10) {
+        int bucket[10] = { 0 };
+
+        // Count occurrences in shared memory
+        if (sharedData[threadId] != INT_MAX) {
+            atomicAdd(&bucket[(sharedData[threadId] / exp) % 10], 1);
         }
-    }
-}
+        __syncthreads();
 
-// Helper function to print the dataset
-void print_data(int *data, int size) {
-    for (int i = 0; i < size; i++) {
-        printf("%d ", data[i]);
+        // Prefix sum
+        int prefixSum = 0;
+        for (int i = 0; i <= (sharedData[threadId] / exp) % 10; ++i) {
+            prefixSum += bucket[i];
+        }
+        __syncthreads();
+
+        // Re-arrange data in shared memory
+        if (sharedData[threadId] != INT_MAX) {
+            sharedData[--prefixSum] = d_data[offset];
+        }
+        __syncthreads();
     }
-    printf("\n");
+
+    // Write sorted data back to global memory
+    if (offset < n) {
+        d_data[offset] = sharedData[threadId];
+    }
 }
 
 int main() {
-    int *h_data;
-    int *d_data;
-    size_t size = N * sizeof(int);
+    // Initialize host data
+    thrust::host_vector<int> h_data = { 34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78 };
 
-    // Allocate memory on the host
-    h_data = (int *)malloc(size);
+    int n = h_data.size();
 
-    // Initialize the dataset with random values
-    for (int i = 0; i < N; i++) {
-        h_data[i] = rand() % 100;
+    // Copy data to device
+    thrust::device_vector<int> d_data = h_data;
+
+    int* raw_d_data = thrust::raw_pointer_cast(d_data.data());
+
+    int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+
+    // Launch kernel to sort blocks
+    radixSortBlocks<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(raw_d_data, n);
+
+    // Copy sorted data back to host
+    thrust::copy(d_data.begin(), d_data.end(), h_data.begin());
+
+    // Print sorted blocks
+    for (int i = 0; i < h_data.size(); i++) {
+        std::cout << h_data[i] << " ";
     }
-
-    printf("Original Data:\n");
-    print_data(h_data, N);
-
-    // Allocate memory on the device
-    cudaMalloc((void **)&d_data, size);
-
-    // Copy the dataset from the host to the device
-    cudaMemcpy(d_data, h_data, size, cudaMemcpyHostToDevice);
-
-    // Launch the kernel to sort each block
-    sort_block<<<N / BLOCK_SIZE, BLOCK_SIZE>>>(d_data, BLOCK_SIZE);
-
-    // Copy the sorted dataset from the device back to the host
-    cudaMemcpy(h_data, d_data, size, cudaMemcpyDeviceToHost);
-
-    printf("Sorted Data (block-wise):\n");
-    print_data(h_data, N);
-
-    // Free the device memory
-    cudaFree(d_data);
-
-    // Free the host memory
-    free(h_data);
+    std::cout << std::endl;
 
     return 0;
 }
+
