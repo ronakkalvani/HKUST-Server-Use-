@@ -6,43 +6,40 @@
 #define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 
-//
 // Block-sorting CUDA kernel
-//
-
-// template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
 __global__ void BlockSortKernel(int *d_in, int *d_out, int num_elements)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
-    typedef cub::BlockLoad<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
-    typedef cub::BlockStore<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
-    typedef cub::BlockRadixSort<
-      int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
+    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
+    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockRadixSort<int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
     // Allocate type-safe, repurposable shared memory for collectives
     __shared__ union {
-        typename BlockLoadT::TempStorage       load;
-        typename BlockStoreT::TempStorage      store;
-        typename BlockRadixSortT::TempStorage  sort;
+        typename BlockLoadT::TempStorage load;
+        typename BlockStoreT::TempStorage store;
+        typename BlockRadixSortT::TempStorage sort;
     } temp_storage;
 
     // Obtain this block's segment of consecutive keys (blocked across threads)
     int thread_keys[ITEMS_PER_THREAD];
     int block_offset = blockIdx.x * (BLOCK_THREADS * ITEMS_PER_THREAD);
-    int valid_items = num_elements - block_offset > BLOCK_THREADS * ITEMS_PER_THREAD ?
-                      BLOCK_THREADS * ITEMS_PER_THREAD : num_elements - block_offset;
+    int valid_items = num_elements - block_offset > BLOCK_THREADS * ITEMS_PER_THREAD ? BLOCK_THREADS * ITEMS_PER_THREAD : num_elements - block_offset;
+
+    // Initialize thread_keys with a known value for safer debugging
+    for (int i = 0; i < ITEMS_PER_THREAD; i++) {
+        thread_keys[i] = (block_offset + threadIdx.x * ITEMS_PER_THREAD + i) < num_elements ? d_in[block_offset + threadIdx.x * ITEMS_PER_THREAD + i] : INT_MAX;
+    }
 
     // Load data
     BlockLoadT(temp_storage.load).Load(d_in + block_offset, thread_keys, valid_items);
 
-    __syncthreads();        // Barrier for smem reuse
+    __syncthreads(); // Barrier for smem reuse
 
     // Collectively sort the keys
     BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
 
-    __syncthreads();        // Barrier for smem reuse
+    __syncthreads(); // Barrier for smem reuse
 
     // Store the sorted segment
     BlockStoreT(temp_storage.store).Store(d_out + block_offset, thread_keys, valid_items);
@@ -50,7 +47,7 @@ __global__ void BlockSortKernel(int *d_in, int *d_out, int num_elements)
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data = { 34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78 };
+    std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
     int n = h_data.size();
 
     // Allocate device memory
@@ -82,6 +79,7 @@ int main() {
 
     return 0;
 }
+
 
 // #include <cuda_runtime.h>
 // #include <cub/cub.cuh>
