@@ -9,7 +9,7 @@
 //
 // Block-sorting CUDA kernel
 //
-template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
+template<int BLOCK_THREADS, int ITEMS_PER_THREAD>
 __global__ void BlockSortKernel(int *d_in, int *d_out)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
