@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 256
+#define BLOCK_THREADS 8
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
@@ -48,9 +48,9 @@ __global__ void BlockSortKernel(int *d_in, int *d_out, int num_elements)
 int main() {
     // Initialize host data
     // std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
-    std::vector<int> h_data(1e8);
+    std::vector<int> h_data(786);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand()%111;
+        h_data[i]=rand()%37;
     }
     int n = h_data.size();
 
@@ -72,10 +72,10 @@ int main() {
     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
     // Print sorted blocks
-    // for (int i = 0; i < h_data.size(); i++) {
-    //     std::cout << h_data[i] << " ";
-    // }
-    // std::cout << std::endl;
+    for (int i = 0; i < h_data.size(); i++) {
+        std::cout << h_data[i] << " ";
+    }
+    std::cout << std::endl;
 
     // Free device memory
     cudaFree(d_data);
