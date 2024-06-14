@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_SIZE 256
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 
 //
