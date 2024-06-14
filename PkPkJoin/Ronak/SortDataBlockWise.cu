@@ -5,34 +5,41 @@
 
 #define BLOCK_SIZE 256
 
-// Kernel to sort each block individually using CUB's radix sort
-__global__ void sortBlocks(int* d_data, int n) {
-    int offset = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+//
+// Block-sorting CUDA kernel
+//
+template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
+__global__ void BlockSortKernel(int *d_in, int *d_out)
+{
+    // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
+    typedef cub::BlockLoad<
+      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
+    typedef cub::BlockStore<
+      int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockRadixSort<
+      int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
-    // Allocate shared memory for sorting within the block
-    extern __shared__ int sharedData[];
+    // Allocate type-safe, repurposable shared memory for collectives
+    __shared__ union {
+        typename BlockLoadT::TempStorage       load;
+        typename BlockStoreT::TempStorage      store;
+        typename BlockRadixSortT::TempStorage  sort;
+    } temp_storage;
 
-    // Load data into shared memory
-    if (offset < n) {
-        sharedData[threadIdx.x] = d_data[offset];
-    } 
-    else {
-        sharedData[threadIdx.x] = INT_MAX;
-    }
-    __syncthreads();
+    // Obtain this block's segment of consecutive keys (blocked across threads)
+    int thread_keys[ITEMS_PER_THREAD];
+    int block_offset = blockIdx.x * (BLOCK_THREADS * ITEMS_PER_THREAD);
+    BlockLoadT(temp_storage.load).Load(d_in + block_offset, thread_keys);
 
-    // Sorting within the block using CUB
-    typedef cub::BlockRadixSort<int, BLOCK_SIZE> BlockRadixSort;
-    __shared__ typename BlockRadixSort::TempStorage temp_storage;
+    __syncthreads();        // Barrier for smem reuse
 
-    BlockRadixSort(temp_storage).Sort(sharedData);
+    // Collectively sort the keys
+    BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
 
-    __syncthreads();
+    __syncthreads();        // Barrier for smem reuse
 
-    // Write sorted data back to global memory
-    if (offset < n) {
-        d_data[offset] = sharedData[threadIdx.x];
-    }
+    // Store the sorted segment
+    BlockStoreT(temp_storage.store).Store(d_out + block_offset, thread_keys);
 }
 
 int main() {
