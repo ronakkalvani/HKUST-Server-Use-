@@ -9,7 +9,7 @@
 //
 // Block-sorting CUDA kernel
 //
-template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
+// template <int BLOCK_THREADS, int ITEMS_PER_THREAD>
 __global__ void BlockSortKernel(int *d_in, int *d_out)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
@@ -60,7 +60,7 @@ int main() {
     int numBlocks = (n + (BLOCK_THREADS * ITEMS_PER_THREAD) - 1) / (BLOCK_THREADS * ITEMS_PER_THREAD);
 
     // Launch kernel to sort blocks
-    BlockSortKernel<BLOCK_THREADS, ITEMS_PER_THREAD><<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data);
+    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
