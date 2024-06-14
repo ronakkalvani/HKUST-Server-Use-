@@ -57,7 +57,7 @@ int main() {
     int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
     // Launch kernel to sort blocks
-    sortBlocks<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, n);
+    BlockSortKernel<<<numBlocks, BLOCK_SIZE, BLOCK_SIZE * sizeof(int)>>>(d_data, n);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_data, n * sizeof(int), cudaMemcpyDeviceToHost);
