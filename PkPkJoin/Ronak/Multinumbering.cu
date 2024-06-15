@@ -15,7 +15,7 @@ __global__ void multi_numbering_kernel(int *keys, int *multi_numbers, int num_el
 
     if (idx < num_elements) {
         // Determine if current element is the first of its key
-        int is_first = (idx == 0 || keys[idx] != keys[idx - 1]) ? 1 : 0;
+        int is_first = (idx == 0 || keys[idx] != keys[idx - 1]);
 
         // Compute prefix sum within block
         int block_prefix_sum;
@@ -30,7 +30,7 @@ __global__ void multi_numbering_kernel(int *keys, int *multi_numbers, int num_el
         __syncthreads();
 
         // Compute multi-numbering index
-        multi_numbers[idx] = prefix_sum[blockIdx.x] + is_first;
+        multi_numbers[idx] = prefix_sum[blockIdx.x] + (is_first ? 1 : 0);
     }
 }
 
