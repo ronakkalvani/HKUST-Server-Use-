@@ -1,90 +1,78 @@
+#include <cuda.h>
 #include <cuda_runtime.h>
-#include <cub/cub.cuh>
-#include <iostream>
+#include <cub/cub.hpp>
 
-__global__ void multi_numbering_kernel(int *keys, int *multi_numbers, int num_elements) {
-    // Allocate shared memory for CUB prefix sum
-    __shared__ int prefix_sum[1024]; // Assuming a block size of 1024
+#define BLOCK_SIZE 256 // Adjust block size based on GPU architecture and data size
 
-    // Define CUB types
-    typedef cub::BlockScan<int, 1024> BlockScan;
-    __shared__ typename BlockScan::TempStorage temp_storage;
+struct Element {
+    int data;
+    int block_id;  // Block ID for scatter operation
+};
 
-    // Compute thread index
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+int main(int argc, char* argv[]) {
+    // Error handling and initialization omitted for brevity
+    // ...
 
-    if (idx < num_elements) {
-        // Determine if current element is the first of its key
-        int is_first = (idx == 0 || keys[idx] != keys[idx - 1]);
+    // Host memory allocation for data
+    int* data_host = new int[data_size];  // Replace with your actual data
 
-        // Compute prefix sum within block
-        int block_prefix_sum;
-        BlockScan(temp_storage).ExclusiveSum(is_first, block_prefix_sum);
+    // Upload data to device memory
+    int* data_device;
+    cudaMalloc(&data_device, data_size * sizeof(int));
+    cudaMemcpy(data_device, data_host, data_size * sizeof(int), cudaMemcpyHostToDevice);
 
-        // Compute global index with prefix sum
-        int global_prefix_sum;
-        if (threadIdx.x == 0) {
-            global_prefix_sum = block_prefix_sum;
-            prefix_sum[blockIdx.x] = global_prefix_sum;
-        }
-        __syncthreads();
+    // Allocate memory for temporary data on device memory (used by CUB)
+    int* temp_data_device;
+    cudaMalloc(&temp_data_device, data_size * sizeof(int));
 
-        // Compute multi-numbering index
-        multi_numbers[idx] = prefix_sum[blockIdx.x] + (is_first ? 1 : 0);
-    }
-}
+    // Allocate memory for element structure on device memory
+    Element* element_data_device;
+    cudaMalloc(&element_data_device, data_size * sizeof(Element));
 
-void multi_numbering_cuda(int *h_keys, int *h_multi_numbers, int num_elements) {
-    int *d_keys, *d_multi_numbers;
+    // Prefetch data to improve memory access patterns (optional)
+    cudaMemPrefetchAsync(data_device, data_size * sizeof(int), cudaMemPrefetchDevice);
 
-    // Allocate device memory
-    cudaMalloc((void **)&d_keys, num_elements * sizeof(int));
-    cudaMalloc((void **)&d_multi_numbers, num_elements * sizeof(int));
+    // Launch CUB radix sort kernel (replace with your preferred CUB sorting algorithm)
+    int threadsPerBlock = cub::RadixSort::におすすめスレッド数(data_size); // Recommended threads per block
+    int blocksPerGrid = cub::ceilDiv(data_size, threadsPerBlock);
+    cub::RadixSort:: ソート(data_device, temp_data_device, data_size, threadsPerBlock, blocksPerGrid);
+    cudaErrorCheck();  // Check for errors after kernel launch
 
-    // Copy input data from host to device
-    cudaMemcpy(d_keys, h_keys, num_elements * sizeof(int), cudaMemcpyHostToDevice);
-
-    // Determine block size and launch the kernel
-    int block_size = 1024; // Assuming a block size of 1024
-    int num_blocks = (num_elements + block_size - 1) / block_size;
-    multi_numbering_kernel<<<num_blocks, block_size>>>(d_keys, d_multi_numbers, num_elements);
-
-    // Check for kernel launch errors
-    cudaError_t err = cudaGetLastError();
-    if (err != cudaSuccess) {
-        fprintf(stderr, "Failed to launch kernel (error code %s)!\n", cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
+    // Prepare element data with block IDs for scatter
+    for (int i = 0; i < data_size; ++i) {
+        element_data_device[i].data = data_device[i];
+        element_data_device[i].block_id = i / BLOCK_SIZE;
     }
 
-    // Copy the result back to host
-    cudaMemcpy(h_multi_numbers, d_multi_numbers, num_elements * sizeof(int), cudaMemcpyDeviceToHost);
+    // Perform parallel prefix sum (scan) using CUB's device algorithm
+    // to calculate global indices for scattering
+    int* global_indices_device;
+    cudaMalloc(&global_indices_device, data_size * sizeof(int));
+    cub::DeviceRadixScan::ExclusiveScan((int*)element_data_device, global_indices_device, data_size, threadsPerBlock, blocksPerGrid);
+    cudaErrorCheck();
+
+    // Allocate final sorted data array on device memory
+    int* sorted_data_device = new int[data_size];
+
+    // CUB scatter operation to place data in final sorted positions based on global indices
+    cub::Scatter:: ソート((int*)element_data_device, data_device, sorted_data_device, global_indices_device, data_size, threadsPerBlock, blocksPerGrid);
+    cudaErrorCheck();
+
+    // Download sorted data from device memory
+    int* sorted_data_host = new int[data_size];
+    cudaMemcpy(sorted_data_host, sorted_data_device, data_size * sizeof(int), cudaMemcpyDeviceToHost);
 
     // Free device memory
-    cudaFree(d_keys);
-    cudaFree(d_multi_numbers);
-}
+    cudaFree(data_device);
+    cudaFree(temp_data_device);
+    cudaFree(element_data_device);
+    cudaFree(global_indices_device);
+    delete[] sorted_data_device;
 
-int main() {
-    // Example input data
-    int h_keys[] = {1, 2, 1, 3, 2, 1};
-    int num_elements = sizeof(h_keys) / sizeof(int);
-    int h_multi_numbers[num_elements];
+    // ... (further processing of sorted data on host)
 
-    // Call CUDA function to compute multi-numbering indices
-    multi_numbering_cuda(h_keys, h_multi_numbers, num_elements);
-
-    // Print results
-    std::cout << "Original keys: ";
-    for (int i = 0; i < num_elements; ++i) {
-        std::cout << h_keys[i] << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Multi-numbering indices: ";
-    for (int i = 0; i < num_elements; ++i) {
-        std::cout << h_multi_numbers[i] << " ";
-    }
-    std::cout << std::endl;
+    delete[] data_host;
+    delete[] sorted_data_host;
 
     return 0;
 }
