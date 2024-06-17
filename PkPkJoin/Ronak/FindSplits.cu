@@ -25,10 +25,11 @@ __global__ void sampleElements(int* d_sorted_subarrays, int* d_samples, int n, i
 
 int main() {
     // Example data
-    int n = 1024;
+    const int n = 1024;
     int p = 4;
     int sample_size = n/p; // Adjust sample size as needed
     // int h_sorted_subarrays[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
+    int h_sorted_subarrays[n];
     for (int i=0;i<n;i++) {
         h_sorted_subarrays[i] = rand()%n;
     }
