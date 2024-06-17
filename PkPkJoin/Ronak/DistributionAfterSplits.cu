@@ -118,13 +118,13 @@ int main() {
 
     const int n = 1024;
     int p = 32;
-    int h_subarrays[N];
+    int h_subarrays[n];
     int h_pivots[p-1];
-    for (int i=0;i<N;i++) {
-        h_subarrays[i] = i*(N/p) % N;
+    for (int i=0;i<n;i++) {
+        h_subarrays[i] = i*(n/p) % n;
     }
     for (int i=0;i<p-1;i++) {
-        h_pivots[i] = (i+1)*(N/p);
+        h_pivots[i] = (i+1)*(n/p);
     }
 
     // Device pointers
