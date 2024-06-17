@@ -30,15 +30,6 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
-    // Copy sorted data back to host
-    cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
-
-    // Print sorted blocks
-    for (int i = 0; i < h_data.size(); i++) {
-        std::cout << h_data[i] << " ";
-    }
-    std::cout << std::endl;
-
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
