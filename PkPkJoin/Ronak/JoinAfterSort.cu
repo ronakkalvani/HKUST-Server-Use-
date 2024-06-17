@@ -16,26 +16,25 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
         // Check if current element is equal to the next element
         if (keys[tid] == keys[tid + 1])
         {
-            // Perform join operation 
-            results[tid][0] = values1[tid];
-            results[tid][1] = values1[tid];
-            results[tid][2] = 0;
+            // Perform join operation (simplified for demonstration)
+            results[tid] = values1[tid] + values2[tid]; // Adjust operation as needed
         }
         else
         {
-            results[tid][2] = 1; // Placeholder for non-joined cases
+            results[tid] = 0; // Placeholder for non-joined cases
         }
     }
 }
 
 int main()
 {
+    // Example data setup (replace with your actual data)
     const int numElements = 10; // Example number of elements
     const int blockSize = 256;
     const int numBlocks = (numElements + blockSize - 1) / blockSize;
 
     // Example sorted data (keys and values)
-    KeyType keys[numElements]      = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
+    KeyType keys[numElements] = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
     ValueType values1[numElements] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
     ValueType values2[numElements] = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110};
 
@@ -59,16 +58,16 @@ int main()
     hashJoinKernel<<<numBlocks, blockSize>>>(d_keys, d_values1, d_values2, d_results, numElements);
 
     // Copy results back to host
-    ValueType results[numElements][3];
+    ValueType results[numElements];
     cudaMemcpy(results, d_results, numElements * sizeof(ValueType), cudaMemcpyDeviceToHost);
 
     // Print results (adjust as needed)
     std::cout << "Results:" << std::endl;
     for (int i = 0; i < numElements; ++i)
     {
-        if (results[i][2] != 1)
+        if (results[i] != 0)
         {
-            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i][0] <<" "<< results[i][1] << std::endl;
+            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i] << std::endl;
         }
     }
 
