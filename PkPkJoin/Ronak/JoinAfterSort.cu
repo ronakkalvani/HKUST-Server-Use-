@@ -16,12 +16,14 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
         // Check if current element is equal to the next element
         if (keys[tid] == keys[tid + 1])
         {
-            // Perform join operation (simplified for demonstration)
-            results[tid] = values1[tid] + values2[tid]; // Adjust operation as needed
+            // Perform join operation 
+            results[tid][0] = 1;
+            results[tid][1] = values1[tid];
+            results[tid][2] = values2[tid]; 
         }
         else
         {
-            results[tid] = 0; // Placeholder for non-joined cases
+            results[tid][0] = 0; // Placeholder for non-joined cases
         }
     }
 }
@@ -58,16 +60,16 @@ int main()
     hashJoinKernel<<<numBlocks, blockSize>>>(d_keys, d_values1, d_values2, d_results, numElements);
 
     // Copy results back to host
-    ValueType results[numElements];
-    cudaMemcpy(results, d_results, numElements * sizeof(ValueType), cudaMemcpyDeviceToHost);
+    ValueType results[numElements][3];
+    cudaMemcpy(results, d_results, numElements * 3 * sizeof(ValueType), cudaMemcpyDeviceToHost);
 
     // Print results (adjust as needed)
     std::cout << "Results:" << std::endl;
     for (int i = 0; i < numElements; ++i)
     {
-        if (results[i] != 0)
+        if (results[i][0] != 0)
         {
-            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i] << std::endl;
+            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i][1] << " " << results[i][2] << std::endl;
         }
     }
 
