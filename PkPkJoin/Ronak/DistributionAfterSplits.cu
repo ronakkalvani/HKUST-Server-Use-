@@ -36,17 +36,41 @@ int main() {
     const int block_size = 256;  // Size of each sorted block
     const int total_size = num_blocks * block_size;
 
+    // Initialize example sorted data
+    int sorted_data[total_size];
+    for (int i = 0; i < total_size; ++i) {
+        sorted_data[i] = i;
+    }
+
+    // Example block offsets (starting index of each block in sorted_data)
+    int block_offsets[num_blocks];
+    for (int i = 0; i < num_blocks; ++i) {
+        block_offsets[i] = i * block_size;
+    }
+
+    // Example global splitters (p-1 values that partition the data)
+    int global_splitters[num_blocks - 1];
+    for (int i = 0; i < num_blocks - 1; ++i) {
+        global_splitters[i] = (i + 1) * (block_size - 1);  // Just an example, should be adjusted based on your actual data
+    }
+
+    // Print initial sorted data (example)
+    std::cout << "Initial Sorted Data:" << std::endl;
+    for (int i = 0; i < total_size; ++i) {
+        std::cout << sorted_data[i] << " ";
+    }
+    std::cout << std::endl;
+
     // Initialize CUDA variables
     int* d_sorted_data;
     int* d_block_offsets;
     int* d_global_splitters;
-    
+
     // Allocate memory on device
     cudaMalloc((void**)&d_sorted_data, total_size * sizeof(int));
     cudaMalloc((void**)&d_block_offsets, num_blocks * sizeof(int));
     cudaMalloc((void**)&d_global_splitters, (num_blocks - 1) * sizeof(int));
-    
-    // Assume sorted_data, block_offsets, and global_splitters are initialized properly
+
     // Copy data to device memory
     cudaMemcpy(d_sorted_data, sorted_data, total_size * sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_block_offsets, block_offsets, num_blocks * sizeof(int), cudaMemcpyHostToDevice);
@@ -60,8 +84,8 @@ int main() {
     // Copy sorted data back to host
     cudaMemcpy(sorted_data, d_sorted_data, total_size * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // Print sorted data (example)
-    std::cout << "Sorted Data: ";
+    // Print sorted data (after merging)
+    std::cout << "Sorted Data:" << std::endl;
     for (int i = 0; i < total_size; ++i) {
         std::cout << sorted_data[i] << " ";
     }
