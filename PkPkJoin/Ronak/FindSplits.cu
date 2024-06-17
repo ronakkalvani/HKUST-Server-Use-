@@ -23,8 +23,14 @@ __global__ void sampleElements(int* d_sorted_subarrays, int* d_samples, int n, i
     }
 }
 
-// Function to find splitters using sampling
-void findSplitters(int* h_sorted_subarrays, int* h_splitters, int n, int p, int sample_size) {
+int main() {
+    // Example data
+    int h_sorted_subarrays[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
+    int n = 16;
+    int p = 4;
+    int sample_size = 8; // Adjust sample size as needed
+    int h_splitters[p - 1];
+
     // Device pointers
     int *d_sorted_subarrays, *d_samples, *d_splitters;
     
@@ -72,17 +78,6 @@ void findSplitters(int* h_sorted_subarrays, int* h_splitters, int n, int p, int 
     CUDA_CHECK(cudaFree(d_splitters));
     
     delete[] h_samples;
-}
-
-int main() {
-    // Example data
-    int h_sorted_subarrays[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
-    int n = 16;
-    int p = 4;
-    int sample_size = 8; // Adjust sample size as needed
-    int h_splitters[p - 1];
-
-    findSplitters(h_sorted_subarrays, h_splitters, n, p, sample_size);
     
     // Print splitters
     for (int i = 0; i < p - 1; ++i) {
