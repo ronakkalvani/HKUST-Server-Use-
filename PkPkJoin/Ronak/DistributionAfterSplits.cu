@@ -23,21 +23,67 @@ __global__ void printArray(int* arr, int size) {
     printf("\n");
 }
 
-__global__ void mergePartitions(int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, int n, int p) {
+__global__ void mergePartitions(
+    int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, 
+    int* d_partition_counts, int n, int p) 
+{
     // Calculate global thread ID
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
+    // Step 1: Determine the partition for each element
     if (tid < n) {
-        // Determine which partition the element belongs to
         int partition = 0;
         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
             partition++;
         }
-        // Compute the global position of the element in the output array
-        atomicAdd(&d_partitions[partition], 1);
-        d_output[atomicAdd(&d_partitions[partition], 1)] = d_subarrays[tid];
+
+        // Step 2: Count the number of elements in each partition
+        atomicAdd(&d_partition_counts[partition], 1);
+    }
+
+    // Synchronize threads to ensure all counts are computed
+    __syncthreads();
+
+    // Step 3: Compute the starting index for each partition
+    if (tid == 0) {
+        int sum = 0;
+        for (int i = 0; i < p; ++i) {
+            int temp = d_partition_counts[i];
+            d_partition_counts[i] = sum;
+            sum += temp;
+        }
+    }
+
+    // Synchronize threads to ensure starting indices are computed
+    __syncthreads();
+
+    // Step 4: Distribute elements to the output array
+    if (tid < n) {
+        int partition = 0;
+        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+            partition++;
+        }
+        int pos = atomicAdd(&d_partition_counts[partition], 1);
+        d_output[pos] = d_subarrays[tid];
     }
 }
+
+
+// __global__ void mergePartitions(int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, int n, int p) {
+//     // Calculate global thread ID
+//     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+//     if (tid < n) {
+//         // Determine which partition the element belongs to
+//         int partition = 0;
+//         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+//             partition++;
+//         }
+//         // Compute the global position of the element in the output array
+//         atomicAdd(&d_partitions[partition], 1);
+//         d_output[atomicAdd(&d_partitions[partition], 1)] = d_subarrays[tid];
+//     }
+// }
 
 void merge(int* h_subarrays, int* h_pivots, int n, int p) {
     // Device pointers
