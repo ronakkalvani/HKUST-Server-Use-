@@ -17,11 +17,13 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
         if (keys[tid] == keys[tid + 1])
         {
             // Perform join operation 
-            results[tid] = values1[tid] + values2[tid]; 
+            results[tid][0] = values1[tid];
+            results[tid][1] = values1[tid];
+            results[tid][2] = 0;
         }
         else
         {
-            results[tid] = 0; // Placeholder for non-joined cases
+            results[tid][2] = 1; // Placeholder for non-joined cases
         }
     }
 }
@@ -57,16 +59,16 @@ int main()
     hashJoinKernel<<<numBlocks, blockSize>>>(d_keys, d_values1, d_values2, d_results, numElements);
 
     // Copy results back to host
-    ValueType results[numElements];
+    ValueType results[numElements][3];
     cudaMemcpy(results, d_results, numElements * sizeof(ValueType), cudaMemcpyDeviceToHost);
 
     // Print results (adjust as needed)
     std::cout << "Results:" << std::endl;
     for (int i = 0; i < numElements; ++i)
     {
-        if (results[i] != 0)
+        if (results[i][2] != 1)
         {
-            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i] << std::endl;
+            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i][0] <<" "<< results[i][1] << std::endl;
         }
     }
 
