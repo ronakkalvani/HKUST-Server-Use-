@@ -33,7 +33,7 @@ int main()
     const int numBlocks = (numElements + blockSize - 1) / blockSize;
 
     // Example sorted data (keys and values)
-    KeyType keys[numElements] = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
+    KeyType keys[numElements]      = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
     ValueType values1[numElements] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
     ValueType values2[numElements] = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110};
 
