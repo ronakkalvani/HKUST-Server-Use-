@@ -39,7 +39,7 @@ int main() {
     // Initialize example sorted data
     int sorted_data[total_size];
     for (int i = 0; i < total_size; ++i) {
-        sorted_data[i] = i;
+        sorted_data[i] = rand()%total_size;
     }
 
     // Example block offsets (starting index of each block in sorted_data)
