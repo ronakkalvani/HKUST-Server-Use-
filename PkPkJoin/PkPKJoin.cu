@@ -36,7 +36,7 @@ int main() {
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
 
-    FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks);
+    FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
 
     // Select splitters
     int* h_samples = new int[sample_size];
