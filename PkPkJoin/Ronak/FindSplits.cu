@@ -1,0 +1,93 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cuda_runtime.h>
+#include <cub/cub.cuh>
+
+// Error checking macro
+#define CUDA_CHECK(call)                                                   \
+    do {                                                                   \
+        cudaError_t error = call;                                          \
+        if (error != cudaSuccess) {                                        \
+            std::cerr << "CUDA Error: " << cudaGetErrorString(error) <<    \
+            " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
+            exit(1);                                                       \
+        }                                                                  \
+    } while (0)
+
+// Kernel to sample elements
+__global__ void sampleElements(int* d_sorted_subarrays, int* d_samples, int n, int sample_size, int stride) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < sample_size) {
+        d_samples[tid] = d_sorted_subarrays[tid * stride];
+    }
+}
+
+// Function to find splitters using sampling
+void findSplitters(int* h_sorted_subarrays, int* h_splitters, int n, int p, int sample_size) {
+    // Device pointers
+    int *d_sorted_subarrays, *d_samples, *d_splitters;
+    
+    // Allocate device memory
+    CUDA_CHECK(cudaMalloc(&d_sorted_subarrays, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_samples, sample_size * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_splitters, (p - 1) * sizeof(int)));
+    
+    // Copy data to device
+    CUDA_CHECK(cudaMemcpy(d_sorted_subarrays, h_sorted_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
+    
+    // Launch kernel to sample elements
+    int blockSize = 256;
+    int numBlocks = (sample_size + blockSize - 1) / blockSize;
+    int stride = n / sample_size;
+    sampleElements<<<numBlocks, blockSize>>>(d_sorted_subarrays, d_samples, n, sample_size, stride);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // Sort samples using CUB
+    void* d_temp_storage = nullptr;
+    size_t temp_storage_bytes = 0;
+    
+    // Determine temporary device storage requirements
+    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_samples, d_samples, sample_size);
+    CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    
+    // Run sorting operation
+    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_samples, d_samples, sample_size);
+    
+    // Free temporary storage
+    CUDA_CHECK(cudaFree(d_temp_storage));
+    
+    // Select splitters
+    int* h_samples = new int[sample_size];
+    CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
+    
+    for (int i = 0; i < p - 1; ++i) {
+        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
+    }
+    
+    // Free device memory
+    CUDA_CHECK(cudaFree(d_sorted_subarrays));
+    CUDA_CHECK(cudaFree(d_samples));
+    CUDA_CHECK(cudaFree(d_splitters));
+    
+    delete[] h_samples;
+}
+
+int main() {
+    // Example data
+    int h_sorted_subarrays[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
+    int n = 16;
+    int p = 4;
+    int sample_size = 8; // Adjust sample size as needed
+    int h_splitters[p - 1];
+
+    findSplitters(h_sorted_subarrays, h_splitters, n, p, sample_size);
+    
+    // Print splitters
+    for (int i = 0; i < p - 1; ++i) {
+        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
+    }
+
+    return 0;
+}
