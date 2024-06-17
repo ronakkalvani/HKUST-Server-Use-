@@ -4,8 +4,8 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 
@@ -30,9 +30,33 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
+    int *d_samples, *d_splitters;
+    cudaMalloc(&d_samples, sample_size * sizeof(int));
+    cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
+
+    FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks);
+
+    // Select splitters
+    int* h_samples = new int[sample_size];
+    CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
+    
+    for (int i = 0; i < p - 1; ++i) {
+        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
+    }
+    
+    delete[] h_samples;
+    
+    // Print splitters
+    for (int i = 0; i < p - 1; ++i) {
+        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
+    }
+
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
+    cudaFree(d_sorted_subarrays);
+    cudaFree(d_samples);
+    cudaFree(d_splitters);
 
     return 0;
 }
