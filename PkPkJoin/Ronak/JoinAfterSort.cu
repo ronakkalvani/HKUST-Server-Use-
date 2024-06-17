@@ -28,7 +28,6 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
 
 int main()
 {
-    // Example data setup (replace with your actual data)
     const int numElements = 10; // Example number of elements
     const int blockSize = 256;
     const int numBlocks = (numElements + blockSize - 1) / blockSize;
