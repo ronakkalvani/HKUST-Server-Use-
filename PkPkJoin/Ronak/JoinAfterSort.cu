@@ -1,5 +1,4 @@
 #include <cuda_runtime.h>
-#include <cub/cub.cuh>
 #include <iostream>
 
 // Define your data types as needed
@@ -17,13 +16,15 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
         if (keys[tid] == keys[tid + 1])
         {
             // Perform join operation 
-            results[tid][0] = 1;
-            results[tid][1] = values1[tid];
-            results[tid][2] = values2[tid]; 
+            int index = tid * 3; // Calculate flattened index
+            results[index] = 1; // Indicator for join
+            results[index + 1] = values1[tid]; // Value from values1
+            results[index + 2] = values2[tid]; // Value from values2
         }
         else
         {
-            results[tid][0] = 0; // Placeholder for non-joined cases
+            int index = tid * 3;
+            results[index] = 0; // Placeholder for non-joined cases
         }
     }
 }
@@ -49,7 +50,7 @@ int main()
     cudaMalloc((void**)&d_keys, numElements * sizeof(KeyType));
     cudaMalloc((void**)&d_values1, numElements * sizeof(ValueType));
     cudaMalloc((void**)&d_values2, numElements * sizeof(ValueType));
-    cudaMalloc((void**)&d_results, numElements * sizeof(ValueType));
+    cudaMalloc((void**)&d_results, numElements * 3 * sizeof(ValueType)); // Allocate enough space for results
 
     // Copy data to device
     cudaMemcpy(d_keys, keys, numElements * sizeof(KeyType), cudaMemcpyHostToDevice);
