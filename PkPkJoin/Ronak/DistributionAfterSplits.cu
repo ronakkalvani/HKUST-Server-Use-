@@ -70,8 +70,8 @@ __global__ void mergePartitions(
 
 int main() {
     // Example data
-    // int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 8};
-    // int h_pivots[] = {4};
+    // int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 10, 8, 9, 11, 12};
+    // int h_pivots[] = {4,8};
 
     const int n = 1024;
     int p = 32;
