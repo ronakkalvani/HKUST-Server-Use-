@@ -46,6 +46,12 @@ int main() {
         h_data[i] = rand() % 1000; // Random values (0-999)
     }
 
+    std::cout << "Data:" << std::endl;
+    for (int i = 0; i < N; ++i) {
+        std::cout << h_data[i] << " ";
+    }
+    std::cout << std::endl;
+
     // Sort blocks (in this example, assume each block is already sorted)
     // Here you would normally perform sorting on each block using a sorting algorithm like quicksort or mergesort
 
