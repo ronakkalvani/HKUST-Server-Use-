@@ -8,8 +8,6 @@
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
-#define BLOCK_THREADS 8
-#define ITEMS_PER_THREAD 1
 
 int main() {
     std::vector<int> h_data(100);
