@@ -1,7 +1,7 @@
 #include <cuda_runtime.h>
 #include <stdio.h>
 
-#define BLOCK_SIZE 256
+#define BLOCK_SIZE 3
 
 __global__ void mergeSortedBlocks(int *input, int *output, int *split_points, int num_blocks) {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
