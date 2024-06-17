@@ -68,44 +68,27 @@ __global__ void mergePartitions(
     }
 }
 
-
-// __global__ void mergePartitions(int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, int n, int p) {
-//     // Calculate global thread ID
-//     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-//     if (tid < n) {
-//         // Determine which partition the element belongs to
-//         int partition = 0;
-//         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
-//             partition++;
-//         }
-//         // Compute the global position of the element in the output array
-//         atomicAdd(&d_partitions[partition], 1);
-//         d_output[atomicAdd(&d_partitions[partition], 1)] = d_subarrays[tid];
-//     }
-// }
-
 void merge(int* h_subarrays, int* h_pivots, int n, int p) {
     // Device pointers
-    int *d_subarrays, *d_output, *d_pivots, *d_partitions;
+    int *d_subarrays, *d_output, *d_pivots, *d_partition_counts;
 
     // Allocate device memory
     CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partitions, p * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
 
     // Copy data to device
     CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemset(d_partitions, 0, p * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
 
     // Kernel launch parameters
     int blockSize = 256;
     int numBlocks = (n + blockSize - 1) / blockSize;
 
     // Launch kernel to merge partitions
-    mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partitions, d_output, d_pivots, n, p);
+    mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
@@ -123,10 +106,69 @@ void merge(int* h_subarrays, int* h_pivots, int n, int p) {
     CUDA_CHECK(cudaFree(d_subarrays));
     CUDA_CHECK(cudaFree(d_output));
     CUDA_CHECK(cudaFree(d_pivots));
-    CUDA_CHECK(cudaFree(d_partitions));
+    CUDA_CHECK(cudaFree(d_partition_counts));
 
     delete[] h_output;
 }
+
+// __global__ void mergePartitions(int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, int n, int p) {
+//     // Calculate global thread ID
+//     int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+//     if (tid < n) {
+//         // Determine which partition the element belongs to
+//         int partition = 0;
+//         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+//             partition++;
+//         }
+//         // Compute the global position of the element in the output array
+//         atomicAdd(&d_partitions[partition], 1);
+//         d_output[atomicAdd(&d_partitions[partition], 1)] = d_subarrays[tid];
+//     }
+// }
+
+// void merge(int* h_subarrays, int* h_pivots, int n, int p) {
+//     // Device pointers
+//     int *d_subarrays, *d_output, *d_pivots, *d_partitions;
+
+//     // Allocate device memory
+//     CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_partitions, p * sizeof(int)));
+
+//     // Copy data to device
+//     CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
+//     CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
+//     CUDA_CHECK(cudaMemset(d_partitions, 0, p * sizeof(int)));
+
+//     // Kernel launch parameters
+//     int blockSize = 256;
+//     int numBlocks = (n + blockSize - 1) / blockSize;
+
+//     // Launch kernel to merge partitions
+//     mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partitions, d_output, d_pivots, n, p);
+//     CUDA_CHECK(cudaGetLastError());
+//     CUDA_CHECK(cudaDeviceSynchronize());
+
+//     // Copy result back to host
+//     int* h_output = new int[n];
+//     CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
+
+//     // Print result
+//     for (int i = 0; i < n; ++i) {
+//         std::cout << h_output[i] << " ";
+//     }
+//     std::cout << std::endl;
+
+//     // Free device memory
+//     CUDA_CHECK(cudaFree(d_subarrays));
+//     CUDA_CHECK(cudaFree(d_output));
+//     CUDA_CHECK(cudaFree(d_pivots));
+//     CUDA_CHECK(cudaFree(d_partitions));
+
+//     delete[] h_output;
+// }
 
 int main() {
     // Example data
