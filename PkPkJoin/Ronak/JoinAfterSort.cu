@@ -16,8 +16,8 @@ __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, co
         // Check if current element is equal to the next element
         if (keys[tid] == keys[tid + 1])
         {
-            // Perform join operation (simplified for demonstration)
-            results[tid] = values1[tid] + values2[tid]; // Adjust operation as needed
+            // Perform join operation 
+            results[tid] = values1[tid] + values2[tid]; 
         }
         else
         {
