@@ -1,100 +1,96 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <cuda_runtime.h>
+#include <cub/cub.cuh>
 
-// CUDA kernel to merge sorted blocks into a single sorted array
-__global__ void mergeSortedBlocks(int* sorted_data, int* block_offsets, int* global_splitters, int num_blocks) {
+// Error checking macro
+#define CUDA_CHECK(call)                                                   \
+    do {                                                                   \
+        cudaError_t error = call;                                          \
+        if (error != cudaSuccess) {                                        \
+            std::cerr << "CUDA Error: " << cudaGetErrorString(error) <<    \
+            " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
+            exit(1);                                                       \
+        }                                                                  \
+    } while (0)
+
+// Kernel to print array
+__global__ void printArray(int* arr, int size) {
+    for (int i = 0; i < size; ++i) {
+        printf("%d ", arr[i]);
+    }
+    printf("\n");
+}
+
+__global__ void mergePartitions(int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, int n, int p) {
+    // Calculate global thread ID
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    int block_start = block_offsets[blockIdx.x];
-    int block_end = (blockIdx.x < num_blocks - 1) ? block_offsets[blockIdx.x + 1] : gridDim.x * blockDim.x;
 
-    // Each thread merges its assigned block into the global sorted array
-    for (int i = block_start + tid; i < block_end; i += blockDim.x) {
-        // Perform binary search to find the correct position in global sorted array
-        int value = sorted_data[i];
-        int low = 0, high = num_blocks;
-        while (low < high) {
-            int mid = low + (high - low) / 2;
-            if (value < global_splitters[mid]) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
+    if (tid < n) {
+        // Determine which partition the element belongs to
+        int partition = 0;
+        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+            partition++;
         }
-        
-        int insert_position = low;  // Position in the global sorted array
-        // Perform atomic insertion (using CUDA atomicCAS for simplicity)
-        int old = atomicCAS(&sorted_data[insert_position], sorted_data[insert_position], value);
-        while (old != sorted_data[insert_position]) {
-            old = atomicCAS(&sorted_data[insert_position], sorted_data[insert_position], value);
-        }
+        // Compute the global position of the element in the output array
+        atomicAdd(&d_partitions[partition], 1);
+        d_output[atomicAdd(&d_partitions[partition], 1)] = d_subarrays[tid];
     }
 }
 
-int main() {
-    const int num_blocks = 4;  // Number of sorted blocks
-    const int block_size = 256;  // Size of each sorted block
-    const int total_size = num_blocks * block_size;
+void merge(int* h_subarrays, int* h_pivots, int n, int p) {
+    // Device pointers
+    int *d_subarrays, *d_output, *d_pivots, *d_partitions;
 
-    // Initialize example sorted data
-    int sorted_data[total_size];
-    for (int i = 0; i < total_size; ++i) {
-        sorted_data[i] = rand()%total_size;
-    }
+    // Allocate device memory
+    CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partitions, p * sizeof(int)));
 
-    // Example block offsets (starting index of each block in sorted_data)
-    int block_offsets[num_blocks];
-    for (int i = 0; i < num_blocks; ++i) {
-        block_offsets[i] = i * block_size;
-    }
+    // Copy data to device
+    CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemset(d_partitions, 0, p * sizeof(int)));
 
-    // Example global splitters (p-1 values that partition the data)
-    int global_splitters[num_blocks - 1];
-    for (int i = 0; i < num_blocks - 1; ++i) {
-        global_splitters[i] = (i + 1) * (block_size - 1);  // Just an example, should be adjusted based on your actual data
-    }
+    // Kernel launch parameters
+    int blockSize = 256;
+    int numBlocks = (n + blockSize - 1) / blockSize;
 
-    // Print initial sorted data (example)
-    std::cout << "Initial Sorted Data:" << std::endl;
-    for (int i = 0; i < total_size; ++i) {
-        std::cout << sorted_data[i] << " ";
-    }
-    std::cout << std::endl;
+    // Launch kernel to merge partitions
+    mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partitions, d_output, d_pivots, n, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // Initialize CUDA variables
-    int* d_sorted_data;
-    int* d_block_offsets;
-    int* d_global_splitters;
+    // Copy result back to host
+    int* h_output = new int[n];
+    CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-    // Allocate memory on device
-    cudaMalloc((void**)&d_sorted_data, total_size * sizeof(int));
-    cudaMalloc((void**)&d_block_offsets, num_blocks * sizeof(int));
-    cudaMalloc((void**)&d_global_splitters, (num_blocks - 1) * sizeof(int));
-
-    // Copy data to device memory
-    cudaMemcpy(d_sorted_data, sorted_data, total_size * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_block_offsets, block_offsets, num_blocks * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_global_splitters, global_splitters, (num_blocks - 1) * sizeof(int), cudaMemcpyHostToDevice);
-
-    // Launch CUDA kernel to merge sorted blocks
-    int threads_per_block = 256;
-    int blocks_per_grid = num_blocks;
-    mergeSortedBlocks<<<blocks_per_grid, threads_per_block>>>(d_sorted_data, d_block_offsets, d_global_splitters, num_blocks);
-
-    // Copy sorted data back to host
-    cudaMemcpy(sorted_data, d_sorted_data, total_size * sizeof(int), cudaMemcpyDeviceToHost);
-
-    // Print sorted data (after merging)
-    std::cout << "Sorted Data:" << std::endl;
-    for (int i = 0; i < total_size; ++i) {
-        std::cout << sorted_data[i] << " ";
+    // Print result
+    for (int i = 0; i < n; ++i) {
+        std::cout << h_output[i] << " ";
     }
     std::cout << std::endl;
 
     // Free device memory
-    cudaFree(d_sorted_data);
-    cudaFree(d_block_offsets);
-    cudaFree(d_global_splitters);
+    CUDA_CHECK(cudaFree(d_subarrays));
+    CUDA_CHECK(cudaFree(d_output));
+    CUDA_CHECK(cudaFree(d_pivots));
+    CUDA_CHECK(cudaFree(d_partitions));
+
+    delete[] h_output;
+}
+
+int main() {
+    // Example data
+    int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 8};
+    int h_pivots[] = {4};
+
+    int n = 8;
+    int p = 2;
+
+    merge(h_subarrays, h_pivots, n, p);
 
     return 0;
 }
