@@ -1,7 +1,7 @@
 #include <cuda_runtime.h>
 #include <iostream>
 
-const int N = 100; // Total number of elements
+const int N = 12; // Total number of elements
 const int P = 4;    // Number of sorted blocks
 
 // Function to combine sorted blocks into a globally sorted array
