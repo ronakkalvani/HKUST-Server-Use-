@@ -26,7 +26,6 @@ __global__ void sampleElements(int* d_sorted_subarrays, int* d_samples, int n, i
 void FindSplit(int* d_sorted_data, int* d_samples, int* d_splitters, int n, int p) {
     int blockSize = BLOCK_THREADS;
     int numBlocks = (sample_size + blockSize - 1) / blockSize;
-    int sample_size = n / p;
     int stride = n / sample_size;
 
     sampleElements<<<numBlocks, blockSize>>>(d_sorted_subarrays, d_samples, n, sample_size, stride);

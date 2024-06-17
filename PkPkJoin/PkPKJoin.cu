@@ -30,6 +30,8 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
+    int p = numBlocks;
+    int sample_size = n / p;
     int *d_samples, *d_splitters;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
@@ -40,6 +42,7 @@ int main() {
     int* h_samples = new int[sample_size];
     CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
     
+    int h_splitters[p - 1];
     for (int i = 0; i < p - 1; ++i) {
         h_splitters[i] = h_samples[(i + 1) * sample_size / p];
     }
@@ -54,7 +57,6 @@ int main() {
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
-    cudaFree(d_sorted_subarrays);
     cudaFree(d_samples);
     cudaFree(d_splitters);
 
