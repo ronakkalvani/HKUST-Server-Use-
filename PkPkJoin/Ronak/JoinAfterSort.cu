@@ -1,87 +1,81 @@
+#include <cuda_runtime.h>
 #include <cub/cub.cuh>
 #include <iostream>
-#include <vector>
-#include <thrust/device_vector.h>
 
-struct DataElement {
-    int key;
-    int value; // Additional data associated with the key
-};
+// Define your data types as needed
+typedef int KeyType;
+typedef int ValueType;
 
-__global__ void createKeyValuePairs(int *keys, int *values, DataElement *data, int num_elements) {
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-    if (tid < num_elements) {
-        keys[tid] = data[tid].key;
-        values[tid] = data[tid].value;
-    }
-}
+// Kernel to perform hash join-like operation on sorted data
+__global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, const ValueType* values2, ValueType* results, int numElements)
+{
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-__global__ void joinElements(int *keys, int *values, int *joined_keys, int *joined_values1, int *joined_values2, int num_elements) {
-    int tid = threadIdx.x + blockIdx.x * blockDim.x;
-    if (tid > 0 && tid < num_elements) {
-        if (keys[tid] == keys[tid - 1]) {
-            joined_keys[tid] = keys[tid];
-            joined_values1[tid] = values[tid];
-            joined_values2[tid] = values[tid - 1];
+    if (tid < numElements - 1)
+    {
+        // Check if current element is equal to the next element
+        if (keys[tid] == keys[tid + 1])
+        {
+            // Perform join operation (simplified for demonstration)
+            results[tid] = values1[tid] + values2[tid]; // Adjust operation as needed
+        }
+        else
+        {
+            results[tid] = 0; // Placeholder for non-joined cases
         }
     }
 }
 
-void joinDatasets(DataElement *d_data1, int num_elements1, DataElement *d_data2, int num_elements2) {
-    int total_elements = num_elements1 + num_elements2;
+int main()
+{
+    // Example data setup (replace with your actual data)
+    const int numElements = 10; // Example number of elements
+    const int blockSize = 256;
+    const int numBlocks = (numElements + blockSize - 1) / blockSize;
 
-    // Allocate device memory for keys and values
-    int *d_keys, *d_values;
-    cudaMalloc(&d_keys, total_elements * sizeof(int));
-    cudaMalloc(&d_values, total_elements * sizeof(int));
+    // Example sorted data (keys and values)
+    KeyType keys[numElements] = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
+    ValueType values1[numElements] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    ValueType values2[numElements] = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110};
 
-    // Copy data to combined arrays
-    createKeyValuePairs<<<(num_elements1 + 255) / 256, 256>>>(d_keys, d_values, d_data1, num_elements1);
-    createKeyValuePairs<<<(num_elements2 + 255) / 256, 256>>>(d_keys + num_elements1, d_values + num_elements1, d_data2, num_elements2);
+    // Allocate device memory
+    KeyType* d_keys;
+    ValueType* d_values1;
+    ValueType* d_values2;
+    ValueType* d_results;
 
-    // Sort keys and values together using CUB
-    void *d_temp_storage = NULL;
-    size_t temp_storage_bytes = 0;
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys, d_keys, d_values, d_values, total_elements);
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
-    cub::DeviceRadixSort::SortPairs(d_temp_storage, temp_storage_bytes, d_keys, d_keys, d_values, d_values, total_elements);
-    cudaFree(d_temp_storage);
+    cudaMalloc((void**)&d_keys, numElements * sizeof(KeyType));
+    cudaMalloc((void**)&d_values1, numElements * sizeof(ValueType));
+    cudaMalloc((void**)&d_values2, numElements * sizeof(ValueType));
+    cudaMalloc((void**)&d_results, numElements * sizeof(ValueType));
 
-    // Allocate memory for joined elements
-    int *d_joined_keys, *d_joined_values1, *d_joined_values2;
-    cudaMalloc(&d_joined_keys, total_elements * sizeof(int));
-    cudaMalloc(&d_joined_values1, total_elements * sizeof(int));
-    cudaMalloc(&d_joined_values2, total_elements * sizeof(int));
+    // Copy data to device
+    cudaMemcpy(d_keys, keys, numElements * sizeof(KeyType), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_values1, values1, numElements * sizeof(ValueType), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_values2, values2, numElements * sizeof(ValueType), cudaMemcpyHostToDevice);
 
-    // Join elements
-    joinElements<<<(total_elements + 255) / 256, 256>>>(d_keys, d_values, d_joined_keys, d_joined_values1, d_joined_values2, total_elements);
+    // Launch kernel
+    hashJoinKernel<<<numBlocks, blockSize>>>(d_keys, d_values1, d_values2, d_results, numElements);
+
+    // Copy results back to host
+    ValueType results[numElements];
+    cudaMemcpy(results, d_results, numElements * sizeof(ValueType), cudaMemcpyDeviceToHost);
+
+    // Print results (adjust as needed)
+    std::cout << "Results:" << std::endl;
+    for (int i = 0; i < numElements; ++i)
+    {
+        if (results[i] != 0)
+        {
+            std::cout << "Key: " << keys[i] << ", Joined Value: " << results[i] << std::endl;
+        }
+    }
 
     // Free device memory
     cudaFree(d_keys);
-    cudaFree(d_values);
-    cudaFree(d_joined_keys);
-    cudaFree(d_joined_values1);
-    cudaFree(d_joined_values2);
-}
-
-int main() {
-    std::vector<DataElement> h_data1 = {{1, 10}, {3, 30}, {5, 50}};
-    std::vector<DataElement> h_data2 = {{1, 100}, {2, 200}, {3, 300}};
-
-    int num_elements1 = h_data1.size();
-    int num_elements2 = h_data2.size();
-
-    DataElement *d_data1, *d_data2;
-    cudaMalloc(&d_data1, num_elements1 * sizeof(DataElement));
-    cudaMalloc(&d_data2, num_elements2 * sizeof(DataElement));
-
-    cudaMemcpy(d_data1, h_data1.data(), num_elements1 * sizeof(DataElement), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_data2, h_data2.data(), num_elements2 * sizeof(DataElement), cudaMemcpyHostToDevice);
-
-    joinDatasets(d_data1, num_elements1, d_data2, num_elements2);
-
-    cudaFree(d_data1);
-    cudaFree(d_data2);
+    cudaFree(d_values1);
+    cudaFree(d_values2);
+    cudaFree(d_results);
 
     return 0;
 }
