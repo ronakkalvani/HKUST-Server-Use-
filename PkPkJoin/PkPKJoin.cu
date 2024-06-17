@@ -5,7 +5,7 @@
 #include <cub/cub.cuh>
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 
@@ -38,27 +38,41 @@ int main() {
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
 
-    // Select splitters
-    int* h_samples = new int[sample_size];
-    CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
-    
-    int h_splitters[p - 1];
-    for (int i = 0; i < p - 1; ++i) {
-        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
+    int *d_output,*d_partition_counts;
+
+    // Allocate device memory
+
+    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
+
+    // Copy data to device
+    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
+
+    int blockSize = numBlocks;
+
+    // Launch kernel to merge partitions
+    mergePartitions<<<numBlocks, blockSize>>>(d_sorted_data, d_partition_counts, d_output, d_samples, d_partition_counts, n, p);
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    // Copy result back to host
+    int* h_output = new int[n];
+    CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
+
+    // Print result
+    for (int i = 0; i < n; ++i) {
+        std::cout << h_output[i] << " ";
     }
-    
-    delete[] h_samples;
-    
-    // Print splitters
-    for (int i = 0; i < p - 1; ++i) {
-        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
-    }
+    std::cout << std::endl;
+
+    delete[] h_output;
 
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
     cudaFree(d_samples);
     cudaFree(d_splitters);
+    CUDA_CHECK(cudaFree(d_output));
+    CUDA_CHECK(cudaFree(d_partition_counts));
 
     return 0;
 }
