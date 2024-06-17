@@ -68,62 +68,62 @@ __global__ void mergePartitions(
     }
 }
 
-// int main() {
-//     // Example data
-//     // int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 10, 8, 9, 11, 12};
-//     // int h_pivots[] = {4,8};
+int main() {
+    // Example data
+    // int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 10, 8, 9, 11, 12};
+    // int h_pivots[] = {4,8};
 
-//     const int n = 1024;
-//     int p = 32;
-//     int h_subarrays[n];
-//     int h_pivots[p-1];
-//     for (int i=0;i<n;i++) {
-//         h_subarrays[i] = i*(n/p) % n;
-//     }
-//     for (int i=0;i<p-1;i++) {
-//         h_pivots[i] = (i+1)*(n/p);
-//     }
+    const int n = 1024;
+    int p = 32;
+    int h_subarrays[n];
+    int h_pivots[p-1];
+    for (int i=0;i<n;i++) {
+        h_subarrays[i] = i*(n/p) % n;
+    }
+    for (int i=0;i<p-1;i++) {
+        h_pivots[i] = (i+1)*(n/p);
+    }
 
-//     // Device pointers
-//     int *d_subarrays, *d_output, *d_pivots, *d_partition_counts;
+    // Device pointers
+    int *d_subarrays, *d_output, *d_pivots, *d_partition_counts;
 
-//     // Allocate device memory
-//     CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
-//     CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
-//     CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
-//     CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
+    // Allocate device memory
+    CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
 
-//     // Copy data to device
-//     CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
-//     CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
+    // Copy data to device
+    CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
 
-//     // Kernel launch parameters
-//     int blockSize = 256;
-//     int numBlocks = (n + blockSize - 1) / blockSize;
+    // Kernel launch parameters
+    int blockSize = 256;
+    int numBlocks = (n + blockSize - 1) / blockSize;
 
-//     // Launch kernel to merge partitions
-//     mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
-//     CUDA_CHECK(cudaGetLastError());
-//     CUDA_CHECK(cudaDeviceSynchronize());
+    // Launch kernel to merge partitions
+    mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-//     // Copy result back to host
-//     int* h_output = new int[n];
-//     CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
+    // Copy result back to host
+    int* h_output = new int[n];
+    CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
 
-//     // Print result
-//     for (int i = 0; i < n; ++i) {
-//         std::cout << h_output[i] << " ";
-//     }
-//     std::cout << std::endl;
+    // Print result
+    for (int i = 0; i < n; ++i) {
+        std::cout << h_output[i] << " ";
+    }
+    std::cout << std::endl;
 
-//     // Free device memory
-//     CUDA_CHECK(cudaFree(d_subarrays));
-//     CUDA_CHECK(cudaFree(d_output));
-//     CUDA_CHECK(cudaFree(d_pivots));
-//     CUDA_CHECK(cudaFree(d_partition_counts));
+    // Free device memory
+    CUDA_CHECK(cudaFree(d_subarrays));
+    CUDA_CHECK(cudaFree(d_output));
+    CUDA_CHECK(cudaFree(d_pivots));
+    CUDA_CHECK(cudaFree(d_partition_counts));
 
-//     delete[] h_output;
+    delete[] h_output;
 
-//     return 0;
-// }
+    return 0;
+}
