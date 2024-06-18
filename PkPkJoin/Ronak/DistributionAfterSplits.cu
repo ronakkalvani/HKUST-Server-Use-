@@ -112,11 +112,6 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1,1>>>(d_partition_counts, p);
-    CUDA_CHECK(cudaDeviceSynchronize());
-    printArray<<<1,1>>>(d_partition_starts, p);
-    CUDA_CHECK(cudaDeviceSynchronize());
-
     // Copy result back to host
     int* h_output = new int[n];
     CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
