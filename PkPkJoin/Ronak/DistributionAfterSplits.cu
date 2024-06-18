@@ -97,7 +97,7 @@ int main() {
     CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
-    // cudaMemset(d_partition_counts, 0, p * sizeof(int));
+    cudaMemset(d_partition_counts, 0, p * sizeof(int));
 
     // Kernel launch parameters
     int blockSize = 256;
