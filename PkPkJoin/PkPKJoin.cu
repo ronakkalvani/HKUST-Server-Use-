@@ -33,7 +33,7 @@ int main() {
     printArray<<<1,1>>>(d_sorted_data,n);
 
     int p = numBlocks;
-    int sample_size = n ;
+    int sample_size = n/p ;
     int *d_samples, *d_splitters;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
