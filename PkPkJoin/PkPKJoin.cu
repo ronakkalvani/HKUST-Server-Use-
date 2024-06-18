@@ -73,16 +73,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // printArray<<<1,1>>>(d_output,n);
-    // Copy result back to host
-    int* h_output = new int[n];
-    CUDA_CHECK(cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost));
-
-    // Print result
-    for (int i = 0; i < n; ++i) {
-        std::cout << h_output[i] << " ";
-    }
-    std::cout << std::endl;
+    printArray<<<1,1>>>(d_output,n);
     
 
     // Free device memory
