@@ -43,7 +43,9 @@ int main() {
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
 
     Splitterss<<<1,1>>> (d_splitters,d_samples,sample_size,p);
+    cudaDeviceSynchronize();
     printArray<<<1,1>>> (d_splitters,p-1);
+    cudaDeviceSynchronize();
 
     int blockSize = numBlocks;
     // Device pointers
@@ -74,6 +76,7 @@ int main() {
     CUDA_CHECK(cudaDeviceSynchronize());
 
     printArray<<<1,1>>>(d_output,n);
+    cudaDeviceSynchronize();
     
 
     // Free device memory
