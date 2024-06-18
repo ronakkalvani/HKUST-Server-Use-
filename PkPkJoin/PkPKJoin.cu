@@ -47,7 +47,7 @@ int main() {
     printArray<<<1,1>>> (d_splitters,p-1);
     cudaDeviceSynchronize();
 
-    int blockSize = numBlocks;
+    int blockSize = BLOCK_THREADS;
     // Device pointers
     int  *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
 
