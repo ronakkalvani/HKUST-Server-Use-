@@ -3,9 +3,6 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 32
-#define ITEMS_PER_THREAD 1
-
 // Block-sorting CUDA kernel
 __global__ void BlockSortKernel(int *d_in, int *d_out, int num_elements)
 {
