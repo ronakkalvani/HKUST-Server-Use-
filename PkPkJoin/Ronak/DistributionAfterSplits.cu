@@ -40,7 +40,8 @@ __global__ void mergePartitions(
         printf("Element: %d, Partition: %d\n",tid,partition);
 
         // Step 2: Count the number of elements in each partition
-        atomicAdd(&d_partition_counts[partition], 1);
+        d_partition_counts[partition]++;
+        // atomicAdd(&d_partition_counts[partition], 1);
     }
 
     // Synchronize threads to ensure all counts are computed
