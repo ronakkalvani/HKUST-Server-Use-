@@ -78,7 +78,7 @@ int main() {
     int h_subarrays[n];
     int h_pivots[p-1];
     for (int i=0;i<n;i++) {
-        h_subarrays[i] = 2*i % n;
+        h_subarrays[i] = i % n;
     }
     for (int i=0;i<p-1;i++) {
         h_pivots[i] = (i+1)*(n/p);
