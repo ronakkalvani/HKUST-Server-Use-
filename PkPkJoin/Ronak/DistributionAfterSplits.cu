@@ -69,14 +69,14 @@ int main() {
     const int n = 256;
     int p = 8;
     int h_subarrays[n];
-    int h_pivots[p-1];
+    // int h_pivots[p-1];
     for (int i = 0; i < n; i++) {
         h_subarrays[i] = rand() % 127;
     }
     // for (int i = 0; i < p-1; i++) {
     //     h_pivots[i] = (i + 1) * (n / p);
     // }
-    h_pivots = {14, 26, 40, 52, 70, 89, 107} ;
+    int h_pivots[] = {14, 26, 40, 52, 70, 89, 107} ;
 
     // Device pointers
     int *d_subarrays, *d_output, *d_pivots, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
