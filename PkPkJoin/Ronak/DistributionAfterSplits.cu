@@ -48,12 +48,20 @@ __global__ void mergePartitions(
 
     // Step 3: Compute the starting index for each partition
     if (tid == 0) {
+        for (int i = 0; i < p; ++i) {
+            printf("%d ", d_partition_counts[i]);
+        }
+        printf("\n");
         int sum = 0;
         for (int i = 0; i < p; ++i) {
             int temp = d_partition_counts[i];
             d_partition_counts[i] = sum;
             sum += temp;
         }
+        for (int i = 0; i < p; ++i) {
+            printf("%d ", d_partition_counts[i]);
+        }
+        printf("\n");
     }
 
     // Synchronize threads to ensure starting indices are computed
