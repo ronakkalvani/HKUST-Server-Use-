@@ -78,7 +78,8 @@ int main() {
     
     int* d_final_array;
     cudaMalloc(&d_final_array, n * sizeof(int));
-    BlockSortKernel2<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array, d_partition_starts,p,n);
+    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array,n);
+    // BlockSortKernel2<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array, d_partition_starts,p,n);
 
     printArray<<<1,1>>>(d_final_array,n);
     cudaDeviceSynchronize();
