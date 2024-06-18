@@ -106,6 +106,7 @@ int main() {
     mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1,1>>>(d_partition_counts,p);
 
     // Copy result back to host
     int* h_output = new int[n];
