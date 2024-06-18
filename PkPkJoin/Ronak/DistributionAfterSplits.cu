@@ -103,6 +103,8 @@ int main() {
     int blockSize = 256;
     int numBlocks = (n + blockSize - 1) / blockSize;
 
+    printArray<<<1,1>>>(d_partition_counts,p);
+
     // Launch kernel to merge partitions
     mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
     CUDA_CHECK(cudaGetLastError());
