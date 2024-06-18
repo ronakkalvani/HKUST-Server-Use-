@@ -43,14 +43,14 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data(786);
+    std::vector<int> h_data(10000);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 37;
+        h_data[i] = rand() % 1271;
     }
     int n = h_data.size();
 
     // Define block starting indices
-    std::vector<int> h_block_starts = {0, 52, 256, 484, 612, 640}; // Example block starts
+    std::vector<int> h_block_starts = {0, 2000, 3000, 4000, 6000, 6800}; // Example block starts
     int num_blocks = h_block_starts.size();
 
     // Allocate device memory
