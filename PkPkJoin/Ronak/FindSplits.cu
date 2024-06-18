@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 
-#define BLOCK_THREADS 8
+#define BLOCK_THREADS 32
 
 // Error checking macro
 #define CUDA_CHECK(call)                                                   \
@@ -51,7 +51,7 @@ void FindSplit(int* d_sorted_data, int* d_samples, int* d_splitters, int n, int 
 int main() {
     // Example data
     const int n = 256;
-    int p = 32;
+    int p = 8;
     int sample_size = n/p; // Adjust sample size as needed
     // int h_sorted_subarrays[] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31};
     int h_sorted_subarrays[n];
