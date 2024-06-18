@@ -38,53 +38,10 @@ int main() {
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
 
-    // std::vector<int> h_data(100);
-    // for (int i=0;i<h_data.size();i++) {
-    //     h_data[i]= rand() % 37;
-    // }
-    // int n = h_data.size();
-
-    // // Allocate device memory
-    // int* d_data;
-    // cudaMalloc(&d_data, n * sizeof(int));
-    // int* d_sorted_data;
-    // cudaMalloc(&d_sorted_data, n * sizeof(int));
-
-    // // Copy data to device
-    // cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
-
-    // int numBlocks = (n + (BLOCK_THREADS * ITEMS_PER_THREAD) - 1) / (BLOCK_THREADS * ITEMS_PER_THREAD);
-
-    // // Launch kernel to sort blocks
-    // BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
-
-    // printArray<<<1,1>>>(d_sorted_data,n);
-
-    // int p = numBlocks;
-    // int sample_size = n/p ;
-    
-    // int *d_samples, *d_splitters;
-    // cudaMalloc(&d_samples, sample_size * sizeof(int));
-    // cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
-
-    // FindSplit(d_sorted_data,d_samples, d_splitters, n, p, sample_size);
-
-    // printArray<<<1,1>>>(d_samples,p-1);
-    // Select splitters
     int* h_samples = new int[sample_size];
     CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
-    
-    int h_splitters[p - 1];
-    for (int i = 0; i < p - 1; ++i) {
-        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
-    }
-    
-    delete[] h_samples;
-    
-    // Print splitters
-    for (int i = 0; i < p - 1; ++i) {
-        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
-    }
+
+    Splitterss<<<1,1>>> (d_splitters,d_samples,sample_size,p);
 
     int blockSize = numBlocks;
     // Device pointers
@@ -102,7 +59,7 @@ int main() {
     CUDA_CHECK(cudaMemset(d_partition_offsets, 0, p * sizeof(int)));
 
     // Launch kernels in sequence to ensure synchronization
-    countElements<<<numBlocks, blockSize>>>(d_sorted_data, d_samples, d_partition_counts, n, p);
+    countElements<<<numBlocks, blockSize>>>(d_sorted_data, d_splitters, d_partition_counts, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
@@ -110,7 +67,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_samples, d_partition_starts, d_partition_offsets, n, p);
+    distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_splitters, d_partition_starts, d_partition_offsets, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
