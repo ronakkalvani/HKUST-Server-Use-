@@ -136,90 +136,90 @@ int main() {
 }
 
 
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <cuda_runtime.h>
-#include <cub/cub.cuh>
+// #include <iostream>
+// #include <vector>
+// #include <algorithm>
+// #include <cuda_runtime.h>
+// #include <cub/cub.cuh>
 
-// Error checking macro
-#define CUDA_CHECK(call)                                                   \
-    do {                                                                   \
-        cudaError_t error = call;                                          \
-        if (error != cudaSuccess) {                                        \
-            std::cerr << "CUDA Error: " << cudaGetErrorString(error) <<    \
-            " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
-            exit(1);                                                       \
-        }                                                                  \
-    } while (0)
+// // Error checking macro
+// #define CUDA_CHECK(call)                                                   \
+//     do {                                                                   \
+//         cudaError_t error = call;                                          \
+//         if (error != cudaSuccess) {                                        \
+//             std::cerr << "CUDA Error: " << cudaGetErrorString(error) <<    \
+//             " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
+//             exit(1);                                                       \
+//         }                                                                  \
+//     } while (0)
 
-// Kernel to print array
-__global__ void printArray(int* arr, int size) {
-    for (int i = 0; i < size; ++i) {
-        printf("%d ", arr[i]);
-    }
-    printf("\n");
-}
+// // Kernel to print array
+// __global__ void printArray(int* arr, int size) {
+//     for (int i = 0; i < size; ++i) {
+//         printf("%d ", arr[i]);
+//     }
+//     printf("\n");
+// }
 
-__global__ void mergePartitions(
-    int* d_subarrays, int* d_output, int* d_pivots, 
-    int* d_partition_counts, int* d_partition_starts, int* d_partition_offsets, int n, int p) 
-{
-    // Calculate global thread ID
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+// __global__ void mergePartitions(
+//     int* d_subarrays, int* d_output, int* d_pivots, 
+//     int* d_partition_counts, int* d_partition_starts, int* d_partition_offsets, int n, int p) 
+// {
+//     // Calculate global thread ID
+//     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Step 1: Determine the partition for each element
-    if (tid < n) {
-        int partition = 0;
-        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
-            partition++;
-        }
+//     // Step 1: Determine the partition for each element
+//     if (tid < n) {
+//         int partition = 0;
+//         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+//             partition++;
+//         }
 
-        printf("Element: %d, Partition: %d\n", tid, partition);
+//         printf("Element: %d, Partition: %d\n", tid, partition);
 
-        // Step 2: Count the number of elements in each partition
-        atomicAdd(&d_partition_counts[partition], 1);
-    }
+//         // Step 2: Count the number of elements in each partition
+//         atomicAdd(&d_partition_counts[partition], 1);
+//     }
 
-    // Synchronize threads to ensure all counts are computed
-    __syncthreads();
+//     // Synchronize threads to ensure all counts are computed
+//     __syncthreads();
 
-    // Step 3: Compute the starting index for each partition
-    if (tid == 0) {
-        int sum = 0;
-        for (int i = 0; i < p; ++i) {
-            d_partition_starts[i] = sum;
-            sum += d_partition_counts[i];
-        }
-    }
+//     // Step 3: Compute the starting index for each partition
+//     if (tid == 0) {
+//         int sum = 0;
+//         for (int i = 0; i < p; ++i) {
+//             d_partition_starts[i] = sum;
+//             sum += d_partition_counts[i];
+//         }
+//     }
 
-    // Synchronize threads to ensure starting indices are computed
+//     // Synchronize threads to ensure starting indices are computed
 
-    if (tid == 0) {
-        for (int i = 0; i < p; ++i) {
-            printf("%d ", d_partition_offsets[i]);
-        }
-        printf("\n");
-    }
-    __syncthreads();
+//     if (tid == 0) {
+//         for (int i = 0; i < p; ++i) {
+//             printf("%d ", d_partition_offsets[i]);
+//         }
+//         printf("\n");
+//     }
+//     __syncthreads();
 
-    // Step 4: Distribute elements to the output array
-    if (tid < n) {
-        int partition = 0;
-        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
-            partition++;
-        }
-        int pos = atomicAdd(&d_partition_offsets[partition], 1);
-        d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
-        // d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
-    }
-    if (tid == 0) {
-        for (int i = 0; i < p; ++i) {
-            printf("%d ", d_partition_offsets[i]);
-        }
-        printf("\n");
-    }
-}
+//     // Step 4: Distribute elements to the output array
+//     if (tid < n) {
+//         int partition = 0;
+//         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+//             partition++;
+//         }
+//         int pos = atomicAdd(&d_partition_offsets[partition], 1);
+//         d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
+//         // d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
+//     }
+//     if (tid == 0) {
+//         for (int i = 0; i < p; ++i) {
+//             printf("%d ", d_partition_offsets[i]);
+//         }
+//         printf("\n");
+//     }
+// }
 
 // int main() {
 //     // Example data
