@@ -33,12 +33,12 @@ int main() {
     printArray<<<1,1>>>(d_sorted_data,n);
 
     int p = numBlocks;
-    int sample_size = n / p;
+    int sample_size = n ;
     int *d_samples, *d_splitters;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
 
-    FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
+    FindSplit(d_sorted_data,d_samples, d_splitters, n, p, sample_size);
 
     printArray<<<1,1>>>(d_samples,p-1);
 
