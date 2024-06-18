@@ -74,10 +74,14 @@ int main() {
     distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_splitters, d_partition_starts, d_partition_offsets, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
-
-    printArray<<<1,1>>>(d_output,n);
-    cudaDeviceSynchronize();
     
+    int* d_final_array;
+    cudaMalloc(&d_final_array, n * sizeof(int));
+    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array, n);
+
+    printArray<<<1,1>>>(d_final_array,n);
+    cudaDeviceSynchronize();
+
 
     // Free device memory
     cudaFree(d_data);
