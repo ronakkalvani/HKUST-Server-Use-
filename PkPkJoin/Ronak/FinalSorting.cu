@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 512
+#define BLOCK_THREADS 1022
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
