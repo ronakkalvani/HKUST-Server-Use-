@@ -9,14 +9,14 @@
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 
 int main() {
     std::vector<int> h_data(10000);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand()%127;
+        h_data[i]=rand()%1271;
     }
     int n = h_data.size();
 
