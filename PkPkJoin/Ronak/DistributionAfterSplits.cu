@@ -53,6 +53,10 @@ __global__ void mergePartitions(
             d_partition_starts[i] = sum;
             sum += d_partition_counts[i];
         }
+        for (int i = 0; i < p; ++i) {
+            printf("%d ", d_partition_starts[i]);
+        }
+        printf("\n");
     }
 
     // Synchronize threads to ensure starting indices are computed
