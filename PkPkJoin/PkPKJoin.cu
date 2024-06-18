@@ -49,9 +49,31 @@ int main() {
     CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
 
     int blockSize = numBlocks;
+    // Device pointers
+    int  *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
 
-    // Launch kernel to merge partitions
-    mergePartitions<<<numBlocks, blockSize>>>(d_sorted_data, d_partition_counts, d_output, d_samples, d_partition_counts, n, p);
+    // Allocate device memory
+    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_offsets, p * sizeof(int)));
+
+    // Copy data to device
+    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_partition_offsets, 0, p * sizeof(int)));
+
+    // Launch kernels in sequence to ensure synchronization
+    countElements<<<numBlocks, blockSize>>>(d_sorted_data, d_samples, d_partition_counts, n, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    computeStarts<<<1, p>>>(d_partition_counts, d_partition_starts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_samples, d_partition_starts, d_partition_offsets, n, p);
+    CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
     // Copy result back to host
@@ -71,6 +93,10 @@ int main() {
     cudaFree(d_sorted_data);
     cudaFree(d_samples);
     cudaFree(d_splitters);
+    CUDA_CHECK(cudaFree(d_output));
+    CUDA_CHECK(cudaFree(d_partition_counts));
+    CUDA_CHECK(cudaFree(d_partition_starts));
+    CUDA_CHECK(cudaFree(d_partition_offsets));
     CUDA_CHECK(cudaFree(d_output));
     CUDA_CHECK(cudaFree(d_partition_counts));
 
