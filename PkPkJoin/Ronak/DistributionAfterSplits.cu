@@ -56,14 +56,14 @@ __global__ void mergePartitions(
     }
 
     // Synchronize threads to ensure starting indices are computed
-    __syncthreads();
-
+    
     if (tid == 0) {
         for (int i = 0; i < p; ++i) {
             printf("%d ", d_partition_offsets[i]);
         }
         printf("\n");
     }
+    __syncthreads();
 
     // Step 4: Distribute elements to the output array
     if (tid < n) {
