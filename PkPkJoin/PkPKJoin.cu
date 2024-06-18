@@ -37,7 +37,7 @@ int main() {
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
-    
+
     // std::vector<int> h_data(100);
     // for (int i=0;i<h_data.size();i++) {
     //     h_data[i]= rand() % 37;
@@ -69,7 +69,22 @@ int main() {
 
     // FindSplit(d_sorted_data,d_samples, d_splitters, n, p, sample_size);
 
-    printArray<<<1,1>>>(d_samples,p-1);
+    // printArray<<<1,1>>>(d_samples,p-1);
+    // Select splitters
+    int* h_samples = new int[sample_size];
+    CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
+    
+    int h_splitters[p - 1];
+    for (int i = 0; i < p - 1; ++i) {
+        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
+    }
+    
+    delete[] h_samples;
+    
+    // Print splitters
+    for (int i = 0; i < p - 1; ++i) {
+        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
+    }
 
     int blockSize = numBlocks;
     // Device pointers
