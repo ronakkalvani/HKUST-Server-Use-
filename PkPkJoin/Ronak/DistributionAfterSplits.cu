@@ -37,6 +37,8 @@ __global__ void mergePartitions(
             partition++;
         }
 
+        printf("Element: %d, Partition: %d\n",tid,partition);
+
         // Step 2: Count the number of elements in each partition
         atomicAdd(&d_partition_counts[partition], 1);
     }
@@ -46,10 +48,6 @@ __global__ void mergePartitions(
 
     // Step 3: Compute the starting index for each partition
     if (tid == 0) {
-        for (int i = 0; i < p; ++i) {
-            printf("%d ", d_partition_counts[i]);
-        }
-        printf("\n");
         int sum = 0;
         for (int i = 0; i < p; ++i) {
             int temp = d_partition_counts[i];
@@ -77,8 +75,8 @@ int main() {
     // int h_subarrays[] = {1, 3, 5, 7, 2, 4, 6, 10, 8, 9, 11, 12};
     // int h_pivots[] = {4,8};
 
-    const int n = 1024;
-    int p = 32;
+    const int n = 64;
+    int p = 4;
     int h_subarrays[n];
     int h_pivots[p-1];
     for (int i=0;i<n;i++) {
