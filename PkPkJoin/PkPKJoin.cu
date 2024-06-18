@@ -5,7 +5,7 @@
 #include <cub/cub.cuh>
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 
@@ -37,16 +37,6 @@ int main() {
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
-
-    int *d_output,*d_partition_counts;
-
-    // Allocate device memory
-
-    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
-
-    // Copy data to device
-    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
 
     int blockSize = numBlocks;
     // Device pointers
