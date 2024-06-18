@@ -66,11 +66,13 @@ __global__ void mergePartitions(
         }
         int pos = atomicAdd(&d_partition_offsets[partition], 1);
         d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
-        for (int i = 0; i < size; ++i) {
-            printf("%d ", arr[i]);
+        // d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
+    }
+    if (tid == 0) {
+        for (int i = 0; i < p; ++i) {
+            printf("%d ", d_partition_offsets[i]);
         }
         printf("\n");
-        // d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
     }
 }
 
