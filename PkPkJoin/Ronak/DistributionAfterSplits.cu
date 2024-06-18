@@ -46,6 +46,7 @@ __global__ void mergePartitions(
 
     // Step 3: Compute the starting index for each partition
     if (tid == 0) {
+        printArray<<<1,1>>>(d_partition_counts,p);
         int sum = 0;
         for (int i = 0; i < p; ++i) {
             int temp = d_partition_counts[i];
@@ -102,8 +103,6 @@ int main() {
     // Kernel launch parameters
     int blockSize = 256;
     int numBlocks = (n + blockSize - 1) / blockSize;
-
-    printArray<<<1,1>>>(d_partition_counts,p);
 
     // Launch kernel to merge partitions
     mergePartitions<<<numBlocks, blockSize>>>(d_subarrays, d_partition_counts, d_output, d_pivots, d_partition_counts, n, p);
