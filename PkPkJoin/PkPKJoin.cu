@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 
-#define BLOCK_THREADS 32
+#define BLOCK_THREADS 8
 #define ITEMS_PER_THREAD 1
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
@@ -14,9 +14,9 @@
 
 
 int main() {
-    std::vector<int> h_data(256);
+    std::vector<int> h_data(100);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand()%127;
+        h_data[i]=rand()%37;
     }
     int n = h_data.size();
 
