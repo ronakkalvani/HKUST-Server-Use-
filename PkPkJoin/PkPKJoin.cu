@@ -10,9 +10,9 @@
 
 
 int main() {
-    std::vector<int> h_data(24);
+    std::vector<int> h_data(256);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand() % 37;
+        h_data[i]= rand() % 256;
     }
     int n = h_data.size();
 
