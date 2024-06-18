@@ -64,9 +64,13 @@ __global__ void mergePartitions(
         while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
             partition++;
         }
-        // int pos = atomicAdd(&d_partition_offsets[partition], 1);
-        // d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
-        d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
+        int pos = atomicAdd(&d_partition_offsets[partition], 1);
+        d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
+        for (int i = 0; i < size; ++i) {
+            printf("%d ", arr[i]);
+        }
+        printf("\n");
+        // d_output[d_partition_starts[partition] + atomicAdd(&d_partition_offsets[partition], 1)] = d_subarrays[tid];
     }
 }
 
