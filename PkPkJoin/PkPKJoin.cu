@@ -12,7 +12,7 @@
 int main() {
     std::vector<int> h_data(256);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]= rand() % 256;
+        h_data[i]= rand() % 123;
     }
     int n = h_data.size();
 
@@ -30,6 +30,8 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
+    printArray<<<1,1>>>(d_sorted_data,n);
+
     int p = numBlocks;
     int sample_size = n / p;
     int *d_samples, *d_splitters;
@@ -37,6 +39,8 @@ int main() {
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
+
+    printArray<<<1,1>>>(d_samples,p-1);
 
     int blockSize = numBlocks;
     // Device pointers
