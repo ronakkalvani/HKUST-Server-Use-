@@ -40,7 +40,7 @@ int main() {
 
     FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
 
-    printArray<<<1,1>>>(d_splitters,p-1);
+    printArray<<<1,1>>>(d_samples,p-1);
 
     int blockSize = numBlocks;
     // Device pointers
