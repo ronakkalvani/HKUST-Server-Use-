@@ -76,7 +76,7 @@ int main() {
     // int h_pivots[] = {4,8};
 
     const int n = 64;
-    int p = 4;
+    int p = 8;
     int h_subarrays[n];
     int h_pivots[p-1];
     for (int i=0;i<n;i++) {
