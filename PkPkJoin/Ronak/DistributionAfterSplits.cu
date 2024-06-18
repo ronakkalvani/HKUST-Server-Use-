@@ -24,8 +24,8 @@ __global__ void printArray(int* arr, int size) {
 }
 
 __global__ void mergePartitions(
-    int* d_subarrays, int* d_partitions, int* d_output, int* d_pivots, 
-    int* d_partition_counts, int* d_partition_starts, int* d_offsets, int n, int p) 
+    int* d_subarrays, int* d_output, int* d_pivots, 
+    int* d_partition_counts, int* d_partition_starts, int* d_partition_offsets, int n, int p) 
 {
     // Calculate global thread ID
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
@@ -37,11 +37,10 @@ __global__ void mergePartitions(
             partition++;
         }
 
+        printf("Element: %d, Partition: %d\n", tid, partition);
+
         // Step 2: Count the number of elements in each partition
         atomicAdd(&d_partition_counts[partition], 1);
-
-        // Store the partition information
-        d_partitions[tid] = partition;
     }
 
     // Synchronize threads to ensure all counts are computed
@@ -59,20 +58,14 @@ __global__ void mergePartitions(
     // Synchronize threads to ensure starting indices are computed
     __syncthreads();
 
-    // Step 4: Calculate offsets for each element
+    // Step 4: Distribute elements to the output array
     if (tid < n) {
-        int partition = d_partitions[tid];
-        int offset = atomicAdd(&d_partition_starts[partition], 1);
-        d_offsets[tid] = offset;
-    }
-
-    // Synchronize threads to ensure offsets are computed
-    __syncthreads();
-
-    // Step 5: Distribute elements to the output array
-    if (tid < n) {
-        int offset = d_offsets[tid];
-        d_output[offset] = d_subarrays[tid];
+        int partition = 0;
+        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
+            partition++;
+        }
+        int pos = atomicAdd(&d_partition_offsets[partition], 1);
+        d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
     }
 }
 
@@ -90,7 +83,7 @@ int main() {
     }
 
     // Device pointers
-    int *d_subarrays, *d_output, *d_pivots, *d_partition_counts, *d_partition_starts, *d_offsets, *d_partitions;
+    int *d_subarrays, *d_output, *d_pivots, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
 
     // Allocate device memory
     CUDA_CHECK(cudaMalloc(&d_subarrays, n * sizeof(int)));
@@ -98,14 +91,14 @@ int main() {
     CUDA_CHECK(cudaMalloc(&d_pivots, (p - 1) * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
     CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_offsets, n * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partitions, n * sizeof(int)));
+    CUDA_CHECK(cudaMalloc(&d_partition_offsets, p * sizeof(int)));
 
     // Copy data to device
     CUDA_CHECK(cudaMemcpy(d_subarrays, h_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemcpy(d_pivots, h_pivots, (p - 1) * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
     CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_partition_offsets, 0, p * sizeof(int)));
 
     // Kernel launch parameters
     int blockSize = 256;
@@ -113,8 +106,8 @@ int main() {
 
     // Launch kernel to merge partitions
     mergePartitions<<<numBlocks, blockSize>>>(
-        d_subarrays, d_partitions, d_output, d_pivots, 
-        d_partition_counts, d_partition_starts, d_offsets, n, p
+        d_subarrays, d_output, d_pivots, 
+        d_partition_counts, d_partition_starts, d_partition_offsets, n, p
     );
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -140,8 +133,7 @@ int main() {
     CUDA_CHECK(cudaFree(d_pivots));
     CUDA_CHECK(cudaFree(d_partition_counts));
     CUDA_CHECK(cudaFree(d_partition_starts));
-    CUDA_CHECK(cudaFree(d_offsets));
-    CUDA_CHECK(cudaFree(d_partitions));
+    CUDA_CHECK(cudaFree(d_partition_offsets));
 
     delete[] h_output;
 
