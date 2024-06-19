@@ -8,7 +8,7 @@
 #define ITEMS_PER_THREAD 4
 
 // Block-sorting CUDA kernel
-__global__ void BlockSortKernel(int *d_in, int *d_out, int num_blocks, int *block_indices)
+__global__ void BlockSortKernel(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
     typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
@@ -72,7 +72,7 @@ int main() {
     int numBlocks = h_block_indices.size();
 
     // Launch kernel to sort blocks
-    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, numBlocks, d_block_indices);
+    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, d_block_indices, numBlocks, n);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
