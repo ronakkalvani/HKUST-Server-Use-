@@ -11,9 +11,9 @@
 __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
-    typedef cub::BlockLoad<int, 2*BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
-    typedef cub::BlockStore<int, 2*BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
-    typedef cub::BlockRadixSort<int, 2*BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
+    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
+    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockRadixSort<int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
     // Allocate type-safe, repurposable shared memory for collectives
     __shared__ union {
@@ -28,7 +28,7 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int 
     int block_start = block_indices[block_idx];
     int block_end = (block_idx + 1 < num_blocks) ? block_indices[block_idx + 1] : num_elements;
     int block_size = block_end - block_start;
-    int valid_items = min(block_size, 2*BLOCK_THREADS * ITEMS_PER_THREAD);
+    int valid_items = min(block_size, BLOCK_THREADS * ITEMS_PER_THREAD);
 
     // Initialize thread_keys with a known value for safer debugging
     for (int i = 0; i < ITEMS_PER_THREAD; i++) {
@@ -69,7 +69,7 @@ int main() {
 
     // Define block start indices
     // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
-    int s=BLOCK_THREADS;
+    int s=256;
     std::vector<int> h_block_indices(n/s);
     for(int i=0;i<n/s;i++) {
         if (i%2) h_block_indices[i] = (i)*(s)-12;
