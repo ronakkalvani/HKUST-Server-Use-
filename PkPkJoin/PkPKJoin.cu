@@ -126,10 +126,7 @@ int main() {
     }
     std::cout<<"\n";
 
-<<<<<<< HEAD
-=======
     int results[3*n];
->>>>>>> c8bd1198f5c9f62b5624bfe22807cf1b1b7e67c8
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, results, n, hmap1, hmap2);
     // int n3 = sizeof(results)/sizeof(int);
