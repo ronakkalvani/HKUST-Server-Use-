@@ -78,7 +78,6 @@ int main() {
 
     printArray<<<1,1>>>(d_output,n);
     printArray<<<1,1>>>(d_partition_starts,p);
-
     
 
     int* d_final_array;
@@ -96,7 +95,7 @@ int main() {
     cudaFree(d_samples);
     cudaFree(d_splitters);
     CUDA_CHECK(cudaFree(d_output));
-    CUDA_CHECK(cudaFree(d_partition_starts));
+    // CUDA_CHECK(cudaFree(d_partition_starts));
     CUDA_CHECK(cudaFree(d_partition_offsets));
     CUDA_CHECK(cudaFree(d_partition_counts));
 
