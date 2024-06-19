@@ -127,12 +127,13 @@ int main() {
     std::cout<<"\n";
 
     int results[3*n];
-
+    memset(results, -1, 3*n);
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, results, n, hmap1, hmap2);
     // int n3 = sizeof(results)/sizeof(int);
     for(int i=0;i<3*n;i+=3)
     {
-        std::cout<<"Keys: "<<results[i]<<" Value: "<<results[i+1]<<" "<<results[i+2]<<std::endl;
+        if(results[i]!=-1)
+            std::cout<<"Keys: "<<results[i]<<" Value: "<<results[i+1]<<" "<<results[i+2]<<std::endl;
     }    
     // Free device memory
     cudaFree(d_data);
