@@ -69,7 +69,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    computeStarts<<<1, p>>>(d_partition_counts, d_partition_starts, p);
+    computeStarts<<<1, 1>>>(d_partition_counts, d_partition_starts, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
