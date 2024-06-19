@@ -10,7 +10,7 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 
@@ -78,8 +78,8 @@ int main() {
     
     int* d_final_array;
     cudaMalloc(&d_final_array, n * sizeof(int));
-    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array,n);
-    // BlockSortKernel2<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array, d_partition_starts,p,n);
+    // BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array,n);
+    BlockSortKernel2<<<numBlocks, BLOCK_THREADS*3/2>>>(d_output, d_final_array, d_partition_starts,p,n);
 
     printArray<<<1,1>>>(d_final_array,n);
     cudaDeviceSynchronize();
