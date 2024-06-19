@@ -127,7 +127,7 @@ int main() {
     std::cout<<"\n";
 
     cudaMalloc(&d_results, 3*n * sizeof(int));
-    cudaMemset(d_results, -1, 3*n * sizeof(int))
+    cudaMemset(d_results, -1, 3*n * sizeof(int));
     
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, hmap1, hmap2);
     CUDA_CHECK(cudaGetLastError());
