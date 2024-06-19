@@ -4,7 +4,7 @@
 #include <vector>
 
 // Define the number of threads per block and items per thread
-#define BLOCK_THREADS 256
+#define BLOCK_THREADS 512
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
@@ -59,12 +59,12 @@ int main() {
     // }
     // std::cout << std::endl;
 
-    std::vector<int> h_data(1e6);
+    std::vector<int> h_data(10000);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 13767;
-        std::cout<<h_data[i]<<" ";
+        // std::cout<<h_data[i]<<" ";
     }
-    std::cout<<"\n";
+    // std::cout<<"\n";
     int n = h_data.size();
 
     // Define block start indices
