@@ -6,7 +6,7 @@
 
 #define BLOCK_THREADS 512
 #define ITEMS_PER_THREAD 1
-#define BLOCK_THREAD 2*p
+#define BLOCK_THREAD 2*BLOCK_THREADS
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
