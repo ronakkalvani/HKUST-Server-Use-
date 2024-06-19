@@ -49,7 +49,7 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data(100000);
+    std::vector<int> h_data(10000);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 1271;
         std::cout<<h_data[i]<<" ";
@@ -61,7 +61,7 @@ int main() {
     // std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
     std::vector<int> h_block_starts(n/BLOCK_THREADS);
     for(int i=0;i<n/BLOCK_THREADS;i++) {
-        if (i%2) h_block_starts[i] = (i)*(BLOCK_THREADS)+7;
+        if (i%2) h_block_starts[i] = (i)*(BLOCK_THREADS)+12;
         else h_block_starts[i] = (i)*(BLOCK_THREADS);
         std::cout<<h_block_starts[i]<<" ";
     }
