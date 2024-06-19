@@ -30,20 +30,6 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
     // Ensure we do not access out of bounds memory
     if (block_start >= num_elements) return;
 
-    // // Load data
-    // int thread_keys[ITEMS_PER_THREAD];
-    // int valid_items = min(num_items - threadIdx.x * ITEMS_PER_THREAD, ITEMS_PER_THREAD);
-    // BlockLoadT(temp_storage.load).Load(d_in + block_start, thread_keys, num_items);
-
-    // __syncthreads(); // Barrier for smem reuse
-
-    // // Collectively sort the keys
-    // BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
-
-    // __syncthreads(); // Barrier for smem reuse
-
-    // // Store the sorted segment
-    // BlockStoreT(temp_storage.store).Store(d_out + block_start, thread_keys, num_items);
     if (threadIdx.x < num_items) {
         // Load data
         int thread_keys[ITEMS_PER_THREAD];
