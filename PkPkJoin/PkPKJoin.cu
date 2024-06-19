@@ -133,9 +133,11 @@ int main() {
     int *d_hmap1;
     cudaMalloc(&d_hmap1, sizeof(hmap1));
     cudaMemcpy(d_hmap1, hmap1, sizeof(hmap1), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaDeviceSynchronize());
     int *d_hmap2;
     cudaMalloc(&d_hmap2, sizeof(hmap2));
     cudaMemcpy(d_hmap2, hmap2, sizeof(hmap2), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
     CUDA_CHECK(cudaGetLastError());
@@ -145,14 +147,15 @@ int main() {
 
     int h_results[3*n];
     cudaMemcpy(h_results, d_results,3*n * sizeof(int), cudaMemcpyDeviceToHost);
-    for (int i=0;i<3*n;i+=3) {
-        // if(h_results[i]!=-1)
-            std::cout<<h_results[i]<<std::endl;
-    }
+    CUDA_CHECK(cudaDeviceSynchronize());
     // for (int i=0;i<3*n;i+=3) {
-    //     if(h_results[i]!=-1)
-    //         std::cout<<"Key: "<<h_results[i]<<" Values: "<<h_results[i+1]<<" "<<h_results[i+2]<<std::endl;
+    //     // if(h_results[i]!=-1)
+    //         std::cout<<h_results[i]<<std::endl;
     // }
+    for (int i=0;i<3*n;i+=3) {
+        if(h_results[i]!=-1)
+            std::cout<<"Key: "<<h_results[i]<<" Values: "<<h_results[i+1]<<" "<<h_results[i+2]<<std::endl;
+    }
 
     // Free device memory
     cudaFree(d_data);
