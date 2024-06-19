@@ -59,7 +59,7 @@ int main() {
     // }
     // std::cout << std::endl;
 
-    std::vector<int> h_data(100000);
+    std::vector<int> h_data(10000);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 127;
         std::cout<<h_data[i]<<" ";
@@ -72,7 +72,7 @@ int main() {
     int s=256;
     std::vector<int> h_block_indices(n/s);
     for(int i=0;i<n/s;i++) {
-        if (i%2) h_block_indices[i] = (i)*(s)-121;
+        if (i%2) h_block_indices[i] = (i)*(s)-12;
         else h_block_indices[i] = (i)*(s);
         std::cout<<h_block_indices[i]<<" ";
     }
