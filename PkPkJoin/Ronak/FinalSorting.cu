@@ -69,7 +69,7 @@ int main() {
 
     // Define block start indices
     // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
-    int s=512;
+    int s=BLOCK_THREADS/2;
     std::vector<int> h_block_indices(n/s);
     for(int i=0;i<n/s;i++) {
         if (i%2) h_block_indices[i] = (i)*(s)-12;
