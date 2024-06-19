@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 
-#define BLOCK_THREADS 32
+#define BLOCK_THREADS 128
 #define ITEMS_PER_THREAD 1
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
