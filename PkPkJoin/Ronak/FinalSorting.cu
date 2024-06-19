@@ -79,7 +79,7 @@ int main() {
     cudaMemcpy(d_block_starts, h_block_starts.data(), num_blocks * sizeof(int), cudaMemcpyHostToDevice);
 
     // Launch kernel to sort blocks
-    BlockSortKernel2<<<num_blocks, BLOCK_THREADS>>>(d_data, d_sorted_data, d_block_starts, num_blocks, n);
+    BlockSortKernel2<<<num_blocks, BLOCK_THREADS*2>>>(d_data, d_sorted_data, d_block_starts, num_blocks, n);
 
     // Copy sorted data back to host
     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
