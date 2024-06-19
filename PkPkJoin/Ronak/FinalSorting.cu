@@ -1,94 +1,95 @@
+#include <cuda_runtime.h>
 #include <cub/cub.cuh>
 #include <iostream>
 #include <vector>
-#include <algorithm>
 
-// Error checking macro
-#define CUDA_CHECK(call) \
-    do { \
-        cudaError_t err = call; \
-        if (err != cudaSuccess) { \
-            fprintf(stderr, "CUDA error in file '%s' in line %i: %s.\n", \
-                    __FILE__, __LINE__, cudaGetErrorString(err)); \
-            exit(1); \
-        } \
-    } while (0)
+// Define the number of threads per block and items per thread
+#define BLOCK_THREADS 128
+#define ITEMS_PER_THREAD 4
 
-// Kernel to sort each block
-__global__ void sortBlocks(int* data, int* block_starts, int num_blocks, int total_elements) {
-    // Calculate the current block's size
-    int block_id = blockIdx.x;
-    if (block_id >= num_blocks) return;
+// Block-sorting CUDA kernel
+__global__ void BlockSortKernel(int *d_in, int *d_out, int num_blocks, int *block_indices)
+{
+    // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
+    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_TRANSPOSE> BlockLoadT;
+    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockRadixSort<int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
-    int start_index = block_starts[block_id];
-    int end_index = (block_id == num_blocks - 1) ? total_elements : block_starts[block_id + 1];
-    int block_size = end_index - start_index;
+    // Allocate type-safe, repurposable shared memory for collectives
+    __shared__ union {
+        typename BlockLoadT::TempStorage load;
+        typename BlockStoreT::TempStorage store;
+        typename BlockRadixSortT::TempStorage sort;
+    } temp_storage;
 
-    if (block_size <= 0) return;
+    // Obtain this block's segment of consecutive keys (blocked across threads)
+    int thread_keys[ITEMS_PER_THREAD];
+    int block_idx = blockIdx.x;
+    int block_start = block_indices[block_idx];
+    int block_end = (block_idx + 1 < num_blocks) ? block_indices[block_idx + 1] : num_elements;
+    int block_size = block_end - block_start;
+    int valid_items = min(block_size, BLOCK_THREADS * ITEMS_PER_THREAD);
 
-    // Allocate shared memory for the block
-    extern __shared__ int shared_data[];
-
-    // Copy block data to shared memory
-    for (int i = threadIdx.x; i < block_size; i += blockDim.x) {
-        shared_data[i] = data[start_index + i];
+    // Initialize thread_keys with a known value for safer debugging
+    for (int i = 0; i < ITEMS_PER_THREAD; i++) {
+        thread_keys[i] = (block_start + threadIdx.x * ITEMS_PER_THREAD + i) < block_end ? d_in[block_start + threadIdx.x * ITEMS_PER_THREAD + i] : INT_MAX;
     }
-    __syncthreads();
 
-    // Use CUB to sort the shared memory
-    void *d_temp_storage = NULL;
-    size_t temp_storage_bytes = 0;
-    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, shared_data, shared_data, block_size);
-    cudaMalloc(&d_temp_storage, temp_storage_bytes);
-    cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, shared_data, shared_data, block_size);
-    cudaFree(d_temp_storage);
-    __syncthreads();
+    // Load data
+    BlockLoadT(temp_storage.load).Load(d_in + block_start, thread_keys, valid_items);
 
-    // Copy sorted data back to the global memory
-    for (int i = threadIdx.x; i < block_size; i += blockDim.x) {
-        data[start_index + i] = shared_data[i];
-    }
+    __syncthreads(); // Barrier for smem reuse
+
+    // Collectively sort the keys
+    BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
+
+    __syncthreads(); // Barrier for smem reuse
+
+    // Store the sorted segment
+    BlockStoreT(temp_storage.store).Store(d_out + block_start, thread_keys, valid_items);
 }
 
 int main() {
-    // Example data
-    std::vector<int> h_data = {3, 2, 1, 7, 6, 5, 9, 8};
-    std::vector<int> h_block_starts = {0, 3, 6}; // Each block starts at these indices
-    int num_blocks = h_block_starts.size();
-    int total_elements = h_data.size();
+    // Initialize host data
+    std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
+    int n = h_data.size();
+
+    // Define block start indices
+    std::vector<int> h_block_indices = {0, 5, 10, 15, 20};
 
     // Allocate device memory
     int* d_data;
-    int* d_block_starts;
-    CUDA_CHECK(cudaMalloc(&d_data, h_data.size() * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_block_starts, h_block_starts.size() * sizeof(int)));
+    cudaMalloc(&d_data, n * sizeof(int));
+    int* d_sorted_data;
+    cudaMalloc(&d_sorted_data, n * sizeof(int));
+    int* d_block_indices;
+    cudaMalloc(&d_block_indices, h_block_indices.size() * sizeof(int));
 
     // Copy data to device
-    CUDA_CHECK(cudaMemcpy(d_data, h_data.data(), h_data.size() * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaMemcpy(d_block_starts, h_block_starts.data(), h_block_starts.size() * sizeof(int), cudaMemcpyHostToDevice));
+    cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_block_indices, h_block_indices.data(), h_block_indices.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-    // Launch the sorting kernel
-    int threads_per_block = 256;
-    sortBlocks<<<num_blocks, threads_per_block, threads_per_block * sizeof(int)>>>(d_data, d_block_starts, num_blocks, total_elements);
-    CUDA_CHECK(cudaDeviceSynchronize());
+    int numBlocks = h_block_indices.size();
+
+    // Launch kernel to sort blocks
+    BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, numBlocks, d_block_indices);
 
     // Copy sorted data back to host
-    CUDA_CHECK(cudaMemcpy(h_data.data(), d_data, h_data.size() * sizeof(int), cudaMemcpyDeviceToHost));
+    cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // Print sorted data
-    std::cout << "Sorted data: ";
-    for (int val : h_data) {
-        std::cout << val << " ";
+    // Print sorted blocks
+    for (int i = 0; i < h_data.size(); i++) {
+        std::cout << h_data[i] << " ";
     }
     std::cout << std::endl;
 
-    // Clean up
-    CUDA_CHECK(cudaFree(d_data));
-    CUDA_CHECK(cudaFree(d_block_starts));
+    // Free device memory
+    cudaFree(d_data);
+    cudaFree(d_sorted_data);
+    cudaFree(d_block_indices);
 
     return 0;
 }
-
 
 // #include <cuda_runtime.h>
 // #include <cub/cub.cuh>
