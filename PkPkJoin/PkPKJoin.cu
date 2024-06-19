@@ -31,7 +31,7 @@ int main() {
     std::vector<int> h_data(n);
     for (int i=0;i<n;i++) {
         if (i<n1) h_data[i] = keys1[i];
-        else h_data[i] = key2[i-n1];
+        else h_data[i] = keys2[i-n1];
     }
 
     // Allocate device memory
