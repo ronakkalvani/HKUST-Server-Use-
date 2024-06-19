@@ -14,7 +14,7 @@ __global__ void JoinKernel(int * d_final_array, int* results, int numElements, i
     if (tid < numElements - 1)
     {
         // Check if current element is equal to the next element
-        if (keys[tid] == keys[tid + 1])
+        if (d_final_array[tid] == d_final_array[tid + 1])
         {
             int k=keys[tid];
             results[3*tid] = k;
