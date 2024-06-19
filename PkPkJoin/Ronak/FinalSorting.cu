@@ -5,7 +5,7 @@
 
 // Define the number of threads per block and items per thread
 #define BLOCK_THREADS 128
-#define ITEMS_PER_THREAD 4
+#define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
 __global__ void BlockSortKernel(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
@@ -51,16 +51,33 @@ __global__ void BlockSortKernel(int *d_in, int *d_out, int *block_indices, int n
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
+    // std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
+    // int n = h_data.size();
+
+    // for (int i = 0; i < h_data.size(); i++) {
+    //     std::cout << h_data[i] << " ";
+    // }
+    // std::cout << std::endl;
+
+    std::vector<int> h_data(1024);
+    for (int i = 0; i < h_data.size(); i++) {
+        h_data[i] = rand() % 127;
+        std::cout<<h_data[i]<<" ";
+    }
+    std::cout<<"\n";
     int n = h_data.size();
 
-    for (int i = 0; i < h_data.size(); i++) {
-        std::cout << h_data[i] << " ";
-    }
-    std::cout << std::endl;
-
     // Define block start indices
-    std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
+    // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
+    int s=32;
+    std::vector<int> h_block_starts(n/s);
+    for(int i=0;i<n/s;i++) {
+        if (i%2) h_block_starts[i] = (i)*(s)+7;
+        else h_block_starts[i] = (i)*(s);
+        std::cout<<h_block_starts[i]<<" ";
+    }
+    std::cout<<"\n";
+    int num_blocks = h_block_starts.size();
 
     // Allocate device memory
     int* d_data;
