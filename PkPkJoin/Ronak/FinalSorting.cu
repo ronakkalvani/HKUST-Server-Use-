@@ -54,6 +54,11 @@ int main() {
     std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
     int n = h_data.size();
 
+    for (int i = 0; i < h_data.size(); i++) {
+        std::cout << h_data[i] << " ";
+    }
+    std::cout << std::endl;
+
     // Define block start indices
     std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
 
