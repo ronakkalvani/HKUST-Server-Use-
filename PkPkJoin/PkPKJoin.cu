@@ -135,7 +135,7 @@ int main() {
     CUDA_CHECK(cudaDeviceSynchronize());
     // int n3 = sizeof(results)/sizeof(int);
     
-    printArray<<<1,1>>>(d_results,3*n)
+    printArray<<<1,1>>>(d_results,3*n);
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
