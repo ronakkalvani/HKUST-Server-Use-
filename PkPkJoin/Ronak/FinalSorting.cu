@@ -55,7 +55,7 @@ int main() {
     int n = h_data.size();
 
     // Define block start indices
-    std::vector<int> h_block_indices = {0, 5, 10, 15, 20};
+    std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
 
     // Allocate device memory
     int* d_data;
