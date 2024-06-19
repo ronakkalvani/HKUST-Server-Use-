@@ -16,7 +16,7 @@
 
 
 int main() {
-    std::vector<int> h_data(1e6);
+    std::vector<int> h_data(1e8);
     for (int i=0;i<h_data.size();i++) {
         h_data[i]=rand()%1257;
     }
@@ -77,9 +77,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1,1>>>(d_output,10000);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1,1>>>(d_output,10000);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     // printArray<<<1,1>>>(d_partition_starts,p);
     // CUDA_CHECK(cudaGetLastError());
@@ -93,9 +93,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // printArray<<<1,1>>>(d_final_array,10000);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1,1>>>(d_final_array,10000);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
 
     // Free device memory
