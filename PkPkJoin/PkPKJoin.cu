@@ -127,7 +127,7 @@ int main() {
     std::cout<<"\n";
 
     int results[3*n];
-    memset(results, -1, 3*n);
+    memset(results, -1, sizeof(results));
     for(int i=0;i<3*n;i+=3)
     {
         // if(results[i]!=-1)
