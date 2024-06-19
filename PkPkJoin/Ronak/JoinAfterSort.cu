@@ -7,7 +7,7 @@
 
 // Kernel to perform hash join-like operation on sorted data
 // __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, const ValueType* values2, ValueType* results, int numElements)
-__global__ void JoinKernel(int * d_final_array, std::vector<vector<int>>& results, int numElements, int* hmap1, int* hmap2)
+__global__ void JoinKernel(int * d_final_array, int* results, int numElements, int* hmap1, int* hmap2)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -17,7 +17,9 @@ __global__ void JoinKernel(int * d_final_array, std::vector<vector<int>>& result
         if (keys[tid] == keys[tid + 1])
         {
             int k=keys[tid];
-            std::results.push_back({k, hmap1[k], hmap2[k]});
+            results[3*tid] = k;
+            results[3*tid+1] = hmap1[k];
+            results[3*tid+2] = hmap2[k];
         }
 
     }
