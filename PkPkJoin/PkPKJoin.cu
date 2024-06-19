@@ -93,7 +93,7 @@ int main() {
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1,1>>>(d_partition_starts,p);
+    printArray<<<1,1>>>(d_partition_starts,n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     
