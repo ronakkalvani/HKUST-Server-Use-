@@ -126,6 +126,7 @@ int main() {
     }
     std::cout<<"\n";
 
+    int *d_results;
     cudaMalloc(&d_results, 3*n * sizeof(int));
     cudaMemset(d_results, -1, 3*n * sizeof(int));
     
