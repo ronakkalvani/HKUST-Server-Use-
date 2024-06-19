@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 32
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
@@ -49,9 +49,9 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data(1024);
+    std::vector<int> h_data(100000);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 37;
+        h_data[i] = rand() % 1271;
         std::cout<<h_data[i]<<" ";
     }
     std::cout<<"\n";
