@@ -126,22 +126,15 @@ int main() {
     }
     std::cout<<"\n";
 
-    int results[3*n];
-    memset(results, -1, sizeof(results));
-    for(int i=0;i<3*n;i+=3)
-    {
-        // if(results[i]!=-1)
-            std::cout<<"Keys: "<<results[i]<<" Value: "<<results[i+1]<<" "<<results[i+2]<<std::endl;
-    }    
-    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, results, n, hmap1, hmap2);
+    cudaMalloc(&d_results, 3*n * sizeof(int));
+    cudaMemset(d_results, -1, 3*n * sizeof(int))
+    
+    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, hmap1, hmap2);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     // int n3 = sizeof(results)/sizeof(int);
-    for(int i=0;i<3*n;i+=3)
-    {
-        if(results[i]!=-1)
-            std::cout<<"Keys: "<<results[i]<<" Value: "<<results[i+1]<<" "<<results[i+2]<<std::endl;
-    }    
+    
+    printArray<<<1,1>>>(d_results,3*n)
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
