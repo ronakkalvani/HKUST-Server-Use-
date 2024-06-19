@@ -4,7 +4,7 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 
-#define BLOCK_THREADS 512
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
@@ -79,7 +79,7 @@ int main() {
     int* d_final_array;
     cudaMalloc(&d_final_array, n * sizeof(int));
     // BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array,n);
-    BlockSortKernel2<<<numBlocks, BLOCK_THREADS*3/2>>>(d_output, d_final_array, d_partition_starts,p,n);
+    BlockSortKernel2<<<numBlocks, BLOCK_THREADS*2>>>(d_output, d_final_array, d_partition_starts,p,n);
 
     printArray<<<1,1>>>(d_final_array,n);
     cudaDeviceSynchronize();
