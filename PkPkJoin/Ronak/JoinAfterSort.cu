@@ -17,13 +17,11 @@ __global__ void JoinKernel(int * d_final_array, int* results, int numElements, i
         if (d_final_array[tid] == d_final_array[tid + 1])
         {
             int k=d_final_array[tid];
-            results[3*tid] = 1;
+            results[3*tid] = k;
             results[3*tid+1] = hmap1[k];
             results[3*tid+2] = hmap2[k];
         }
-        else {
-            results[3*tid] = 0;
-        }
+
 
     }
 }
