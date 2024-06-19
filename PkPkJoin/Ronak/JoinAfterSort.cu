@@ -22,7 +22,6 @@ __global__ void JoinKernel(int * d_final_array, int* results, int numElements, i
             results[3*tid+2] = hmap2[k];
         }
 
-
     }
 }
 
