@@ -109,7 +109,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    std::vector<int> h_final(n);
+    int h_final[n];
     cudaMemcpy(h_final, d_final_array, n * sizeof(int), cudaMemcpyDeviceToHost);
     for (int i=0;i<n;i++) {
         std::cout<<h_data[i]<<" ";
