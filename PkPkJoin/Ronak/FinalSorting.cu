@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 1022
+#define BLOCK_THREADS 32
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
@@ -43,14 +43,18 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
 
 int main() {
     // Initialize host data
-    std::vector<int> h_data(5000);
+    std::vector<int> h_data(1024);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 1271;
+        h_data[i] = rand() % 37;
     }
     int n = h_data.size();
 
     // Define block starting indices
-    std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
+    // std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
+    std::vector<int> h_block_starts(32);
+    for(int i=0;i<32;i++) {
+        h_block_starts[i] = (i)*32;
+    }
     int num_blocks = h_block_starts.size();
 
     // Allocate device memory
