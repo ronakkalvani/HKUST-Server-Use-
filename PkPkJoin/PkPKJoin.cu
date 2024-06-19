@@ -130,7 +130,14 @@ int main() {
     cudaMalloc(&d_results, 3*n * sizeof(int));
     cudaMemset(d_results, -1, 3*n * sizeof(int));
     
-    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, hmap1, hmap2);
+    int *d_hmap1;
+    cudaMalloc(&d_hmap1, sizeof(hmap1));
+    cudaMemcpy(d_hmap1, hmap1, sizeof(hmap1), cudaMemcpyHostToDevice);
+    int *d_hmap2;
+    cudaMalloc(&d_hmap2, sizeof(hmap2));
+    cudaMemcpy(d_hmap2, hmap2, sizeof(hmap2), cudaMemcpyHostToDevice);
+
+    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     // int n3 = sizeof(results)/sizeof(int);
