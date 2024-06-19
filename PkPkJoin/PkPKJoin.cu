@@ -75,6 +75,8 @@ int main() {
     distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_splitters, d_partition_starts, d_partition_offsets, n, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
+
+    printArray<<<1,1>>>(d_output,n);
     
     int* d_final_array;
     cudaMalloc(&d_final_array, n * sizeof(int));
