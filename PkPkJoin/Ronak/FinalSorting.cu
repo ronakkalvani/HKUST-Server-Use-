@@ -70,14 +70,14 @@ int main() {
     // Define block start indices
     // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
     int s=32;
-    std::vector<int> h_block_starts(n/s);
+    std::vector<int> h_block_indices(n/s);
     for(int i=0;i<n/s;i++) {
-        if (i%2) h_block_starts[i] = (i)*(s)+7;
-        else h_block_starts[i] = (i)*(s);
-        std::cout<<h_block_starts[i]<<" ";
+        if (i%2) h_block_indices[i] = (i)*(s)+7;
+        else h_block_indices[i] = (i)*(s);
+        std::cout<<h_block_indices[i]<<" ";
     }
     std::cout<<"\n";
-    int num_blocks = h_block_starts.size();
+    int num_blocks = h_block_indices.size();
 
     // Allocate device memory
     int* d_data;
@@ -173,15 +173,15 @@ int main() {
 //     int n = h_data.size();
 
 //     // Define block starting indices
-//     // std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
-//     std::vector<int> h_block_starts(n/BLOCK_THREADS);
+//     // std::vector<int> h_block_indices = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
+//     std::vector<int> h_block_indices(n/BLOCK_THREADS);
 //     for(int i=0;i<n/BLOCK_THREADS;i++) {
-//         if (i%2) h_block_starts[i] = (i)*(BLOCK_THREADS)+7;
-//         else h_block_starts[i] = (i)*(BLOCK_THREADS);
-//         std::cout<<h_block_starts[i]<<" ";
+//         if (i%2) h_block_indices[i] = (i)*(BLOCK_THREADS)+7;
+//         else h_block_indices[i] = (i)*(BLOCK_THREADS);
+//         std::cout<<h_block_indices[i]<<" ";
 //     }
 //     std::cout<<"\n";
-//     int num_blocks = h_block_starts.size();
+//     int num_blocks = h_block_indices.size();
 
 //     // Allocate device memory
 //     int *d_data, *d_sorted_data, *d_block_starts;
@@ -191,7 +191,7 @@ int main() {
 
 //     // Copy data to device
 //     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
-//     cudaMemcpy(d_block_starts, h_block_starts.data(), num_blocks * sizeof(int), cudaMemcpyHostToDevice);
+//     cudaMemcpy(d_block_starts, h_block_indices.data(), num_blocks * sizeof(int), cudaMemcpyHostToDevice);
 
 //     // Launch kernel to sort blocks
 //     BlockSortKernel2<<<num_blocks, BLOCK_THREADS*2>>>(d_data, d_sorted_data, d_block_starts, num_blocks, n);
