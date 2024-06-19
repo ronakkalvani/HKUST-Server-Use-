@@ -112,7 +112,7 @@ int main() {
     int h_final[n];
     cudaMemcpy(h_final, d_final_array, n * sizeof(int), cudaMemcpyDeviceToHost);
     for (int i=0;i<n;i++) {
-        std::cout<<h_data[i]<<" ";
+        std::cout<<h_final[i]<<" ";
     }
     std::cout<<"\n";
 
