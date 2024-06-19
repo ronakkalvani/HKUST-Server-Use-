@@ -4,7 +4,7 @@
 #include <vector>
 
 // Define the number of threads per block and items per thread
-#define BLOCK_THREADS 512
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
