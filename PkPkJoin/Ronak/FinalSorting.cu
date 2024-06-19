@@ -46,7 +46,9 @@ int main() {
     std::vector<int> h_data(1024);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 37;
+        std::cout<<h_data[i]<<" ";
     }
+    std::cout<<"\n";
     int n = h_data.size();
 
     // Define block starting indices
