@@ -16,7 +16,7 @@
 
 
 int main() {
-    std::vector<int> h_data(10000);
+    std::vector<int> h_data(1e6);
     for (int i=0;i<h_data.size();i++) {
         h_data[i]=rand()%12711;
     }
