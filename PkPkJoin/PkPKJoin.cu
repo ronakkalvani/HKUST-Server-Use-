@@ -132,7 +132,7 @@ int main() {
     // int n3 = sizeof(results)/sizeof(int);
     for(int i=0;i<3*n;i+=3)
     {
-        if(results[i]!=-1)
+        if(results[i]==1)
             std::cout<<"Keys: "<<results[i]<<" Value: "<<results[i+1]<<" "<<results[i+2]<<std::endl;
     }    
     // Free device memory
