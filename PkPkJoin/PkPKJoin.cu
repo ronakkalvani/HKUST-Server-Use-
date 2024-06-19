@@ -17,9 +17,9 @@
 
 
 int main() {
-    std::vector<int> h_data(1e6);
+    std::vector<int> h_data(1e5);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand()%1257244;
+        h_data[i]=rand()%12574;
     }
     int n = h_data.size();
 
@@ -38,7 +38,7 @@ int main() {
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
     int p = numBlocks;
-    int sample_size = p*p*((int)std::log(p));
+    int sample_size = n/p;
     int *d_samples, *d_splitters;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
