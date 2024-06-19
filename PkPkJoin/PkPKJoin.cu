@@ -141,14 +141,19 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     // int n3 = sizeof(results)/sizeof(int);
-    printArray<<<1,1>>>(d_results,3*n);
-    // int h_results[3*n];
-    // cudaMemcpy(h_results, d_results, sizeof(d_results), cudaMemcpyDeviceToHost);
+    // printArray<<<1,1>>>(d_results,3*n);
 
+    int h_results[3*n];
+    cudaMemcpy(h_results, d_results,3*n * sizeof(int), cudaMemcpyDeviceToHost);
+    for (int i=0;i<3*n;i+=3) {
+        // if(h_results[i]!=-1)
+            std::cout<<h_results[i]<<std::endl;
+    }
     // for (int i=0;i<3*n;i+=3) {
     //     if(h_results[i]!=-1)
     //         std::cout<<"Key: "<<h_results[i]<<" Values: "<<h_results[i+1]<<" "<<h_results[i+2]<<std::endl;
     // }
+
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
