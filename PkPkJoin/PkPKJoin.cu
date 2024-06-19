@@ -20,7 +20,7 @@ int main() {
     int n2=5;
     int keys1[n1] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int values1[n1] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-    int keys1[n2] = {1, 2, 3, 6, 9};
+    int keys2[n2] = {1, 2, 3, 6, 9};
     int values2[n2] = {101, 102, 103, 108, 110};
 
     // std::vector<int> h_data(1e5);
@@ -115,9 +115,6 @@ int main() {
         std::cout<<h_data[i]<<" ";
     }
     std::cout<<"\n";
-
-
-
 
     // Free device memory
     cudaFree(d_data);
