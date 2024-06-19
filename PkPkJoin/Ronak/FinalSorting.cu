@@ -61,7 +61,7 @@ int main() {
 
     std::vector<int> h_data(1e8);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 1376457;
+        h_data[i] = rand() % 13774;
         // std::cout<<h_data[i]<<" ";
     }
     // std::cout<<"\n";
@@ -74,9 +74,9 @@ int main() {
     for(int i=0;i<n/s;i++) {
         if (i%2) h_block_indices[i] = (i)*(s)-120;
         else h_block_indices[i] = (i)*(s);
-        std::cout<<h_block_indices[i]<<" ";
+        // std::cout<<h_block_indices[i]<<" ";
     }
-    std::cout<<"\n";
+    // std::cout<<"\n";
     int num_blocks = h_block_indices.size();
 
     // Allocate device memory
