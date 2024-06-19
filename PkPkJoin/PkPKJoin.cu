@@ -17,9 +17,9 @@
 
 
 int main() {
-    std::vector<int> h_data(1e8);
+    std::vector<int> h_data(1e6);
     for (int i=0;i<h_data.size();i++) {
-        h_data[i]=rand()%125724455;
+        h_data[i]=rand()%1257244;
     }
     int n = h_data.size();
 
