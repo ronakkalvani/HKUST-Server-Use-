@@ -37,9 +37,10 @@ int main()
     const int numBlocks = (numElements + blockSize - 1) / blockSize;
 
     // Example sorted data (keys and values)
-    KeyType keys[numElements] = {1, 1, 2, 3, 3, 4, 5, 5, 5, 6};
+    KeyType keys1[numElements] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     ValueType values1[numElements] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-    ValueType values2[numElements] = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110};
+    KeyType keys1[numElements] = {1, 2, 3, 6, 9};
+    ValueType values2[numElements] = {101, 102, 103, 108, 110};
 
     // Allocate device memory
     KeyType* d_keys;
