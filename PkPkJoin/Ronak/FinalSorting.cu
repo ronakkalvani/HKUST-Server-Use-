@@ -10,8 +10,8 @@
 __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int num_blocks, int num_elements)
 {
     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
-    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_WARP_TRANSPOSE> BlockLoadT;
-    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_WARP_TRANSPOSE> BlockStoreT;
+    typedef cub::BlockLoad<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_LOAD_VECTORIZE> BlockLoadT;
+    typedef cub::BlockStore<int, BLOCK_THREADS, ITEMS_PER_THREAD, cub::BLOCK_STORE_VECTORIZE> BlockStoreT;
     typedef cub::BlockRadixSort<int, BLOCK_THREADS, ITEMS_PER_THREAD> BlockRadixSortT;
 
     // Allocate type-safe, repurposable shared memory for collectives
@@ -26,22 +26,22 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int
     int block_end = (blockIdx.x == num_blocks - 1) ? num_elements : d_block_starts[blockIdx.x + 1];
     int num_items = block_end - block_start;
 
-    // Ensure each thread does not go out of bounds
-    if (threadIdx.x < num_items)
-    {
-        // Load data
-        int thread_keys[ITEMS_PER_THREAD];
-        BlockLoadT(temp_storage.load).Load(d_in + block_start + threadIdx.x, thread_keys);
+    // Load data
+    int thread_keys[ITEMS_PER_THREAD] = {0};
+    if (threadIdx.x < num_items) {
+        BlockLoadT(temp_storage.load).Load(d_in + block_start, thread_keys, num_items);
+    }
 
-        __syncthreads(); // Barrier for smem reuse
+    __syncthreads(); // Barrier for smem reuse
 
-        // Collectively sort the keys
-        BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
+    // Collectively sort the keys
+    BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
 
-        __syncthreads(); // Barrier for smem reuse
+    __syncthreads(); // Barrier for smem reuse
 
-        // Store the sorted segment
-        BlockStoreT(temp_storage.store).Store(d_out + block_start + threadIdx.x, thread_keys);
+    // Store the sorted segment
+    if (threadIdx.x < num_items) {
+        BlockStoreT(temp_storage.store).Store(d_out + block_start, thread_keys, num_items);
     }
 }
 
@@ -50,9 +50,7 @@ int main() {
     std::vector<int> h_data(1024);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 37;
-        std::cout << h_data[i] << " ";
     }
-    std::cout << "\n";
     int n = h_data.size();
 
     // Define block starting indices
@@ -60,9 +58,7 @@ int main() {
     for (int i = 0; i < n / BLOCK_THREADS; i++) {
         if (i % 2) h_block_starts[i] = (i) * (BLOCK_THREADS) + 7;
         else h_block_starts[i] = (i) * (BLOCK_THREADS);
-        std::cout << h_block_starts[i] << " ";
     }
-    std::cout << "\n";
     int num_blocks = h_block_starts.size();
 
     // Allocate device memory
