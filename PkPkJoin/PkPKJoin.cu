@@ -18,16 +18,26 @@
 int main() {
     int n1=9;
     int n2=5;
+    int hmap1[15];
+    int hmap2[10];
     int keys1[n1] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     int values1[n1] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
     int keys2[n2] = {1, 2, 3, 6, 9};
     int values2[n2] = {101, 102, 103, 108, 110};
+    for(int i =0;i<n1;i++)
+    {
+        hmap1[keys1[i]] = values1[i];
+    }
+    for(int i =0;i<n2;i++)
+    {
+        hmap2[keys2[i]] = values2[i];
+    }
 
     // std::vector<int> h_data(1e5);
     // for (int i=0;i<h_data.size();i++) {
     //     h_data[i]=rand()%12574;
     // }
-    int n = n1+n2;
+    const int n = n1+n2;
     std::vector<int> h_data(n);
     for (int i=0;i<n;i++) {
         if (i<n1) h_data[i] = keys1[i];
@@ -116,6 +126,13 @@ int main() {
     }
     std::cout<<"\n";
 
+    std::vector<vector<int>> results;
+
+    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, results, n, hmap1, hmap2);
+    for(int i=0;i<results.size();i++)
+    {
+        std::cout<<"Keys: "<<results[i][0]<<" Value: "<<results[i][1]<<" "<<results[i][2]<<endl;
+    }    
     // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
