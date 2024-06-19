@@ -77,17 +77,24 @@ int main() {
     CUDA_CHECK(cudaDeviceSynchronize());
 
     printArray<<<1,1>>>(d_output,n);
-    std::cout<<"---";
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
     printArray<<<1,1>>>(d_partition_starts,p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     
 
     int* d_final_array;
     cudaMalloc(&d_final_array, n * sizeof(int));
     // BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_output, d_final_array,n);
     BlockSortKernel2<<<numBlocks, BLOCK_THREADS*2>>>(d_output, d_final_array, d_partition_starts,p,n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     printArray<<<1,1>>>(d_final_array,n);
-    cudaDeviceSynchronize();
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
 
     // Free device memory
