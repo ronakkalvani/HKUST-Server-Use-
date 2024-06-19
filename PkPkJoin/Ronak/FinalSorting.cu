@@ -5,7 +5,8 @@
 
 // Define the number of threads per block and items per thread
 #define BLOCK_THREAD 512
-// #define ITEMS_PER_THREAD 1
+#define ITEMS_PER_THREAD 1c
+
 
 // Block-sorting CUDA kernel
 __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
