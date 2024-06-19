@@ -59,7 +59,7 @@ int main() {
     // }
     // std::cout << std::endl;
 
-    std::vector<int> h_data(1e6);
+    std::vector<int> h_data(1e8);
     for (int i = 0; i < h_data.size(); i++) {
         h_data[i] = rand() % 13767;
         // std::cout<<h_data[i]<<" ";
