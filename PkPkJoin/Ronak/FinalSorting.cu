@@ -55,7 +55,9 @@ int main() {
     for(int i=0;i<n/BLOCK_THREADS;i++) {
         if (i%2) h_block_starts[i] = (i)*(n/BLOCK_THREADS)+7;
         else h_block_starts[i] = (i)*(n/BLOCK_THREADS);
+        std::cout<<h_block_starts[i]<<" ";
     }
+    std::cout<<"\n";
     int num_blocks = h_block_starts.size();
 
     // Allocate device memory
