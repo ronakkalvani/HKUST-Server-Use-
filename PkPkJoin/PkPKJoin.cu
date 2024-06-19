@@ -93,9 +93,9 @@ int main() {
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1,1>>>(d_partition_starts,n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1,1>>>(d_partition_starts,n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
     
 
     int* d_final_array;
@@ -105,9 +105,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1,1>>>(d_final_array,10000);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1,1>>>(d_final_array,n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int h_final[n];
     cudaMemcpy(h_final, d_final_array, n * sizeof(int), cudaMemcpyDeviceToHost);
