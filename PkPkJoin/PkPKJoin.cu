@@ -77,6 +77,7 @@ int main() {
     CUDA_CHECK(cudaDeviceSynchronize());
 
     printArray<<<1,1>>>(d_output,n);
+    std::cout<<"---";
     printArray<<<1,1>>>(d_partition_starts,p);
     
 
@@ -94,7 +95,7 @@ int main() {
     cudaFree(d_sorted_data);
     cudaFree(d_samples);
     cudaFree(d_splitters);
-    CUDA_CHECK(cudaFree(d_output));
+    // CUDA_CHECK(cudaFree(d_output));
     // CUDA_CHECK(cudaFree(d_partition_starts));
     CUDA_CHECK(cudaFree(d_partition_offsets));
     CUDA_CHECK(cudaFree(d_partition_counts));
