@@ -13,7 +13,7 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 int main() {
     int n1=9;
@@ -131,7 +131,7 @@ int main() {
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, results, n, hmap1, hmap2);
     for(int i=0;i<results.size();i++)
     {
-        std::cout<<"Keys: "<<results[i][0]<<" Value: "<<results[i][1]<<" "<<results[i][2]<<endl;
+        std::cout<<"Keys: "<<results[i][0]<<" Value: "<<results[i][1]<<" "<<results[i][2]<<std::endl;
     }    
     // Free device memory
     cudaFree(d_data);

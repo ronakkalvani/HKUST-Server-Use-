@@ -2,8 +2,8 @@
 #include <iostream>
 
 // Define your data types as needed
-typedef int KeyType;
-typedef int ValueType;
+// typedef int KeyType;
+// typedef int ValueType;
 
 // Kernel to perform hash join-like operation on sorted data
 // __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, const ValueType* values2, ValueType* results, int numElements)
