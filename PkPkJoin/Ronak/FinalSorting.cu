@@ -4,8 +4,8 @@
 #include <vector>
 
 // Define the number of threads per block and items per thread
-// #define BLOCK_THREAD 1024
-// #define ITEMS_PER_THREAD 1
+#define BLOCK_THREAD 1024
+#define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
 __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
@@ -49,166 +49,66 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int 
     BlockStoreT(temp_storage.store).Store(d_out + block_start, thread_keys, valid_items);
 }
 
-// int main() {
-//     // Initialize host data
-//     // std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
-//     // int n = h_data.size();
+int main() {
+    // Initialize host data
+    // std::vector<int> h_data = {34, 78, 12, 56, 89, 21, 90, 34, 23, 45, 67, 11, 23, 56, 78, 99, 123, 45, 67, 89, 23, 45, 67, 34, 78};
+    // int n = h_data.size();
 
-//     // for (int i = 0; i < h_data.size(); i++) {
-//     //     std::cout << h_data[i] << " ";
-//     // }
-//     // std::cout << std::endl;
+    // for (int i = 0; i < h_data.size(); i++) {
+    //     std::cout << h_data[i] << " ";
+    // }
+    // std::cout << std::endl;
 
-//     std::vector<int> h_data(1e6);
-//     for (int i = 0; i < h_data.size(); i++) {
-//         h_data[i] = rand() % 13767;
-//         // std::cout<<h_data[i]<<" ";
-//     }
-//     // std::cout<<"\n";
-//     int n = h_data.size();
+    std::vector<int> h_data(1e8);
+    for (int i = 0; i < h_data.size(); i++) {
+        h_data[i] = rand() % 1376457;
+        // std::cout<<h_data[i]<<" ";
+    }
+    // std::cout<<"\n";
+    int n = h_data.size();
 
-//     // Define block start indices
-//     // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
-//     int s=BLOCK_THREAD/2;
-//     std::vector<int> h_block_indices(n/s);
-//     for(int i=0;i<n/s;i++) {
-//         if (i%2) h_block_indices[i] = (i)*(s)-12;
-//         else h_block_indices[i] = (i)*(s);
-//         std::cout<<h_block_indices[i]<<" ";
-//     }
-//     std::cout<<"\n";
-//     int num_blocks = h_block_indices.size();
+    // Define block start indices
+    // std::vector<int> h_block_indices = {0, 3, 10, 18, 20};
+    int s=BLOCK_THREAD/2;
+    std::vector<int> h_block_indices(n/s);
+    for(int i=0;i<n/s;i++) {
+        if (i%2) h_block_indices[i] = (i)*(s)-120;
+        else h_block_indices[i] = (i)*(s);
+        std::cout<<h_block_indices[i]<<" ";
+    }
+    std::cout<<"\n";
+    int num_blocks = h_block_indices.size();
 
-//     // Allocate device memory
-//     int* d_data;
-//     cudaMalloc(&d_data, n * sizeof(int));
-//     int* d_sorted_data;
-//     cudaMalloc(&d_sorted_data, n * sizeof(int));
-//     int* d_block_indices;
-//     cudaMalloc(&d_block_indices, h_block_indices.size() * sizeof(int));
+    // Allocate device memory
+    int* d_data;
+    cudaMalloc(&d_data, n * sizeof(int));
+    int* d_sorted_data;
+    cudaMalloc(&d_sorted_data, n * sizeof(int));
+    int* d_block_indices;
+    cudaMalloc(&d_block_indices, h_block_indices.size() * sizeof(int));
 
-//     // Copy data to device
-//     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
-//     cudaMemcpy(d_block_indices, h_block_indices.data(), h_block_indices.size() * sizeof(int), cudaMemcpyHostToDevice);
+    // Copy data to device
+    cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_block_indices, h_block_indices.data(), h_block_indices.size() * sizeof(int), cudaMemcpyHostToDevice);
 
-//     int numBlocks = h_block_indices.size();
+    int numBlocks = h_block_indices.size();
 
-//     // Launch kernel to sort blocks
-//     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_data, d_sorted_data, d_block_indices, numBlocks, n);
+    // Launch kernel to sort blocks
+    BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_data, d_sorted_data, d_block_indices, numBlocks, n);
 
-//     // Copy sorted data back to host
-//     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
+    // Copy sorted data back to host
+    cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-//     // Print sorted blocks
-//     for (int i = 0; i < h_data.size(); i++) {
-//         std::cout << h_data[i] << " ";
-//     }
-//     std::cout << std::endl;
+    // Print sorted blocks
+    for (int i = 0; i < h_data.size(); i++) {
+        std::cout << h_data[i] << " ";
+    }
+    std::cout << std::endl;
 
-//     // Free device memory
-//     cudaFree(d_data);
-//     cudaFree(d_sorted_data);
-//     cudaFree(d_block_indices);
+    // Free device memory
+    cudaFree(d_data);
+    cudaFree(d_sorted_data);
+    cudaFree(d_block_indices);
 
-//     return 0;
-// }
-
-// #include <cuda_runtime.h>
-// #include <cub/cub.cuh>
-// #include <iostream>
-// #include <vector>
-
-// #define BLOCK_THREAD 32
-// #define ITEMS_PER_THREAD 1
-
-// // Block-sorting CUDA kernel
-// __global__ void BlockSortKernel2(int *d_in, int *d_out, int *d_block_starts, int num_blocks, int num_elements)
-// {
-//     // Specialize BlockLoad, BlockStore, and BlockRadixSort collective types
-//     typedef cub::BlockLoad<int, 2*BLOCK_THREAD, ITEMS_PER_THREAD, cub::BLOCK_LOAD_VECTORIZE> BlockLoadT;
-//     typedef cub::BlockStore<int, 2*BLOCK_THREAD, ITEMS_PER_THREAD, cub::BLOCK_STORE_VECTORIZE> BlockStoreT;
-//     typedef cub::BlockRadixSort<int, 2*BLOCK_THREAD, ITEMS_PER_THREAD> BlockRadixSortT;
-
-//     // Allocate type-safe, repurposable shared memory for collectives
-//     __shared__ union {
-//         typename BlockLoadT::TempStorage load;
-//         typename BlockStoreT::TempStorage store;
-//         typename BlockRadixSortT::TempStorage sort;
-//     } temp_storage;
-
-//     // Determine the range of elements this block should sort
-//     int block_start = d_block_starts[blockIdx.x];
-//     int block_end = (blockIdx.x == num_blocks - 1) ? num_elements : d_block_starts[blockIdx.x + 1];
-//     int num_items = block_end - block_start;
-
-//     // Ensure we do not access out of bounds memory
-//     if (block_start >= num_elements) return;
-
-//     // Load data
-//     int thread_keys[ITEMS_PER_THREAD];
-//     int valid_items = min(num_items - threadIdx.x * ITEMS_PER_THREAD, ITEMS_PER_THREAD);
-//     BlockLoadT(temp_storage.load).Load(d_in + block_start, thread_keys, num_items);
-
-//     __syncthreads(); // Barrier for smem reuse
-
-//     // Collectively sort the keys
-//     BlockRadixSortT(temp_storage.sort).Sort(thread_keys);
-
-//     __syncthreads(); // Barrier for smem reuse
-
-//     // Store the sorted segment
-//     BlockStoreT(temp_storage.store).Store(d_out + block_start, thread_keys, num_items);
-    
-// }
-
-
-// int main() {
-//     // Initialize host data
-//     std::vector<int> h_data(1024);
-//     for (int i = 0; i < h_data.size(); i++) {
-//         h_data[i] = rand() % 127;
-//         std::cout<<h_data[i]<<" ";
-//     }
-//     std::cout<<"\n";
-//     int n = h_data.size();
-
-//     // Define block starting indices
-//     // std::vector<int> h_block_indices = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
-//     std::vector<int> h_block_indices(n/BLOCK_THREAD);
-//     for(int i=0;i<n/BLOCK_THREAD;i++) {
-//         if (i%2) h_block_indices[i] = (i)*(BLOCK_THREAD)+7;
-//         else h_block_indices[i] = (i)*(BLOCK_THREAD);
-//         std::cout<<h_block_indices[i]<<" ";
-//     }
-//     std::cout<<"\n";
-//     int num_blocks = h_block_indices.size();
-
-//     // Allocate device memory
-//     int *d_data, *d_sorted_data, *d_block_starts;
-//     cudaMalloc(&d_data, n * sizeof(int));
-//     cudaMalloc(&d_sorted_data, n * sizeof(int));
-//     cudaMalloc(&d_block_starts, num_blocks * sizeof(int));
-
-//     // Copy data to device
-//     cudaMemcpy(d_data, h_data.data(), n * sizeof(int), cudaMemcpyHostToDevice);
-//     cudaMemcpy(d_block_starts, h_block_indices.data(), num_blocks * sizeof(int), cudaMemcpyHostToDevice);
-
-//     // Launch kernel to sort blocks
-//     BlockSortKernel2<<<num_blocks, BLOCK_THREAD*2>>>(d_data, d_sorted_data, d_block_starts, num_blocks, n);
-
-//     // Copy sorted data back to host
-//     cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
-
-//     // Print sorted blocks
-//     for (int i = 0; i < h_data.size(); i++) {
-//         std::cout << h_data[i] << " ";
-//     }
-//     std::cout << std::endl;
-
-//     // Free device memory
-//     cudaFree(d_data);
-//     cudaFree(d_sorted_data);
-//     cudaFree(d_block_starts);
-
-//     return 0;
-// }
+    return 0;
+}
