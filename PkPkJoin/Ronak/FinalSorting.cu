@@ -3,7 +3,7 @@
 #include <iostream>
 #include <vector>
 
-#define BLOCK_THREADS 32
+#define BLOCK_THREADS 512
 #define ITEMS_PER_THREAD 1
 
 // Block-sorting CUDA kernel
@@ -53,7 +53,7 @@ int main() {
     // std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
     std::vector<int> h_block_starts(32);
     for(int i=0;i<32;i++) {
-        h_block_starts[i] = (i)*32;
+        h_block_starts[i] = (i)*(n/BLOCK_THREADS);
     }
     int num_blocks = h_block_starts.size();
 
