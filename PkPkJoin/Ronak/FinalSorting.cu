@@ -61,7 +61,7 @@ int main() {
     // std::vector<int> h_block_starts = {0, 1000, 2000, 3000, 4000, 4500}; // Example block starts
     std::vector<int> h_block_starts(n/32);
     for(int i=0;i<n/32;i++) {
-        if (i%2) h_block_starts[i] = (i)*(32)+7;
+        if (i%2) h_block_starts[i] = (i)*(32);
         else h_block_starts[i] = (i)*(32);
         std::cout<<h_block_starts[i]<<" ";
     }
