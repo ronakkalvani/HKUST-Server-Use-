@@ -16,21 +16,31 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 int main() {
-    int n1=9;
-    int n2=5;
-    int hmap1[15];
-    int hmap2[10];
-    int keys1[n1] = {6, 7, 8, 9, 1, 2, 3, 4, 5};
-    int values1[n1] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
-    int keys2[n2] = { 3, 6, 9, 1, 2};
-    int values2[n2] = {101, 102, 103, 108, 110};
+    // int n1=9;
+    // int n2=5;
+    // int hmap1[15];
+    // int hmap2[10];
+    // int keys1[n1] = {6, 7, 8, 9, 1, 2, 3, 4, 5};
+    // int values1[n1] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100};
+    // int keys2[n2] = { 3, 6, 9, 1, 2};
+    // int values2[n2] = {101, 102, 103, 108, 110};
+    int n1=1e3;
+    int n2=2*1e3;
+    int keys1[n1];
+    int keys2[n2];
+    for (int i = 0; i < n1; i++) {
+        keys1[i] = 2*i % 123556;
+    }
+    for (int i = 0; i < n1; i++) {
+        keys2[i] = 3*i % 123556;
+    }
     for(int i =0;i<n1;i++)
     {
-        hmap1[keys1[i]] = values1[i];
+        hmap1[keys1[i]] = rand() % 355;
     }
     for(int i =0;i<n2;i++)
     {
-        hmap2[keys2[i]] = values2[i];
+        hmap2[keys2[i]] = rand() % 326;
     }
 
     // std::vector<int> h_data(1e5);
