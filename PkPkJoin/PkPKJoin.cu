@@ -15,17 +15,6 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
-// Error checking macro
-#define CUDA_CHECK(call) \
-    do { \
-        cudaError_t err = call; \
-        if(err != cudaSuccess) { \
-            std::cerr << "CUDA error in " << __FILE__ << " at line " << __LINE__ << ": " \
-                      << cudaGetErrorString(err) << std::endl; \
-            exit(err); \
-        } \
-    } while (0)
-
 int main() {
     int n1 = 1e3;
     int n2 = 2*1e3;
