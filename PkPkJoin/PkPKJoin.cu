@@ -118,31 +118,31 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // printArray<<<1, 1>>>(d_final_array, n);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
-
-    int* d_results;
-    CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
-    CUDA_CHECK(cudaMemset(d_results, -1, 3 * n * sizeof(int)));
-
-    int* d_hmap1;
-    CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    int* d_hmap2;
-    CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
+    printArray<<<1, 1>>>(d_final_array, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    int h_results[3 * n];
-    CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // int* d_results;
+    // CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
+    // CUDA_CHECK(cudaMemset(d_results, -1, 3 * n * sizeof(int)));
+
+    // int* d_hmap1;
+    // CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
+    // CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    // int* d_hmap2;
+    // CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
+    // CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    // JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    // int h_results[3 * n];
+    // CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     // for (int i = 0; i < 3 * n; i += 3) {
     //     if (h_results[i] != -1)
