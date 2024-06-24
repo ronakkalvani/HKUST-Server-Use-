@@ -30,7 +30,8 @@ __global__ void Splitterss(int* d_splitters,int* d_samples,int sample_size,int p
 __global__ void sampleElements(int* d_sorted_subarrays, int* d_samples, int n, int sample_size, int stride) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < sample_size) {
-        d_samples[tid] = d_sorted_subarrays[tid * stride];
+        int ind=rand()%n;
+        d_samples[tid] = d_sorted_subarrays[ind];
     }
 }
 
