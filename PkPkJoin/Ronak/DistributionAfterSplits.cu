@@ -75,7 +75,9 @@ int main() {
     }
     for (int i = 0; i < p-1; i++) {
         h_pivots[i] = (i + 1) * (12715 / p);
+        std::cout<<h_pivots[i]<<" ";
     }
+    std::cout<<"\n";
 
     // Device pointers
     int *d_subarrays, *d_output, *d_pivots, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
