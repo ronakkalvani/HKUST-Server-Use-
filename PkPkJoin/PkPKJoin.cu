@@ -122,6 +122,14 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
+    printArray<<<1, 1>>>(d_partition_counts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    printArray<<<1, 1>>>(d_partition_offsets, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
     // int* d_results;
     // CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
     // CUDA_CHECK(cudaMemset(d_results, -1, 3 * n * sizeof(int)));
