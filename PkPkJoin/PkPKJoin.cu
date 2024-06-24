@@ -29,10 +29,10 @@ int main() {
     int keys1[n1];
     int keys2[n2];
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 2*i % 12355;
+        keys1[i] = 2*i;
     }
     for (int i = 0; i < n1; i++) {
-        keys2[i] = 3*i % 12355;
+        keys2[i] = 3*i;
     }
     int mx=2*1e5;
     int hmap1[mx];
