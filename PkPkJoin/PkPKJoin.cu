@@ -17,7 +17,7 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 int main() {
-    int n1 = 1e2;
+    int n1 = 1e5;
     int n2 = 10;
 
     std::vector<int> keys1(n1);
