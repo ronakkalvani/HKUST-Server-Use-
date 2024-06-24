@@ -34,13 +34,15 @@ int main() {
     for (int i = 0; i < n1; i++) {
         keys2[i] = 3*i % 123556;
     }
+    int hmap1[2*1e6];
     for(int i =0;i<n1;i++)
     {
         hmap1[keys1[i]] = rand() % 355;
     }
+    int hmap2[2*1e6];
     for(int i =0;i<n2;i++)
     {
-        hmap2[keys2[i]] = rand() % 326;
+        hmap2[keys2[i]] = 500+(rand() % 326);
     }
 
     // std::vector<int> h_data(1e5);
