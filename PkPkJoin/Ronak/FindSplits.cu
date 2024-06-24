@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
+#include <curand_kernel.h>
 
 #define BLOCK_THREADS 32
 
-// Error checking macro
+
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
         cudaError_t error = call;                                          \
