@@ -34,8 +34,9 @@ int main() {
     for (int i = 0; i < n1; i++) {
         keys2[i] = 3*i % 12355;
     }
-    int hmap1[(int) 2*1e5];
-    int hmap2[(int) 2*1e5];
+    int mx=2*1e5
+    int hmap1[mx];
+    int hmap2[mx];
     for(int i =0;i<n1;i++)
     {
         hmap1[keys1[i]] = rand() % 355;
