@@ -70,6 +70,7 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
+    int blockSize = BLOCK_THREADS;
     int p = numBlocks;
     int sample_size = p*int(log2(p));
     int *d_samples, *d_splitters;
@@ -88,7 +89,6 @@ int main() {
     cudaDeviceSynchronize();
     printArray<<<1,1>>> (d_splitters,p-1);
 
-    int blockSize = BLOCK_THREADS;
     // Device pointers
     int  *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
 
