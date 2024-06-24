@@ -86,8 +86,7 @@ int main() {
 
     Splitterss<<<1,1>>> (d_splitters,d_samples,sample_size,p);
     cudaDeviceSynchronize();
-    // printArray<<<1,1>>> (d_splitters,p-1);
-    // cudaDeviceSynchronize();
+    printArray<<<1,1>>> (d_splitters,p-1);
 
     int blockSize = BLOCK_THREADS;
     // Device pointers
@@ -133,9 +132,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // printArray<<<1,1>>>(d_final_array,n);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1,1>>>(d_final_array,n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     int h_final[n];
     cudaMemcpy(h_final, d_final_array, n * sizeof(int), cudaMemcpyDeviceToHost);
