@@ -71,12 +71,18 @@ int main() {
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
 
     int p = numBlocks;
-    int sample_size = n/p;
+    int sample_size = p*int(log2(p));
     int *d_samples, *d_splitters;
+    curandState* d_state;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
+    CUDA_CHECK(cudaMalloc(&d_state, sample_size * sizeof(curandState)));
 
-    FindSplit(d_sorted_data,d_samples, d_splitters, n, numBlocks, sample_size);
+    initCurand<<<numBlocks, blockSize>>>(d_state, time(NULL), sample_size);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
+    FindSplit(d_sorted_data, d_samples, d_splitters, n, p, sample_size, d_state);
 
     Splitterss<<<1,1>>> (d_splitters,d_samples,sample_size,p);
     cudaDeviceSynchronize();

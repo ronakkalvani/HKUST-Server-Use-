@@ -57,55 +57,55 @@ void FindSplit(int* d_sorted_data, int* d_samples, int* d_splitters, int n, int 
     cudaFree(d_temp_storage);
 }
 
-int main() {
-    const int n = 1e6;
-    int p = 1e4;
-    int sample_size = p*int(log2(p));
+// int main() {
+//     const int n = 1e6;
+//     int p = 1e4;
+//     int sample_size = p*int(log2(p));
 
-    int h_sorted_subarrays[n];
-    for (int i = 0; i < n; i++) {
-        h_sorted_subarrays[i] = rand() % 123556;
-    }
-    int h_splitters[p - 1];
+//     int h_sorted_subarrays[n];
+//     for (int i = 0; i < n; i++) {
+//         h_sorted_subarrays[i] = rand() % 123556;
+//     }
+//     int h_splitters[p - 1];
 
-    int *d_sorted_subarrays, *d_samples, *d_splitters;
-    curandState* d_state;
+//     int *d_sorted_subarrays, *d_samples, *d_splitters;
+//     curandState* d_state;
 
-    CUDA_CHECK(cudaMalloc(&d_sorted_subarrays, n * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_samples, sample_size * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_splitters, (p - 1) * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_state, sample_size * sizeof(curandState)));
+//     CUDA_CHECK(cudaMalloc(&d_sorted_subarrays, n * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_samples, sample_size * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_splitters, (p - 1) * sizeof(int)));
+//     CUDA_CHECK(cudaMalloc(&d_state, sample_size * sizeof(curandState)));
 
-    CUDA_CHECK(cudaMemcpy(d_sorted_subarrays, h_sorted_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
+//     CUDA_CHECK(cudaMemcpy(d_sorted_subarrays, h_sorted_subarrays, n * sizeof(int), cudaMemcpyHostToDevice));
 
-    int blockSize = BLOCK_THREADS;
-    int numBlocks = (sample_size + blockSize - 1) / blockSize;
-    initCurand<<<numBlocks, blockSize>>>(d_state, time(NULL), sample_size);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+//     int blockSize = BLOCK_THREADS;
+//     int numBlocks = (sample_size + blockSize - 1) / blockSize;
+//     initCurand<<<numBlocks, blockSize>>>(d_state, time(NULL), sample_size);
+//     CUDA_CHECK(cudaGetLastError());
+//     CUDA_CHECK(cudaDeviceSynchronize());
 
-    FindSplit(d_sorted_subarrays, d_samples, d_splitters, n, p, sample_size, d_state);
+//     FindSplit(d_sorted_subarrays, d_samples, d_splitters, n, p, sample_size, d_state);
 
-    int* h_samples = new int[sample_size];
-    CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
+//     int* h_samples = new int[sample_size];
+//     CUDA_CHECK(cudaMemcpy(h_samples, d_samples, sample_size * sizeof(int), cudaMemcpyDeviceToHost));
 
-    for (int i = 0; i < p - 1; ++i) {
-        h_splitters[i] = h_samples[(i + 1) * sample_size / p];
-    }
+//     for (int i = 0; i < p - 1; ++i) {
+//         h_splitters[i] = h_samples[(i + 1) * sample_size / p];
+//     }
 
-    CUDA_CHECK(cudaFree(d_sorted_subarrays));
-    CUDA_CHECK(cudaFree(d_samples));
-    CUDA_CHECK(cudaFree(d_splitters));
-    CUDA_CHECK(cudaFree(d_state));
+//     CUDA_CHECK(cudaFree(d_sorted_subarrays));
+//     CUDA_CHECK(cudaFree(d_samples));
+//     CUDA_CHECK(cudaFree(d_splitters));
+//     CUDA_CHECK(cudaFree(d_state));
 
-    delete[] h_samples;
+//     delete[] h_samples;
 
-    for (int i = 0; i < p - 1; ++i) {
-        std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
-    }
+//     for (int i = 0; i < p - 1; ++i) {
+//         std::cout << "Splitter " << i << ": " << h_splitters[i] << std::endl;
+//     }
 
-    return 0;
-}
+//     return 0;
+// }
 
 
 // #include <iostream>
