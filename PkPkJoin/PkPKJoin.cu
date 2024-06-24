@@ -29,17 +29,17 @@ int main() {
     int keys1[n1];
     int keys2[n2];
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 2*i % 123556;
+        keys1[i] = 2*i % 12355;
     }
     for (int i = 0; i < n1; i++) {
-        keys2[i] = 3*i % 123556;
+        keys2[i] = 3*i % 12355;
     }
-    int hmap1[2*1e6];
+    int hmap1[2*1e5];
+    int hmap2[2*1e5];
     for(int i =0;i<n1;i++)
     {
         hmap1[keys1[i]] = rand() % 355;
     }
-    int hmap2[2*1e6];
     for(int i =0;i<n2;i++)
     {
         hmap2[keys2[i]] = 500+(rand() % 326);
