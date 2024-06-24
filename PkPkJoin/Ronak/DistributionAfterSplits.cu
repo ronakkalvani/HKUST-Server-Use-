@@ -66,8 +66,8 @@ __global__ void distributeElements(
 }
 
 int main() {
-    const int n = 1e6;
-    int p = n/1e3;
+    const int n = 1e2;
+    int p = n/8;
     int h_subarrays[n];
     int h_pivots[p-1];
     for (int i = 0; i < n; i++) {
