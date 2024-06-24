@@ -18,16 +18,16 @@
 
 int main() {
     int n1 = 1e3;
-    int n2 = 2 * 1e3;
+    int n2 = 1e3;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 2 * i;
+        keys1[i] = 3 * i;
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 3 * i;
+        keys2[i] = 2 * i;
     }
 
     int mx = 2 * 1e5;
