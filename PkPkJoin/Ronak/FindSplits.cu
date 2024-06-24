@@ -18,6 +18,15 @@
         }                                                                  \
     } while (0)
 
+__global__ void Splitterss(int* d_splitters,int* d_samples,int sample_size,int p) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid == 0) {
+        for (int i = 0; i < p - 1; ++i) {
+            d_splitters[i] = d_samples[(i + 1) * sample_size / p];
+        }
+    }
+}
+
 // Kernel to initialize the CURAND states
 __global__ void initCurand(curandState* state, unsigned long seed, int n) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
