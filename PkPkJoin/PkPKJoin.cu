@@ -24,10 +24,10 @@ int main() {
     std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 3 * i;
+        keys1[i] = 2 * i;
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 2 * i;
+        keys2[i] = 3 * i;
     }
 
     int mx = 2*1e6;
@@ -144,10 +144,10 @@ int main() {
     CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    for (int i = 0; i < 3 * n; i += 3) {
-        if (h_results[i] != -1)
-            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    }
+    // for (int i = 0; i < 3 * n; i += 3) {
+    //     if (h_results[i] != -1)
+    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    // }
 
     // Free device memory
     cudaFree(d_data);
