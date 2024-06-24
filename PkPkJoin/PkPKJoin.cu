@@ -17,7 +17,7 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 int main() {
-    int n1 = 512*1000;
+    int n1 = 512*100;
     int n2 = 512;
 
     std::vector<int> keys1(n1);
@@ -159,9 +159,9 @@ int main() {
     cudaFree(d_partition_offsets);
     cudaFree(d_partition_counts);
     cudaFree(d_final_array);
-    cudaFree(d_results);
-    cudaFree(d_hmap1);
-    cudaFree(d_hmap2);
+    // cudaFree(d_results);
+    // cudaFree(d_hmap1);
+    // cudaFree(d_hmap2);
 
     return 0;
 }
