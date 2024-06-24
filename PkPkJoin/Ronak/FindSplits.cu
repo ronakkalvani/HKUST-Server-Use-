@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 #include <cub/cub.cuh>
 #include <curand_kernel.h>
+#include <cmath>
 
 #define BLOCK_THREADS 32
 
@@ -57,13 +58,13 @@ void FindSplit(int* d_sorted_data, int* d_samples, int* d_splitters, int n, int 
 }
 
 int main() {
-    const int n = 256;
-    int p = 8;
-    int sample_size = n / p;
+    const int n = 1e6;
+    int p = 512;
+    int sample_size = p*log2(p);
 
     int h_sorted_subarrays[n];
     for (int i = 0; i < n; i++) {
-        h_sorted_subarrays[i] = rand() % 123;
+        h_sorted_subarrays[i] = rand() % 123556;
     }
     int h_splitters[p - 1];
 
