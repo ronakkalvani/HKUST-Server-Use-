@@ -59,7 +59,7 @@ void FindSplit(int* d_sorted_data, int* d_samples, int* d_splitters, int n, int 
 
 int main() {
     const int n = 1e6;
-    int p = 512;
+    int p = 1e4;
     int sample_size = p*int(log2(p));
 
     int h_sorted_subarrays[n];
