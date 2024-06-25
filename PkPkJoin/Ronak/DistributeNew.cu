@@ -26,12 +26,20 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
     }
 }
 int main() {
-    const int numData = 10;
-    const int numSplitters = 3;
+    const int numData = 1e6;
+    const int numSplitters = 1e3;
 
     // Example data and splitters
-    int h_data[numData] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
-    int h_splitters[numSplitters] = {5, 10, 15};
+    int h_data[numData];
+    int h_splitters[numSplitters];
+    for(int i =0;i<numData;i++)
+    {
+        h_data[i] = rand()%1232443;
+    }
+    for(int i =0;i<numSplitters;i++)
+    {
+        h_data[i] = 1000*(i+1);
+    }
     int h_output[numData];
 
     // Allocate device memory
