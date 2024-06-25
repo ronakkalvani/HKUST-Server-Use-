@@ -14,10 +14,10 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
         int item = data[tid];
         int left = 0;
         int right = numSplitters - 1;
-        while (left <= right) {
+        while (left < right) {
             int mid = (left + right) / 2;
-            if (splitters[mid] <= item) {
-                left = mid + 1;
+            if (item >= splitters[mid]) {
+                left = mid;
             } else {
                 right = mid - 1;
             }
