@@ -10,11 +10,11 @@
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 2*BLOCK_THREADS
 
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
 int main() {
     int n1 = 1e5;
