@@ -1,23 +1,18 @@
+#include <cub/cub.cuh>
 #include <iostream>
 #include <vector>
 #include <algorithm>
-// #include <cuda_runtime.h>
-// #include <cub/cub.cuh>
-#include <cub/cub.cuh>
-#include <cuda_runtime.h>
-#include <stdio.h>
 
 __global__ void findSplitsKernel(const int *data, int *output, const int *splitters, int numData, int numSplitters) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < numData) {
-        // Perform binary search to find the appropriate partition
         int item = data[tid];
         int left = 0;
         int right = numSplitters - 1;
-        while (left < right) {
+        while (left <= right) {
             int mid = (left + right) / 2;
-            if (item >= splitters[mid]) {
-                left = mid;
+            if (splitters[mid] <= item) {
+                left = mid + 1;
             } else {
                 right = mid - 1;
             }
@@ -25,114 +20,70 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
         output[tid] = left;  // 'left' is the partition index
     }
 }
-int main() {
-    const int numData = 1e6;
-    const int numSplitters = 1e3;
 
-    // Example data and splitters
-    int h_data[numData];
-    int h_splitters[numSplitters];
-    for(int i =0;i<numData;i++)
-    {
-        h_data[i] = rand()%1232443;
+void checkCudaError(cudaError_t error, const char *message) {
+    if (error != cudaSuccess) {
+        std::cerr << "Error: " << message << " (" << cudaGetErrorString(error) << ")" << std::endl;
+        exit(EXIT_FAILURE);
     }
-    for(int i =0;i<numSplitters;i++)
-    {
-        h_data[i] = 1000*(i+1);
+}
+
+int main() {
+    // Example setup for large dataset
+    const int numData = 1000000; // 1 million data points
+    const int numSplitters = 1000; // 1000 splitters
+
+    // Generating example data and splitters
+    std::vector<int> h_data(numData);
+    std::vector<int> h_splitters(numSplitters);
+
+    // Fill data with sorted values for simplicity
+    for (int i = 0; i < numData; ++i) {
+        h_data[i] = i;
     }
-    int h_output[numData];
+
+    // Fill splitters with sorted values
+    for (int i = 0; i < numSplitters; ++i) {
+        h_splitters[i] = (i + 1) * (numData / numSplitters);
+    }
+
+    // Device memory pointers
+    int *d_data, *d_splitters, *d_output;
 
     // Allocate device memory
-    int *d_data, *d_splitters, *d_output;
-    cudaMalloc(&d_data, numData * sizeof(int));
-    cudaMalloc(&d_splitters, numSplitters * sizeof(int));
-    cudaMalloc(&d_output, numData * sizeof(int));
+    checkCudaError(cudaMalloc(&d_data, numData * sizeof(int)), "Failed to allocate device memory for data");
+    checkCudaError(cudaMalloc(&d_splitters, numSplitters * sizeof(int)), "Failed to allocate device memory for splitters");
+    checkCudaError(cudaMalloc(&d_output, numData * sizeof(int)), "Failed to allocate device memory for output");
 
     // Copy data to device
-    cudaMemcpy(d_data, h_data, numData * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_splitters, h_splitters, numSplitters * sizeof(int), cudaMemcpyHostToDevice);
+    checkCudaError(cudaMemcpy(d_data, h_data.data(), numData * sizeof(int), cudaMemcpyHostToDevice), "Failed to copy data to device");
+    checkCudaError(cudaMemcpy(d_splitters, h_splitters.data(), numSplitters * sizeof(int), cudaMemcpyHostToDevice), "Failed to copy splitters to device");
 
-    // Launch kernel
+    // Kernel launch parameters
     int threadsPerBlock = 256;
     int blocksPerGrid = (numData + threadsPerBlock - 1) / threadsPerBlock;
+
+    // Launch kernel
     findSplitsKernel<<<blocksPerGrid, threadsPerBlock>>>(d_data, d_output, d_splitters, numData, numSplitters);
+    checkCudaError(cudaGetLastError(), "Kernel launch failed");
 
     // Copy result back to host
-    cudaMemcpy(h_output, d_output, numData * sizeof(int), cudaMemcpyDeviceToHost);
+    std::vector<int> h_output(numData);
+    checkCudaError(cudaMemcpy(h_output.data(), d_output, numData * sizeof(int), cudaMemcpyDeviceToHost), "Failed to copy output to host");
 
-    // Display the results
-    for (int i = 0; i < numData; ++i) {
+    // Optionally print out first few results
+    for (int i = 0; i < std::min(numData, 10); ++i) {
         std::cout << "Data: " << h_data[i] << " -> Partition: " << h_output[i] << std::endl;
     }
 
     // Free device memory
-    cudaFree(d_data);
-    cudaFree(d_splitters);
-    cudaFree(d_output);
+    checkCudaError(cudaFree(d_data), "Failed to free device memory for data");
+    checkCudaError(cudaFree(d_splitters), "Failed to free device memory for splitters");
+    checkCudaError(cudaFree(d_output), "Failed to free device memory for output");
 
     return 0;
 }
 
-// Error checking macro
-#define CUDA_CHECK(call)                                                   \
-    do {                                                                   \
-        cudaError_t error = call;                                          \
-        if (error != cudaSuccess) {                                        \
-            std::cerr << "CUDA Error: " << cudaGetErrorString(error) <<    \
-            " at " << __FILE__ << ":" << __LINE__ << std::endl;            \
-            exit(1);                                                       \
-        }                                                                  \
-    } while (0)
-
-// Kernel to print array
-__global__ void printArray(int* arr, int size) {
-    for (int i = 0; i < size; ++i) {
-        printf("%d ", arr[i]);
-    }
-    printf("\n");
-}
-
-__global__ void countElements(
-    int* d_subarrays, int* d_pivots, int* d_partition_counts, int n, int p) 
-{
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (tid < n) {
-        int partition = 0;
-        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
-            partition++;
-        }
-        atomicAdd(&d_partition_counts[partition], 1);
-    }
-}
-
-__global__ void computeStarts(int* d_partition_counts, int* d_partition_starts, int p) {
-    int tid = threadIdx.x;
-
-    if (tid == 0) {
-        int sum = 0;
-        for (int i = 0; i < p; ++i) {
-            d_partition_starts[i] = sum;
-            sum += d_partition_counts[i];
-        }
-    }
-}
-
-__global__ void distributeElements(
-    int* d_subarrays, int* d_output, int* d_pivots, 
-    int* d_partition_starts, int* d_partition_offsets, int n, int p) 
-{
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (tid < n) {
-        int partition = 0;
-        while (partition < p - 1 && d_subarrays[tid] > d_pivots[partition]) {
-            partition++;
-        }
-        int pos = atomicAdd(&d_partition_offsets[partition], 1);
-        d_output[d_partition_starts[partition] + pos] = d_subarrays[tid];
-    }
-}
 
 // int main() {
 //     const int n = 1e6;
