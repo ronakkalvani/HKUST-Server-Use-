@@ -72,7 +72,7 @@ int main() {
     checkCudaError(cudaMemcpy(h_output.data(), d_output, numData * sizeof(int), cudaMemcpyDeviceToHost), "Failed to copy output to host");
 
     // Optionally print out first few results
-    for (int i = 0; i < std::min(numData, 10); ++i) {
+    for (int i = 0; i < numData; ++i) {
         std::cout << "Data: " << h_data[i] << " -> Partition: " << h_output[i] << std::endl;
     }
 
