@@ -7,56 +7,57 @@
 #include <cuda_runtime.h>
 #include <stdio.h>
 
-__global__ void findSplits(int *data, int *splitters, int *output, int n, int p) {
-    // Get the thread index
-    int tid = blockDim.x * blockIdx.x + threadIdx.x;
-    if (tid >= n) return;
-
-    // Each thread processes one element from data
-    int value = data[tid];
-
-    // Use CUB to perform a binary search on the splitters
-    int position;
-    cub::UpperBound(splitters, p, value, position);
-
-    // Store the result in the output array
-    output[tid] = position;
+__global__ void findSplitsKernel(const int *data, int *output, const int *splitters, int numData, int numSplitters) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < numData) {
+        // Perform binary search to find the appropriate partition
+        int item = data[tid];
+        int left = 0;
+        int right = numSplitters - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (splitters[mid] <= item) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        output[tid] = left;  // 'left' is the partition index
+    }
 }
-
 int main() {
-    // Example data
-    int h_data[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}; // block-wise sorted array
-    int h_splitters[] = {3, 6, 9}; // global splitters, p = 3
-    int n = sizeof(h_data) / sizeof(h_data[0]);
-    int p = sizeof(h_splitters) / sizeof(h_splitters[0]);
+    const int numData = 10;
+    const int numSplitters = 3;
 
-    // Device arrays
+    // Example data and splitters
+    int h_data[numData] = {1, 3, 5, 7, 9, 11, 13, 15, 17, 19};
+    int h_splitters[numSplitters] = {5, 10, 15};
+    int h_output[numData];
+
+    // Allocate device memory
     int *d_data, *d_splitters, *d_output;
-    cudaMalloc(&d_data, n * sizeof(int));
-    cudaMalloc(&d_splitters, p * sizeof(int));
-    cudaMalloc(&d_output, n * sizeof(int));
+    cudaMalloc(&d_data, numData * sizeof(int));
+    cudaMalloc(&d_splitters, numSplitters * sizeof(int));
+    cudaMalloc(&d_output, numData * sizeof(int));
 
     // Copy data to device
-    cudaMemcpy(d_data, h_data, n * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_splitters, h_splitters, p * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_data, h_data, numData * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_splitters, h_splitters, numSplitters * sizeof(int), cudaMemcpyHostToDevice);
 
-    // Define block and grid sizes
-    int blockSize = 256;
-    int numBlocks = (n + blockSize - 1) / blockSize;
+    // Launch kernel
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (numData + threadsPerBlock - 1) / threadsPerBlock;
+    findSplitsKernel<<<blocksPerGrid, threadsPerBlock>>>(d_data, d_output, d_splitters, numData, numSplitters);
 
-    // Launch the kernel
-    findSplits<<<numBlocks, blockSize>>>(d_data, d_splitters, d_output, n, p);
+    // Copy result back to host
+    cudaMemcpy(h_output, d_output, numData * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // Copy the result back to the host
-    int h_output[n];
-    cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
-
-    // Print the result
-    for (int i = 0; i < n; i++) {
-        printf("Element %d belongs to split %d\n", h_data[i], h_output[i]);
+    // Display the results
+    for (int i = 0; i < numData; ++i) {
+        std::cout << "Data: " << h_data[i] << " -> Partition: " << h_output[i] << std::endl;
     }
 
-    // Clean up
+    // Free device memory
     cudaFree(d_data);
     cudaFree(d_splitters);
     cudaFree(d_output);
