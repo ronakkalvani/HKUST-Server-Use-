@@ -39,7 +39,7 @@ int main() {
 
     // Fill data with sorted values for simplicity
     for (int i = 0; i < numData; ++i) {
-        h_data[i] = i;
+        h_data[i] = rand();
     }
 
     // Fill splitters with sorted values
