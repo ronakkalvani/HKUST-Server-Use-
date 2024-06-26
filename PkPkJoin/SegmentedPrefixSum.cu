@@ -1,61 +1,77 @@
 #include <iostream>
-#include <vector>
-#include <cuda_runtime.h>
+#include <cub/cub.cuh>  // Include CUB header for CUDA utilities
 
-const int BLOCK_SIZE = 8;
+const int blockSize = 8;
+const int numBlocks = 3;
+const int numElements = blockSize * numBlocks;
 
-__global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements) {
-    __shared__ int segment_start;
-    __shared__ int previous_value;
+__global__ void segmentedPrefixSum(int *data, int *output, int *segmentOffsets, int numElements) {
+    typedef cub::BlockScan<int, blockSize> BlockScan;
+    __shared__ typename BlockScan::TempStorage temp_storage;
 
-    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    if (tid < num_elements) {
-        if (threadIdx.x == 0) {
-            segment_start = 0;
-            previous_value = d_in[tid];
+    // Load input data
+    int value = (idx < numElements) ? data[idx] : 0;
+    int prefix = 0;
+
+    // Compute inclusive prefix sum within the block
+    BlockScan(temp_storage).InclusiveScan(value, value, cub::Sum(), prefix);
+
+    // Store the result in output array
+    if (idx < numElements) {
+        output[idx] = prefix;
+
+        // Compute segment offsets (start of each new segment)
+        if (idx > 0 && data[idx] != data[idx - 1]) {
+            segmentOffsets[blockIdx.x] = output[idx - 1] + data[idx - 1];
         }
-
-        __syncthreads();
-
-        if (d_in[tid] != previous_value) {
-            segment_start++;
-            previous_value = d_in[tid];
-        }
-
-        d_out[tid] = segment_start;
     }
-}
-
-void segmentedPrefixSum(const std::vector<int>& input, std::vector<int>& output) {
-    int num_elements = input.size();
-    int num_blocks = (num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE;
-
-    int* d_in;
-    int* d_out;
-    cudaMalloc(&d_in, num_elements * sizeof(int));
-    cudaMalloc(&d_out, num_elements * sizeof(int));
-
-    cudaMemcpy(d_in, input.data(), num_elements * sizeof(int), cudaMemcpyHostToDevice);
-
-    segmentedPrefixSumKernel<<<num_blocks, BLOCK_SIZE>>>(d_in, d_out, num_elements);
-
-    cudaMemcpy(output.data(), d_out, num_elements * sizeof(int), cudaMemcpyDeviceToHost);
-
-    cudaFree(d_in);
-    cudaFree(d_out);
 }
 
 int main() {
-    std::vector<int> input = {0, 0, 0, 0, 1, 1, 1, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 1, 1, 1, 2, 2, 2, 2};
-    std::vector<int> output(input.size());
+    // Example input data
+    int input[numElements] = {0, 0, 0, 0, 1, 1, 1, 2,
+                               0, 0, 1, 1, 1, 2, 2, 2,
+                               0, 1, 1, 1, 2, 2, 2, 2};
 
-    segmentedPrefixSum(input, output);
+    int *d_input, *d_output, *d_segmentOffsets;
+    int segmentOffsets[numBlocks];
 
-    for (int i = 0; i < output.size(); i++) {
+    // Allocate device memory
+    cudaMalloc((void **)&d_input, numElements * sizeof(int));
+    cudaMalloc((void **)&d_output, numElements * sizeof(int));
+    cudaMalloc((void **)&d_segmentOffsets, numBlocks * sizeof(int));
+
+    // Copy input data to device
+    cudaMemcpy(d_input, input, numElements * sizeof(int), cudaMemcpyHostToDevice);
+
+    // Launch kernel
+    segmentedPrefixSum<<<numBlocks, blockSize>>>(d_input, d_output, d_segmentOffsets, numElements);
+
+    // Copy output data and segment offsets back to host
+    cudaMemcpy(segmentOffsets, d_segmentOffsets, numBlocks * sizeof(int), cudaMemcpyDeviceToHost);
+
+    // Print output (segmented prefix sums)
+    std::cout << "Segmented Prefix Sums:" << std::endl;
+    for (int i = 0; i < numElements; ++i) {
         std::cout << output[i] << " ";
-        if ((i + 1) % BLOCK_SIZE == 0) std::cout << std::endl;
+        if ((i + 1) % blockSize == 0) {
+            std::cout << std::endl;
+        }
     }
+
+    // Print segment offsets
+    std::cout << "Segment Offsets:" << std::endl;
+    for (int i = 0; i < numBlocks; ++i) {
+        std::cout << segmentOffsets[i] << " ";
+    }
+    std::cout << std::endl;
+
+    // Free device memory
+    cudaFree(d_input);
+    cudaFree(d_output);
+    cudaFree(d_segmentOffsets);
 
     return 0;
 }
