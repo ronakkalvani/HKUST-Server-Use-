@@ -1,90 +1,79 @@
-#include <cub/cub.cuh>
-#include <cuda_runtime.h>
 #include <iostream>
 #include <vector>
+#include <cub/cub.cuh>
 
-// Error handling macro
-#define CUDA_CHECK(call)                                                       \
-    do {                                                                       \
-        cudaError_t error = call;                                              \
-        if (error != cudaSuccess) {                                            \
-            std::cerr << "CUDA Error: " << cudaGetErrorString(error)           \
-                      << " at " << __FILE__ << ":" << __LINE__ << std::endl;   \
-            exit(error);                                                       \
-        }                                                                      \
-    } while (0)
+const int BLOCK_SIZE = 8;
 
-// Kernel to initialize flags based on new segment starts
-__global__ void InitializeFlags(const int* input, int* flags, int num_items) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < num_items) {
-        flags[idx] = (idx == 0 || input[idx] != input[idx - 1]) ? 1 : 0;
+__global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements) {
+    __shared__ int shared_in[BLOCK_SIZE];
+    __shared__ int shared_out[BLOCK_SIZE];
+    __shared__ bool shared_flags[BLOCK_SIZE];
+
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // Load input into shared memory
+    if (tid < num_elements) {
+        shared_in[threadIdx.x] = d_in[tid];
+        shared_flags[threadIdx.x] = (threadIdx.x == 0) ? false : (shared_in[threadIdx.x] != shared_in[threadIdx.x - 1]);
     }
-}
 
-void SegmentedPrefixSum(const std::vector<int>& input, std::vector<int>& output) {
-    const int num_items = input.size();
+    __syncthreads();
 
-    int* d_input = nullptr;
-    int* d_output = nullptr;
-    int* d_flags = nullptr;
-    void* d_temp_storage = nullptr;
+    // Initialize temporary storage
+    void* temp_storage = NULL;
     size_t temp_storage_bytes = 0;
 
-    // Allocate device memory
-    CUDA_CHECK(cudaMalloc(&d_input, num_items * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_output, num_items * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_flags, num_items * sizeof(int)));
+    // Calculate the required temporary storage size
+    cub::DeviceScan::ExclusiveSum(temp_storage, temp_storage_bytes, shared_flags, shared_out, BLOCK_SIZE);
+    cudaMalloc(&temp_storage, temp_storage_bytes);
 
-    // Copy input data to device
-    CUDA_CHECK(cudaMemcpy(d_input, input.data(), num_items * sizeof(int), cudaMemcpyHostToDevice));
+    // Perform exclusive prefix sum on the flags
+    cub::DeviceScan::ExclusiveSum(temp_storage, temp_storage_bytes, shared_flags, shared_out, BLOCK_SIZE);
 
-    // Initialize flags
-    const int block_size = 256;
-    const int grid_size = (num_items + block_size - 1) / block_size;
-    InitializeFlags<<<grid_size, block_size>>>(d_input, d_flags, num_items);
-    CUDA_CHECK(cudaDeviceSynchronize());
+    __syncthreads();
 
-    // Determine temporary device storage requirements
-    cub::DeviceSegmentedScan::InclusiveSum(
-        d_temp_storage, temp_storage_bytes,
-        d_input, d_output,
-        num_items,
-        num_items,  // number of segments
-        d_flags, d_flags + 1);
-    
-    // Allocate temporary storage
-    CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    if (tid < num_elements) {
+        // Write the result to the output
+        if (shared_flags[threadIdx.x]) {
+            shared_out[threadIdx.x] = 0;
+        } else {
+            shared_out[threadIdx.x]++;
+        }
+        d_out[tid] = shared_out[threadIdx.x];
+    }
 
-    // Run segmented prefix sum
-    cub::DeviceSegmentedScan::InclusiveSum(
-        d_temp_storage, temp_storage_bytes,
-        d_input, d_output,
-        num_items,
-        num_items,  // number of segments
-        d_flags, d_flags + 1);
+    cudaFree(temp_storage);
+}
 
-    // Copy results back to host
-    CUDA_CHECK(cudaMemcpy(output.data(), d_output, num_items * sizeof(int), cudaMemcpyDeviceToHost));
+void segmentedPrefixSum(const std::vector<int>& input, std::vector<int>& output) {
+    int num_elements = input.size();
+    int num_blocks = (num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE;
 
-    // Free device memory
-    CUDA_CHECK(cudaFree(d_input));
-    CUDA_CHECK(cudaFree(d_output));
-    CUDA_CHECK(cudaFree(d_flags));
-    CUDA_CHECK(cudaFree(d_temp_storage));
+    int* d_in;
+    int* d_out;
+    cudaMalloc(&d_in, num_elements * sizeof(int));
+    cudaMalloc(&d_out, num_elements * sizeof(int));
+
+    cudaMemcpy(d_in, input.data(), num_elements * sizeof(int), cudaMemcpyHostToDevice);
+
+    segmentedPrefixSumKernel<<<num_blocks, BLOCK_SIZE>>>(d_in, d_out, num_elements);
+
+    cudaMemcpy(output.data(), d_out, num_elements * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaFree(d_in);
+    cudaFree(d_out);
 }
 
 int main() {
-    std::vector<int> input = {1, 2, 2, 3, 1, 1, 2, 3, 3, 3};
-    std::vector<int> output(input.size(), 0);
+    std::vector<int> input = {0, 0, 0, 0, 1, 1, 1, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 1, 1, 1, 2, 2, 2, 2};
+    std::vector<int> output(input.size());
 
-    SegmentedPrefixSum(input, output);
+    segmentedPrefixSum(input, output);
 
-    // Print the result
-    for (int val : output) {
-        std::cout << val << " ";
+    for (int i = 0; i < output.size(); i++) {
+        std::cout << output[i] << " ";
+        if ((i + 1) % BLOCK_SIZE == 0) std::cout << std::endl;
     }
-    std::cout << std::endl;
 
     return 0;
 }
