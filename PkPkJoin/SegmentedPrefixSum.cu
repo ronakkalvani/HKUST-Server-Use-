@@ -1,74 +1,85 @@
-#include <cub/cub.cuh>
 #include <iostream>
-#include <vector>
+#include <cub/cub.cuh>
 
-#define BLOCK_SIZE 256
+// Error checking macro
+#define CUDA_CHECK(call) \
+    do { \
+        cudaError_t err = call; \
+        if (err != cudaSuccess) { \
+            std::cerr << "CUDA error at " << __FILE__ << ":" << __LINE__ << " code=" << err << " \"" << cudaGetErrorString(err) << "\"" << std::endl; \
+            exit(1); \
+        } \
+    } while (0)
 
-// Kernel for segmented prefix sum
-__global__ void segmentedPrefixSum(int *d_in, int *d_out, int num_elements) {
-    // Allocate shared memory for the block's input and output
-    __shared__ int shared_in[BLOCK_SIZE];
-    __shared__ int shared_out[BLOCK_SIZE];
-
-    int tid = threadIdx.x;
-    int index = blockIdx.x * blockDim.x + tid;
-
-    // Load input data into shared memory
-    if (index < num_elements) {
-        shared_in[tid] = d_in[index];
-    } else {
-        shared_in[tid] = 0;
+// Function to print array
+template <typename T>
+void PrintArray(const T* array, int size, const char* label) {
+    std::cout << label << ": ";
+    for (int i = 0; i < size; ++i) {
+        std::cout << array[i] << " ";
     }
-    __syncthreads();
+    std::cout << std::endl;
+}
 
-    // Prepare CUB temp storage
-    typedef cub::BlockScan<int, BLOCK_SIZE> BlockScan;
-    __shared__ typename BlockScan::TempStorage temp_storage;
-
-    // Compute segmented prefix sum
-    int aggregate;
-    BlockScan(temp_storage).InclusiveSum(shared_in[tid], shared_out[tid], aggregate);
-
-    // Write result to global memory
-    if (index < num_elements) {
-        d_out[index] = shared_out[tid];
+__global__ void InitFlags(const int* d_input, int* d_flags, int num_items) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+    if (tid < num_items) {
+        if (tid == 0) {
+            d_flags[tid] = 1;
+        } else {
+            d_flags[tid] = (d_input[tid] != d_input[tid - 1]) ? 1 : 0;
+        }
     }
 }
 
 int main() {
-    int num_elements = 1024;
-    std::vector<int> h_in(num_elements);
-    std::vector<int> h_out(num_elements);
+    const int num_items = 10;
+    int h_input[num_items] = {1, 1, 1, 2, 2, 1, 1, 3, 3, 1};
+    int h_output[num_items];
 
-    // Initialize input data
-    for (int i = 0; i < num_elements; ++i) {
-        h_in[i] = 1; // or any value you want to test
-    }
+    int* d_input = nullptr;
+    int* d_output = nullptr;
+    int* d_flags = nullptr;
+    int* d_segment_offsets = nullptr;
+    void* d_temp_storage = nullptr;
+    size_t temp_storage_bytes = 0;
 
-    // Allocate device memory
-    int *d_in, *d_out;
-    cudaMalloc((void**)&d_in, num_elements * sizeof(int));
-    cudaMalloc((void**)&d_out, num_elements * sizeof(int));
+    CUDA_CHECK(cudaMalloc((void**)&d_input, num_items * sizeof(int)));
+    CUDA_CHECK(cudaMalloc((void**)&d_output, num_items * sizeof(int)));
+    CUDA_CHECK(cudaMalloc((void**)&d_flags, num_items * sizeof(int)));
+    CUDA_CHECK(cudaMalloc((void**)&d_segment_offsets, (num_items + 1) * sizeof(int)));
 
-    // Copy input data to device
-    cudaMemcpy(d_in, h_in.data(), num_elements * sizeof(int), cudaMemcpyHostToDevice);
+    CUDA_CHECK(cudaMemcpy(d_input, h_input, num_items * sizeof(int), cudaMemcpyHostToDevice));
 
-    // Launch kernel
-    int num_blocks = (num_elements + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    segmentedPrefixSum<<<num_blocks, BLOCK_SIZE>>>(d_in, d_out, num_elements);
+    int threads = 256;
+    int blocks = (num_items + threads - 1) / threads;
 
-    // Copy output data back to host
-    cudaMemcpy(h_out.data(), d_out, num_elements * sizeof(int), cudaMemcpyDeviceToHost);
+    InitFlags<<<blocks, threads>>>(d_input, d_flags, num_items);
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // Free device memory
-    cudaFree(d_in);
-    cudaFree(d_out);
+    cub::DeviceScan::InclusiveSum(nullptr, temp_storage_bytes, d_flags, d_segment_offsets + 1, num_items);
+    CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_flags, d_segment_offsets + 1, num_items);
 
-    // Display results
-    for (int i = 0; i < num_elements; ++i) {
-        std::cout << h_out[i] << " ";
-    }
-    std::cout << std::endl;
+    CUDA_CHECK(cudaFree(d_temp_storage));
+    temp_storage_bytes = 0;
+    d_segment_offsets[0] = 0;
+    CUDA_CHECK(cudaMemcpy(d_segment_offsets, &d_segment_offsets[0], sizeof(int), cudaMemcpyHostToDevice));
+
+    cub::DeviceSegmentedReduce::InclusiveSum(nullptr, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
+    CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
+    cub::DeviceSegmentedReduce::InclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
+
+    CUDA_CHECK(cudaMemcpy(h_output, d_output, num_items * sizeof(int), cudaMemcpyDeviceToHost));
+
+    PrintArray(h_input, num_items, "Input");
+    PrintArray(h_output, num_items, "Output");
+
+    CUDA_CHECK(cudaFree(d_input));
+    CUDA_CHECK(cudaFree(d_output));
+    CUDA_CHECK(cudaFree(d_flags));
+    CUDA_CHECK(cudaFree(d_segment_offsets));
+    CUDA_CHECK(cudaFree(d_temp_storage));
 
     return 0;
 }
