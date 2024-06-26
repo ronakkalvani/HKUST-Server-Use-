@@ -5,13 +5,12 @@
 const int BLOCK_SIZE = 8;
 
 __global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements) {
+    __shared__ int block_sum;
+    __shared__ int previous_value;
+
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < num_elements) {
-        // Perform segmented prefix sum within each block
-        __shared__ int block_sum;
-        __shared__ int previous_value;
-
         if (threadIdx.x == 0) {
             block_sum = 0;
             previous_value = d_in[tid];
@@ -20,11 +19,10 @@ __global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements
         __syncthreads();
 
         if (d_in[tid] != previous_value) {
-            block_sum = 0;
+            block_sum++;
             previous_value = d_in[tid];
         }
 
-        atomicAdd(&block_sum, 1);
         d_out[tid] = block_sum;
     }
 }
