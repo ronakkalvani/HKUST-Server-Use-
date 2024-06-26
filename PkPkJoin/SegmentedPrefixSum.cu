@@ -36,6 +36,7 @@ int main() {
                                0, 1, 1, 1, 2, 2, 2, 2};
 
     int *d_input, *d_output, *d_segmentOffsets;
+    int output[numElements];
     int segmentOffsets[numBlocks];
 
     // Allocate device memory
@@ -50,6 +51,7 @@ int main() {
     segmentedPrefixSum<<<numBlocks, blockSize>>>(d_input, d_output, d_segmentOffsets, numElements);
 
     // Copy output data and segment offsets back to host
+    cudaMemcpy(output, d_output, numElements * sizeof(int), cudaMemcpyDeviceToHost);
     cudaMemcpy(segmentOffsets, d_segmentOffsets, numBlocks * sizeof(int), cudaMemcpyDeviceToHost);
 
     // Print output (segmented prefix sums)
