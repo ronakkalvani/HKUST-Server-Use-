@@ -57,18 +57,18 @@ int main() {
     InitFlags<<<blocks, threads>>>(d_input, d_flags, num_items);
     CUDA_CHECK(cudaDeviceSynchronize());
 
+    // Compute the segment offsets
     cub::DeviceScan::InclusiveSum(nullptr, temp_storage_bytes, d_flags, d_segment_offsets + 1, num_items);
     CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
     cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_flags, d_segment_offsets + 1, num_items);
 
-    CUDA_CHECK(cudaFree(d_temp_storage));
-    temp_storage_bytes = 0;
-    d_segment_offsets[0] = 0;
-    CUDA_CHECK(cudaMemcpy(d_segment_offsets, &d_segment_offsets[0], sizeof(int), cudaMemcpyHostToDevice));
+    // Set the first element of segment_offsets to 0
+    CUDA_CHECK(cudaMemset(d_segment_offsets, 0, sizeof(int)));
 
-    cub::DeviceSegmentedReduce::InclusiveSum(nullptr, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
+    // Perform the segmented prefix sum
+    cub::DeviceSegmentedScan::InclusiveSum(nullptr, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
     CUDA_CHECK(cudaMalloc(&d_temp_storage, temp_storage_bytes));
-    cub::DeviceSegmentedReduce::InclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
+    cub::DeviceSegmentedScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items, num_items, d_segment_offsets, d_segment_offsets + 1);
 
     CUDA_CHECK(cudaMemcpy(h_output, d_output, num_items * sizeof(int), cudaMemcpyDeviceToHost));
 
