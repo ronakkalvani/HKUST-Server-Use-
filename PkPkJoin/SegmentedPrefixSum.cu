@@ -5,25 +5,25 @@
 const int BLOCK_SIZE = 8;
 
 __global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements) {
-    __shared__ int block_sum;
+    __shared__ int segment_start;
     __shared__ int previous_value;
 
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < num_elements) {
         if (threadIdx.x == 0) {
-            block_sum = 0;
+            segment_start = 0;
             previous_value = d_in[tid];
         }
 
         __syncthreads();
 
         if (d_in[tid] != previous_value) {
-            block_sum++;
+            segment_start++;
             previous_value = d_in[tid];
         }
 
-        d_out[tid] = block_sum;
+        d_out[tid] = segment_start;
     }
 }
 
