@@ -1,48 +1,32 @@
 #include <iostream>
 #include <vector>
-#include <cub/cub.cuh>
+#include <cuda_runtime.h>
 
 const int BLOCK_SIZE = 8;
 
 __global__ void segmentedPrefixSumKernel(int* d_in, int* d_out, int num_elements) {
-    __shared__ int shared_in[BLOCK_SIZE];
-    __shared__ int shared_out[BLOCK_SIZE];
-    __shared__ bool shared_flags[BLOCK_SIZE];
-
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // Load input into shared memory
     if (tid < num_elements) {
-        shared_in[threadIdx.x] = d_in[tid];
-        shared_flags[threadIdx.x] = (threadIdx.x == 0) ? false : (shared_in[threadIdx.x] != shared_in[threadIdx.x - 1]);
-    }
+        // Perform segmented prefix sum within each block
+        __shared__ int block_sum;
+        __shared__ int previous_value;
 
-    __syncthreads();
-
-    // Initialize temporary storage
-    void* temp_storage = NULL;
-    size_t temp_storage_bytes = 0;
-
-    // Calculate the required temporary storage size
-    cub::DeviceScan::ExclusiveSum(temp_storage, temp_storage_bytes, shared_flags, shared_out, BLOCK_SIZE);
-    cudaMalloc(&temp_storage, temp_storage_bytes);
-
-    // Perform exclusive prefix sum on the flags
-    cub::DeviceScan::ExclusiveSum(temp_storage, temp_storage_bytes, shared_flags, shared_out, BLOCK_SIZE);
-
-    __syncthreads();
-
-    if (tid < num_elements) {
-        // Write the result to the output
-        if (shared_flags[threadIdx.x]) {
-            shared_out[threadIdx.x] = 0;
-        } else {
-            shared_out[threadIdx.x]++;
+        if (threadIdx.x == 0) {
+            block_sum = 0;
+            previous_value = d_in[tid];
         }
-        d_out[tid] = shared_out[threadIdx.x];
-    }
 
-    cudaFree(temp_storage);
+        __syncthreads();
+
+        if (d_in[tid] != previous_value) {
+            block_sum = 0;
+            previous_value = d_in[tid];
+        }
+
+        atomicAdd(&block_sum, 1);
+        d_out[tid] = block_sum;
+    }
 }
 
 void segmentedPrefixSum(const std::vector<int>& input, std::vector<int>& output) {
