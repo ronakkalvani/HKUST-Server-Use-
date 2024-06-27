@@ -16,14 +16,6 @@
 // #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-__global__ void printArray0(int* arr, int size) {
-    for (int i = 0; i < size; ++i) {
-        if (arr[i]==0)
-        printf("%d ", i);
-    }
-    printf("\n");
-}
-
 
 int main() {
     int n1 = 1e5;

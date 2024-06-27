@@ -7,6 +7,14 @@
 #define BLOCK_THREAD 1024
 #define ITEMS_PER_THREAD 1
 
+__global__ void printArray0(int* arr, int size) {
+    for (int i = 0; i < size; ++i) {
+        if (arr[i]==0)
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
 // Block-sorting CUDA kernel
 __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int num_blocks, int num_elements)
 {
@@ -104,6 +112,10 @@ int main() {
         std::cout << h_data[i] << " ";
     }
     std::cout << std::endl;
+
+    printArray0<<<1, 1>>>(d_sorted_data, n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // Free device memory
     cudaFree(d_data);
