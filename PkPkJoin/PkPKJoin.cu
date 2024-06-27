@@ -18,8 +18,8 @@
 
 
 int main() {
-    int n1 = 1e6;
-    int n2 = 1e6;
+    int n1 = 5*1e5;
+    int n2 = 1e5;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
