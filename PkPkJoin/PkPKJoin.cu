@@ -86,9 +86,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_splitters, p - 1);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_splitters, p - 1);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
     CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
@@ -112,9 +112,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_output, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray0<<<1, 1>>>(d_output, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_final_array;
     CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
@@ -123,9 +123,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_final_array, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray0<<<1, 1>>>(d_final_array, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_results;
     CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
