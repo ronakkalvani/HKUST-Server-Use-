@@ -104,7 +104,15 @@ int main() {
 
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_sorted_data, d_segment_sum, n, blockSize);
 
+    int  *d_split_counts;
+    checkCudaError(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
+
+    countSplits<<<numBlocks, blockSize, p * sizeof(int)>>>(d_Blocks, d_split_counts, n, p);
+
     
+
+
+
 
 
     // printArray<<<1, 1>>>(d_splitters, p - 1);
