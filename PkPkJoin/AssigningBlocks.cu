@@ -21,12 +21,12 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
     }
 }
 
-// void checkCudaError(cudaError_t error, const char *message) {
-//     if (error != cudaSuccess) {
-//         std::cerr << "Error: " << message << " (" << cudaGetErrorString(error) << ")" << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-// }
+void checkCudaError(cudaError_t error, const char *message) {
+    if (error != cudaSuccess) {
+        std::cerr << "Error: " << message << " (" << cudaGetErrorString(error) << ")" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
 
 // int main() {
 //     // Example setup for large dataset
