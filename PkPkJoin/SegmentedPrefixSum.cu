@@ -33,9 +33,9 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
 
 int main() {
     int blockSize = 12;
-    int h_input[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
-                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                     0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1};
+    int h_input[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
+                     0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2,
+                     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2};
     int n = sizeof(h_input) / sizeof(h_input[0]);
     int *d_input, *d_output;
 
