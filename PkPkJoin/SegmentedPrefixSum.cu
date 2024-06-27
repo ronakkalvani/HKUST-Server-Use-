@@ -5,27 +5,29 @@
 
 __global__ void segmentedPrefixSum(int *d_in, int *d_out, int n) {
     __shared__ int temp[BLOCK_SIZE];
+    __shared__ int segment[BLOCK_SIZE];
 
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
     if (idx < n) {
         temp[threadIdx.x] = d_in[idx];
+        segment[threadIdx.x] = (threadIdx.x == 0) ? 0 : (d_in[idx] != d_in[idx - 1]);
+    } else {
+        temp[threadIdx.x] = 0;
+        segment[threadIdx.x] = 0;
     }
     __syncthreads();
 
     // Step 1: Compute prefix sum within each segment
     for (int stride = 1; stride < BLOCK_SIZE; stride *= 2) {
         int val = 0;
-        if (threadIdx.x >= stride) {
-            if (temp[threadIdx.x] == temp[threadIdx.x - stride]) {
-                val = d_out[idx - stride];
-            }
+        if (threadIdx.x >= stride && segment[threadIdx.x] == 0) {
+            val = temp[threadIdx.x - stride] + 1;
         }
         __syncthreads();
 
-        if (threadIdx.x >= stride) {
-            if (temp[threadIdx.x] == temp[threadIdx.x - stride]) {
-                d_out[idx] = val + 1;
-            }
+        if (threadIdx.x >= stride && segment[threadIdx.x] == 0) {
+            temp[threadIdx.x] = val;
         }
         __syncthreads();
     }
@@ -33,8 +35,10 @@ __global__ void segmentedPrefixSum(int *d_in, int *d_out, int n) {
     // Step 2: Handle the first element of each segment
     if (threadIdx.x == 0) {
         d_out[idx] = 0;
-    } else if (temp[threadIdx.x] != temp[threadIdx.x - 1]) {
+    } else if (segment[threadIdx.x] == 1) {
         d_out[idx] = 0;
+    } else {
+        d_out[idx] = temp[threadIdx.x];
     }
 }
 
