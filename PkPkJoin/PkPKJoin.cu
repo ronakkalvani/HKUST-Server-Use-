@@ -26,8 +26,8 @@
 
 
 int main() {
-    int n1 = 1e5;
-    int n2 = 5*1e5;
+    int n1 = 1e2;
+    int n2 = 1;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
@@ -39,7 +39,7 @@ int main() {
         keys2[i] = 3 * (i+1);
     }
 
-    int mx = 3*1e6+100;
+    int mx = 1e2;
     std::vector<int> hmap1(mx, 0);
     std::vector<int> hmap2(mx, 0);
 
@@ -114,11 +114,10 @@ int main() {
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    
+    int *d_output;
+    checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
 
-
-
-
+    Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
 
     // printArray<<<1, 1>>>(d_splitters, p - 1);
     // CUDA_CHECK(cudaGetLastError());
