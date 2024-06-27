@@ -27,40 +27,40 @@ __global__ void countSplits(int* split_indices, int* split_counts, int num_eleme
     }
 }
 
-int main() {
-    const int num_elements = 1024;
-    const int num_splits = 10;
-    const int block_size = 256;
-    const int num_blocks = (num_elements + block_size - 1) / block_size;
+// int main() {
+//     const int num_elements = 1024;
+//     const int num_splits = 10;
+//     const int block_size = 256;
+//     const int num_blocks = (num_elements + block_size - 1) / block_size;
 
-    int* h_split_indices = new int[num_elements];
-    int* h_split_counts = new int[num_blocks * num_splits]();
-    for (int i = 0; i < num_elements; ++i) {
-        h_split_indices[i] = i % num_splits;
-    }
+//     int* h_split_indices = new int[num_elements];
+//     int* h_split_counts = new int[num_blocks * num_splits]();
+//     for (int i = 0; i < num_elements; ++i) {
+//         h_split_indices[i] = i % num_splits;
+//     }
 
-    int* d_split_indices;
-    int* d_split_counts;
-    cudaMalloc(&d_split_indices, num_elements * sizeof(int));
-    cudaMalloc(&d_split_counts, num_blocks * num_splits * sizeof(int));
-    cudaMemcpy(d_split_indices, h_split_indices, num_elements * sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemset(d_split_counts, 0, num_blocks * num_splits * sizeof(int));
+//     int* d_split_indices;
+//     int* d_split_counts;
+//     cudaMalloc(&d_split_indices, num_elements * sizeof(int));
+//     cudaMalloc(&d_split_counts, num_blocks * num_splits * sizeof(int));
+//     cudaMemcpy(d_split_indices, h_split_indices, num_elements * sizeof(int), cudaMemcpyHostToDevice);
+//     cudaMemset(d_split_counts, 0, num_blocks * num_splits * sizeof(int));
 
-    countSplits<<<num_blocks, block_size, num_splits * sizeof(int)>>>(d_split_indices, d_split_counts, num_elements, num_splits);
+//     countSplits<<<num_blocks, block_size, num_splits * sizeof(int)>>>(d_split_indices, d_split_counts, num_elements, num_splits);
 
-    cudaMemcpy(h_split_counts, d_split_counts, num_blocks * num_splits * sizeof(int), cudaMemcpyDeviceToHost);
+//     cudaMemcpy(h_split_counts, d_split_counts, num_blocks * num_splits * sizeof(int), cudaMemcpyDeviceToHost);
 
-    for (int b = 0; b < num_blocks; ++b) {
-        std::cout << "Block " << b << " counts:\n";
-        for (int s = 0; s < num_splits; ++s) {
-            std::cout << "  Split " << s << ": " << h_split_counts[b * num_splits + s] << "\n";
-        }
-    }
+//     for (int b = 0; b < num_blocks; ++b) {
+//         std::cout << "Block " << b << " counts:\n";
+//         for (int s = 0; s < num_splits; ++s) {
+//             std::cout << "  Split " << s << ": " << h_split_counts[b * num_splits + s] << "\n";
+//         }
+//     }
 
-    delete[] h_split_indices;
-    delete[] h_split_counts;
-    cudaFree(d_split_indices);
-    cudaFree(d_split_counts);
+//     delete[] h_split_indices;
+//     delete[] h_split_counts;
+//     cudaFree(d_split_indices);
+//     cudaFree(d_split_counts);
 
-    return 0;
-}
+//     return 0;
+// }

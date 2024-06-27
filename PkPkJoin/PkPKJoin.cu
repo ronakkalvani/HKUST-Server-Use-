@@ -12,9 +12,17 @@
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
+
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValue.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
+
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+
 
 
 int main() {
@@ -86,31 +94,36 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
+    int  *d_Blocks;
+    checkCudaError(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
+
+    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
+
     // printArray<<<1, 1>>>(d_splitters, p - 1);
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    int *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
-    CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
-    CUDA_CHECK(cudaMalloc(&d_partition_offsets, p * sizeof(int)));
+    // int *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
+    // CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
+    // CUDA_CHECK(cudaMalloc(&d_partition_counts, p * sizeof(int)));
+    // CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
+    // CUDA_CHECK(cudaMalloc(&d_partition_offsets, p * sizeof(int)));
 
-    CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
-    CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
-    CUDA_CHECK(cudaMemset(d_partition_offsets, 0, p * sizeof(int)));
+    // CUDA_CHECK(cudaMemset(d_partition_counts, 0, p * sizeof(int)));
+    // CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
+    // CUDA_CHECK(cudaMemset(d_partition_offsets, 0, p * sizeof(int)));
 
-    countElements<<<numBlocks, blockSize>>>(d_sorted_data, d_splitters, d_partition_counts, n, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // countElements<<<numBlocks, blockSize>>>(d_sorted_data, d_splitters, d_partition_counts, n, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
-    computeStarts<<<1, 1>>>(d_partition_counts, d_partition_starts, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // computeStarts<<<1, 1>>>(d_partition_counts, d_partition_starts, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
-    distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_splitters, d_partition_starts, d_partition_offsets, n, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // distributeElements<<<numBlocks, blockSize>>>(d_sorted_data, d_output, d_splitters, d_partition_starts, d_partition_offsets, n, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     // printArray0<<<1, 1>>>(d_output, n);
     // CUDA_CHECK(cudaGetLastError());

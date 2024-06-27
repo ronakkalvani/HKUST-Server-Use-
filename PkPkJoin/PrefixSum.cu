@@ -20,42 +20,42 @@ void exclusive_prefix_sum(int* d_input, int* d_output, size_t num_items) {
     (cudaFree(d_temp_storage));
 }
 
-int main() {
-    // Initialize host input
-    std::vector<int> h_input = {1, 2, 3, 4, 5};
+// int main() {
+//     // Initialize host input
+//     std::vector<int> h_input = {1, 2, 3, 4, 5};
 
-    // Allocate device input and output arrays
-    int *d_input = nullptr;
-    int *d_output = nullptr;
-    (cudaMalloc(&d_input, h_input.size() * sizeof(int)));
-    (cudaMalloc(&d_output, h_input.size() * sizeof(int)));
+//     // Allocate device input and output arrays
+//     int *d_input = nullptr;
+//     int *d_output = nullptr;
+//     (cudaMalloc(&d_input, h_input.size() * sizeof(int)));
+//     (cudaMalloc(&d_output, h_input.size() * sizeof(int)));
 
-    // Copy input data to device
-    (cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(int), cudaMemcpyHostToDevice));
+//     // Copy input data to device
+//     (cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(int), cudaMemcpyHostToDevice));
 
-    // Perform exclusive prefix sum using the function
-    exclusive_prefix_sum(d_input, d_output, h_input.size());
+//     // Perform exclusive prefix sum using the function
+//     exclusive_prefix_sum(d_input, d_output, h_input.size());
 
-    // Copy results back to host
-    std::vector<int> h_output(h_input.size());
-    (cudaMemcpy(h_output.data(), d_output, h_output.size() * sizeof(int), cudaMemcpyDeviceToHost));
+//     // Copy results back to host
+//     std::vector<int> h_output(h_input.size());
+//     (cudaMemcpy(h_output.data(), d_output, h_output.size() * sizeof(int), cudaMemcpyDeviceToHost));
 
-    // Display results
-    std::cout << "Input:  ";
-    for (int val : h_input) {
-        std::cout << val << " ";
-    }
-    std::cout << std::endl;
+//     // Display results
+//     std::cout << "Input:  ";
+//     for (int val : h_input) {
+//         std::cout << val << " ";
+//     }
+//     std::cout << std::endl;
 
-    std::cout << "Output: ";
-    for (int val : h_output) {
-        std::cout << val << " ";
-    }
-    std::cout << std::endl;
+//     std::cout << "Output: ";
+//     for (int val : h_output) {
+//         std::cout << val << " ";
+//     }
+//     std::cout << std::endl;
 
-    // Clean up
-    (cudaFree(d_input));
-    (cudaFree(d_output));
+//     // Clean up
+//     (cudaFree(d_input));
+//     (cudaFree(d_output));
 
-    return 0;
-}
+//     return 0;
+// }
