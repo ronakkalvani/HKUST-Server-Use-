@@ -1,72 +1,73 @@
-#include <iostream>
-#include <cub/cub.cuh>  // CUB header file
+#include <stdio.h>
+#include <cuda_runtime.h>
 
-const int blockSize = 8;
-const int numBlocks = 3;
-const int numElements = blockSize * numBlocks;
+#define BLOCK_SIZE 8
 
-// Kernel to perform segmented prefix sum
-__global__ void segmentedPrefixSum(const int *input, int *output, int *segmentOffsets, int numElements)
-{
-    typedef cub::BlockScan<int, blockSize> BlockScan;
-    __shared__ typename BlockScan::TempStorage temp_storage;
+__global__ void segmentedPrefixSum(int *d_in, int *d_out, int n) {
+    __shared__ int temp[BLOCK_SIZE];
 
     int idx = threadIdx.x + blockIdx.x * blockDim.x;
-    int value = (idx > 0) ? input[idx] : 0; // get the value, default to 0 for idx 0
-
-    // Compute block-wide prefix sum
-    BlockScan(temp_storage).ExclusiveSum(value, value);
-
-    // Write the block-wide prefix sum to output
-    if (idx < numElements)
-        output[idx] = value;
-
-    // Store segment offset
-    if (idx % blockSize == blockSize - 1)
-    {
-        int segmentIdx = idx / blockSize;
-        segmentOffsets[segmentIdx] = output[idx];
+    if (idx < n) {
+        temp[threadIdx.x] = d_in[idx];
     }
-
     __syncthreads();
 
-    // Adjust output using segment offsets
-    if (idx >= blockSize)
-    {
-        int segmentIdx = idx / blockSize - 1;
-        output[idx] += segmentOffsets[segmentIdx];
+    // Step 1: Compute prefix sum within each segment
+    for (int stride = 1; stride < BLOCK_SIZE; stride *= 2) {
+        int val = 0;
+        if (threadIdx.x >= stride) {
+            if (temp[threadIdx.x] == temp[threadIdx.x - stride]) {
+                val = d_out[idx - stride];
+            }
+        }
+        __syncthreads();
+
+        if (threadIdx.x >= stride) {
+            if (temp[threadIdx.x] == temp[threadIdx.x - stride]) {
+                d_out[idx] = val + 1;
+            }
+        }
+        __syncthreads();
+    }
+
+    // Step 2: Handle the first element of each segment
+    if (threadIdx.x == 0) {
+        d_out[idx] = 0;
+    } else if (temp[threadIdx.x] != temp[threadIdx.x - 1]) {
+        d_out[idx] = 0;
     }
 }
 
-int main()
-{
-    int input[numElements] = {0, 0, 0, 0, 1, 1, 1, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 1, 1, 1, 2, 2, 2, 2};
-    int output[numElements];
-    int segmentOffsets[numBlocks];
+int main() {
+    const int n = 24;
+    int h_in[n] = {
+        0, 0, 0, 1, 1, 1, 2, 2,
+        0, 0, 1, 1, 1, 1, 2, 2,
+        0, 0, 0, 0, 0, 0, 1, 1
+    };
+    int h_out[n];
 
-    int *d_input, *d_output, *d_segmentOffsets;
-    cudaMalloc((void **)&d_input, numElements * sizeof(int));
-    cudaMalloc((void **)&d_output, numElements * sizeof(int));
-    cudaMalloc((void **)&d_segmentOffsets, numBlocks * sizeof(int));
+    int *d_in, *d_out;
+    cudaMalloc(&d_in, n * sizeof(int));
+    cudaMalloc(&d_out, n * sizeof(int));
 
-    cudaMemcpy(d_input, input, numElements * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_in, h_in, n * sizeof(int), cudaMemcpyHostToDevice);
 
-    segmentedPrefixSum<<<numBlocks, blockSize>>>(d_input, d_output, d_segmentOffsets, numElements);
+    int numBlocks = (n + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    segmentedPrefixSum<<<numBlocks, BLOCK_SIZE>>>(d_in, d_out, n);
 
-    cudaMemcpy(output, d_output, numElements * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_out, d_out, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // Output the result
-    std::cout << "Output segmented prefix sums:\n";
-    for (int i = 0; i < numElements; ++i)
-    {
-        std::cout << output[i] << " ";
-        if ((i + 1) % blockSize == 0)
-            std::cout << std::endl;
+    printf("Output:\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", h_out[i]);
+        if ((i + 1) % BLOCK_SIZE == 0) {
+            printf("\n");
+        }
     }
 
-    cudaFree(d_input);
-    cudaFree(d_output);
-    cudaFree(d_segmentOffsets);
+    cudaFree(d_in);
+    cudaFree(d_out);
 
     return 0;
 }
