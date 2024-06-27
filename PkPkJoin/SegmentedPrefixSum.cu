@@ -1,5 +1,8 @@
 #include <cuda_runtime.h>
 #include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
 
 __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize) {
     extern __shared__ int shared[];
@@ -33,24 +36,35 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
 
 int main() {
     int blockSize = 12;
-    int h_input[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2,
-                     0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2,
-                     0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2};
-    int n = sizeof(h_input) / sizeof(h_input[0]);
-    int *d_input, *d_output;
+    int n = 120;  // Large dataset size
+    std::vector<int> h_input(n);
 
+    for (int i = 0; i < n; ++i) {
+        h_input[i] = i / 10;
+    }
+
+    int *d_input, *d_output;
     cudaMalloc(&d_input, n * sizeof(int));
     cudaMalloc(&d_output, n * sizeof(int));
 
-    cudaMemcpy(d_input, h_input, n * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input, h_input.data(), n * sizeof(int), cudaMemcpyHostToDevice);
 
     int numBlocks = (n + blockSize - 1) / blockSize;
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_input, d_output, n, blockSize);
 
-    int h_output[n];
-    cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
+    std::vector<int> h_output(n);
+    cudaMemcpy(h_output.data(), d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i < n; i++) {
+    // Print input and output for verification
+    std::cout << "Input:" << std::endl;
+    for (int i = 0; i < n; ++i) {
+        std::cout << h_input[i] << " ";
+        if ((i + 1) % blockSize == 0) std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    std::cout << "Output:" << std::endl;
+    for (int i = 0; i < n; ++i) {
         std::cout << h_output[i] << " ";
         if ((i + 1) % blockSize == 0) std::cout << std::endl;
     }
