@@ -82,8 +82,8 @@ int main() {
     int s=BLOCK_THREAD/2;
     std::vector<int> h_block_indices(n/s);
     for(int i=0;i<n/s;i++) {
-        if (i%2) h_block_indices[i] = (i)*(s)-256;
-        else h_block_indices[i] = (i)*(s)+256;
+        if (i%2) h_block_indices[i] = (i)*(s)-128;
+        else h_block_indices[i] = (i)*(s)+128;
         // std::cout<<h_block_indices[i]<<" ";
     }
     // std::cout<<"\n";
