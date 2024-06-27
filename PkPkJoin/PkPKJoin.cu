@@ -99,6 +99,8 @@ int main() {
 
     findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
+    
+
     // printArray<<<1, 1>>>(d_splitters, p - 1);
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
