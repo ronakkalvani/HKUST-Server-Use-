@@ -99,7 +99,13 @@ int main() {
 
     findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
+    int  *d_segment_sum;
+    checkCudaError(cudaMalloc(&d_segment_sum, n * sizeof(int)), "Failed to allocate device memory for output");
+
+    segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_sorted_data, d_segment_sum, n, blockSize);
+
     
+
 
     // printArray<<<1, 1>>>(d_splitters, p - 1);
     // CUDA_CHECK(cudaGetLastError());
