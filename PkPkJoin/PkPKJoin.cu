@@ -25,13 +25,13 @@ int main() {
     std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 7 * (i+1);
+        keys1[i] = 2 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 11 * (i+1);
+        keys2[i] = 3 * (i+1);
     }
 
-    int mx = 15*1e6;
+    int mx = 3*1e6+100;
     std::vector<int> hmap1(mx, 0);
     std::vector<int> hmap2(mx, 0);
 
