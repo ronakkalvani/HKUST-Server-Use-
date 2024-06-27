@@ -17,17 +17,17 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
 int main() {
-    int n1 = 1e5;
-    int n2 = 10;
+    int n1 = 1e6;
+    int n2 = 1;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 2 * i;
+        keys1[i] = 2 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 3 * i;
+        keys2[i] = 3 * (i+1);
     }
 
     int mx = 2*1e6;
