@@ -114,8 +114,6 @@ int main() {
     std::cout << std::endl;
 
     printArray0<<<1, 1>>>(d_sorted_data, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
 
     // Free device memory
     cudaFree(d_data);
