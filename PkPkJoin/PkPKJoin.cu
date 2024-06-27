@@ -16,7 +16,7 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-const int n1 = 1e5;
+const int n1 = 1e6;
 const int n2 = 1e5;
 int keys1[n1];
 int keys2[n2];
