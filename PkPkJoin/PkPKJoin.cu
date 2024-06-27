@@ -112,6 +112,10 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
+    printArray0<<<1, 1>>>(d_output, n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
     int* d_final_array;
     CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
     
