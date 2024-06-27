@@ -16,8 +16,17 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
+__global__ void printArray0(int* arr, int size) {
+    for (int i = 0; i < size; ++i) {
+        if (arr[i]==0)
+        printf("%d ", i);
+    }
+    printf("\n");
+}
+
+
 int main() {
-    int n1 = 1e6;
+    int n1 = 1e5;
     int n2 = 1;
 
     std::vector<int> keys1(n1);
@@ -111,7 +120,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_output, n);
+    printArray0<<<1, 1>>>(d_output, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
