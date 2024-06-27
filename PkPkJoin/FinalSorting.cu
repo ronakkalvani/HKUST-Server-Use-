@@ -58,7 +58,7 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int 
 int main() {
     std::vector<int> h_data(1e8);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 4534483;
+        h_data[i] = 1+(rand() % 4534483);
     }
     int n = h_data.size();
 
