@@ -40,7 +40,7 @@ int main() {
     std::vector<int> h_input(n);
 
     for (int i = 0; i < n; ++i) {
-        h_input[i] = i / 10;
+        h_input[i] = i / 6;
     }
 
     int *d_input, *d_output;
