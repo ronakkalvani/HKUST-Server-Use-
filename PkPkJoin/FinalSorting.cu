@@ -69,7 +69,7 @@ int main() {
 
     std::vector<int> h_data(1e6);
     for (int i = 0; i < h_data.size(); i++) {
-        h_data[i] = rand() % 453483;
+        h_data[i] = rand() % 4534483;
         // std::cout<<h_data[i]<<" ";
     }
     // std::cout<<"\n";
