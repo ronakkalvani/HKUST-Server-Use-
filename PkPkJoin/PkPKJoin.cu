@@ -6,7 +6,7 @@
 #include <cub/cub.cuh>
 #include <cmath>
 
-#define BLOCK_THREADS 512
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 2*BLOCK_THREADS
 
