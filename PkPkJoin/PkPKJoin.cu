@@ -39,7 +39,7 @@ int main() {
         keys2[i] = 3 * (i+1);
     }
 
-    int mx = 1e2;
+    int mx = 1e3;
     std::vector<int> hmap1(mx, 0);
     std::vector<int> hmap2(mx, 0);
 
