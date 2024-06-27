@@ -28,7 +28,7 @@ int main() {
         keys1[i] = 2 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 3 * (i+1);
+        keys2[i] = 7 * (i+1);
     }
 
     int mx = 3*1e6+100;
