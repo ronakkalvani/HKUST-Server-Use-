@@ -132,12 +132,12 @@ int main() {
 
     int* d_hmap1;
     CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1, mx * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_hmap2;
     CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2, mx * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaDeviceSynchronize());
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
