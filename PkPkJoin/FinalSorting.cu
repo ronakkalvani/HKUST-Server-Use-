@@ -104,10 +104,10 @@ int main() {
     // Launch kernel to sort blocks
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_data, d_sorted_data, d_block_indices, numBlocks, n);
 
-    // Copy sorted data back to host
+    // // Copy sorted data back to host
     // cudaMemcpy(h_data.data(), d_sorted_data, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // Print sorted blocks
+    // // Print sorted blocks
     // for (int i = 0; i < h_data.size(); i++) {
     //     std::cout << h_data[i] << " ";
     // }
