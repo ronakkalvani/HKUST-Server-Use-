@@ -2,18 +2,19 @@
 #include <iostream>
 #include <vector>
 
-// Prefix sum function
-void prefix_sum(int* d_input, int* d_output, size_t num_items) {
+
+// Exclusive prefix sum function
+void exclusive_prefix_sum(int* d_input, int* d_output, size_t num_items) {
     // Determine temporary device storage requirements
     void *d_temp_storage = nullptr;
     size_t temp_storage_bytes = 0;
-    (cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items));
+    (cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items));
 
     // Allocate temporary storage
     (cudaMalloc(&d_temp_storage, temp_storage_bytes));
 
-    // Perform inclusive prefix sum
-    (cub::DeviceScan::InclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items));
+    // Perform exclusive prefix sum
+    (cub::DeviceScan::ExclusiveSum(d_temp_storage, temp_storage_bytes, d_input, d_output, num_items));
 
     // Clean up temporary storage
     (cudaFree(d_temp_storage));
@@ -32,8 +33,8 @@ int main() {
     // Copy input data to device
     (cudaMemcpy(d_input, h_input.data(), h_input.size() * sizeof(int), cudaMemcpyHostToDevice));
 
-    // Perform prefix sum using the function
-    prefix_sum(d_input, d_output, h_input.size());
+    // Perform exclusive prefix sum using the function
+    exclusive_prefix_sum(d_input, d_output, h_input.size());
 
     // Copy results back to host
     std::vector<int> h_output(h_input.size());
