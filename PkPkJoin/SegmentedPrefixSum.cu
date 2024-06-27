@@ -1,75 +1,59 @@
 #include <cuda_runtime.h>
 #include <iostream>
 
-__global__ void segmentedPrefixSum(int* input, int* output, int n) {
-    // Shared memory for storing the prefix sums within a block
-    __shared__ int shared[8];
-    __shared__ int seg_start[8];
+__global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize) {
+    extern __shared__ int shared[];
 
     int tid = threadIdx.x;
-    int bid = blockIdx.x;
-    int idx = bid * blockDim.x + tid;
+    int global_tid = blockIdx.x * blockDim.x + tid;
 
-    // Load data into shared memory
-    shared[tid] = input[idx];
-    __syncthreads();
-
-    // Initialize segment start markers
-    if (tid == 0) {
-        seg_start[tid] = 0;
-    } else {
-        seg_start[tid] = (shared[tid] != shared[tid - 1]) ? 1 : 0;
+    // Load input into shared memory
+    if (global_tid < n) {
+        shared[tid] = input[global_tid];
     }
     __syncthreads();
 
-    // Perform prefix sum within segments
-    for (int offset = 1; offset < blockDim.x; offset *= 2) {
-        int temp = (tid >= offset) ? shared[tid - offset] : 0;
-        int seg_temp = (tid >= offset) ? seg_start[tid - offset] : 0;
-        __syncthreads();
-        
-        if (seg_start[tid] == 0) {
-            shared[tid] += temp;
+    // Initialize prefix sum within segments
+    if (global_tid < n) {
+        if (tid == 0 || shared[tid] != shared[tid - 1]) {
+            output[global_tid] = 0;
+        } else {
+            output[global_tid] = output[global_tid - 1] + 1;
         }
-        seg_start[tid] += seg_temp;
-        __syncthreads();
     }
 
-    // Write the results to output
-    output[idx] = shared[tid];
-}
-
-void printArray(int* array, int size) {
-    for (int i = 0; i < size; ++i) {
-        std::cout << array[i] << " ";
-        if ((i + 1) % 8 == 0) std::cout << std::endl;
+    // Perform prefix sum within segments in shared memory
+    for (int stride = 1; stride < blockSize; stride *= 2) {
+        __syncthreads();
+        if (tid >= stride && shared[tid] == shared[tid - stride]) {
+            output[global_tid] += output[global_tid - stride];
+        }
     }
 }
 
 int main() {
-    const int blockSize = 8;
-    const int dataSize = 24; // Multiple of blockSize
-    int h_input[dataSize] = {0, 0, 0, 1, 1, 1, 2, 2,
-                             0, 0, 1, 1, 1, 1, 2, 2,
-                             0, 0, 0, 0, 0, 0, 1, 1};
-    int h_output[dataSize];
+    int blockSize = 12;
+    int h_input[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                     0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                     0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1};
+    int n = sizeof(h_input) / sizeof(h_input[0]);
+    int *d_input, *d_output;
 
-    int* d_input;
-    int* d_output;
-    cudaMalloc(&d_input, dataSize * sizeof(int));
-    cudaMalloc(&d_output, dataSize * sizeof(int));
+    cudaMalloc(&d_input, n * sizeof(int));
+    cudaMalloc(&d_output, n * sizeof(int));
 
-    cudaMemcpy(d_input, h_input, dataSize * sizeof(int), cudaMemcpyHostToDevice);
+    cudaMemcpy(d_input, h_input, n * sizeof(int), cudaMemcpyHostToDevice);
 
-    segmentedPrefixSum<<<dataSize / blockSize, blockSize>>>(d_input, d_output, dataSize);
+    int numBlocks = (n + blockSize - 1) / blockSize;
+    segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_input, d_output, n, blockSize);
 
-    cudaMemcpy(h_output, d_output, dataSize * sizeof(int), cudaMemcpyDeviceToHost);
+    int h_output[n];
+    cudaMemcpy(h_output, d_output, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    std::cout << "Input:" << std::endl;
-    printArray(h_input, dataSize);
-
-    std::cout << "Output:" << std::endl;
-    printArray(h_output, dataSize);
+    for (int i = 0; i < n; i++) {
+        std::cout << h_output[i] << " ";
+        if ((i + 1) % blockSize == 0) std::cout << std::endl;
+    }
 
     cudaFree(d_input);
     cudaFree(d_output);
