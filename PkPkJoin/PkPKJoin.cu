@@ -16,23 +16,24 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-const int n1 = 1e6;
-const int n2 = 1e5;
-int keys1[n1];
-int keys2[n2];
-
-const int mx = 3*1e6+100;
-int hmap1[mx];
-int hmap2[mx];
 
 int main() {
+    int n1 = 5*1e5;
+    int n2 = 4*1e5;
+
+    std::vector<int> keys1(n1);
+    std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
         keys1[i] = 2 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 7 * (i+1);
+        keys2[i] = 3 * (i+1);
     }
+
+    int mx = 3*1e6+100;
+    std::vector<int> hmap1(mx, 0);
+    std::vector<int> hmap2(mx, 0);
 
     for (int i = 0; i < n1; i++) {
         hmap1[keys1[i]] = rand() % 355;
@@ -132,12 +133,12 @@ int main() {
 
     int* d_hmap1;
     CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1, mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_hmap2;
     CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
-    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2, mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
     CUDA_CHECK(cudaDeviceSynchronize());
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
