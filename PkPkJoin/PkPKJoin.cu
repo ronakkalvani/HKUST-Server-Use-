@@ -109,6 +109,11 @@ int main() {
 
     countSplits<<<numBlocks, blockSize, p * sizeof(int)>>>(d_Blocks, d_split_counts, n, p);
 
+    int  *d_split_counts_prefixsum;
+    checkCudaError(cudaMalloc(&d_split_counts_prefixsum, p * p * sizeof(int)), "Failed to allocate device memory for output");
+
+    exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
+
     
 
 
