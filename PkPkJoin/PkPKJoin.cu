@@ -128,7 +128,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_output, n);
+    printArray0<<<1, 1>>>(d_final_array, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
