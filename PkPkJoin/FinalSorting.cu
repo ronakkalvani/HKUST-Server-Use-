@@ -38,7 +38,7 @@ __global__ void BlockSortKernel2(int *d_in, int *d_out, int *block_indices, int 
     int block_start = block_indices[block_idx];
     int block_end = (block_idx + 1 < num_blocks) ? block_indices[block_idx + 1] : num_elements;
     int block_size = block_end - block_start;
-    int valid_items = block_size;
+    int valid_items = min(block_size, BLOCK_THREAD * ITEMS_PER_THREAD);
 
     // Initialize thread_keys with a known value for safer debugging
     for (int i = 0; i < ITEMS_PER_THREAD; i++) {
