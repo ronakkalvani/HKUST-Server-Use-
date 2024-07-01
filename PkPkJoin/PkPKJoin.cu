@@ -11,7 +11,7 @@
 #define BLOCK_THREAD 4*BLOCK_THREADS
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
 
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
