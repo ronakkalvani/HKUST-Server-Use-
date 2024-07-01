@@ -119,9 +119,9 @@ int main() {
 
     Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
 
-    // printArray<<<1, 1>>>(d_splitters, p - 1);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1, 1>>>(d_output, n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     // int *d_output, *d_partition_counts, *d_partition_starts, *d_partition_offsets;
     // CUDA_CHECK(cudaMalloc(&d_output, n * sizeof(int)));
