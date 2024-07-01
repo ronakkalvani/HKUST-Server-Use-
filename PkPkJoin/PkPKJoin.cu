@@ -95,27 +95,27 @@ int main() {
     CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_Blocks;
-    CUDA_CHECK(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
+    checkCudaError(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
 
     findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
     int  *d_segment_sum;
-    CUDA_CHECK(cudaMalloc(&d_segment_sum, n * sizeof(int)), "Failed to allocate device memory for output");
+    checkCudaError(cudaMalloc(&d_segment_sum, n * sizeof(int)), "Failed to allocate device memory for output");
 
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_sorted_data, d_segment_sum, n, blockSize);
 
     int  *d_split_counts;
-    CUDA_CHECK(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
+    checkCudaError(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
 
     countSplits<<<numBlocks, blockSize, p * sizeof(int)>>>(d_Blocks, d_split_counts, n, p);
 
     int  *d_split_counts_prefixsum;
-    CUDA_CHECK(cudaMalloc(&d_split_counts_prefixsum, p * p * sizeof(int)), "Failed to allocate device memory for output");
+    checkCudaError(cudaMalloc(&d_split_counts_prefixsum, p * p * sizeof(int)), "Failed to allocate device memory for output");
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
     int *d_output;
-    CUDA_CHECK(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
+    checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
 
     Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
 
