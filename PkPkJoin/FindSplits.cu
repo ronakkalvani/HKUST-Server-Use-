@@ -6,7 +6,7 @@
 #include <curand_kernel.h>
 #include <cmath>
 
-#define BLOCK_THREADS 16
+// #define BLOCK_THREADS 16
 
 #define CUDA_CHECK(call)                                                   \
     do {                                                                   \
