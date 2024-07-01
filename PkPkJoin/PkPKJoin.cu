@@ -196,10 +196,10 @@ int main() {
     // cudaFree(d_partition_starts);
     // cudaFree(d_partition_offsets);
     // cudaFree(d_partition_counts);
-    cudaFree(d_final_array);
-    cudaFree(d_results);
-    cudaFree(d_hmap1);
-    cudaFree(d_hmap2);
+    // cudaFree(d_final_array);
+    // cudaFree(d_results);
+    // cudaFree(d_hmap1);
+    // cudaFree(d_hmap2);
 
     return 0;
 }
