@@ -3,16 +3,6 @@
 #include <vector>
 #include <algorithm>
 
-void findPartitionIndices(const int* d_data, int* d_output, const int* d_splitters, int numData, int numSplitters) {
-    // Wrap raw pointers with thrust::device_ptr
-    thrust::device_ptr<const int> dev_data(d_data);
-    thrust::device_ptr<const int> dev_splitters(d_splitters);
-    thrust::device_ptr<int> dev_output(d_output);
-
-    // Use Thrust to find the split positions
-    thrust::upper_bound(dev_splitters, dev_splitters + numSplitters, dev_data, dev_data + numData, dev_output);
-}
-
 __global__ void findSplitsKernel(const int *data, int *output, const int *splitters, int numData, int numSplitters) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
     if (tid < numData) {

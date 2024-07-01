@@ -110,8 +110,7 @@ int main() {
     int  *d_Blocks;
     checkCudaError(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
 
-    // findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
-    findPartitionIndices(d_sorted_data,d_Blocks,d_splitters,n,p-1);
+    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
     printArray<<<1, 1>>>(d_Blocks, n);
     CUDA_CHECK(cudaGetLastError());
