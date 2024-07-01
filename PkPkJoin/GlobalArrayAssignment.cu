@@ -13,6 +13,15 @@ __global__ void Assign(int * NewBlockId,int* segment_sum,int* d_split_counts_pre
 
 }
 
+__global__ void partitions(int* d_split_counts_prefixsum,int* d_partition_counts,int p) {
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (tid < p*p) {
+        if (tid/p+1<p) atomicAdd(&d_partition_counts[tid/p+1], d_split_counts[tid]);
+    }
+
+}
+
 // int main() {
 //     int size = 10;
 //     int bytes = size * sizeof(int);
