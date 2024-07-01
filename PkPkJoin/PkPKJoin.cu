@@ -90,14 +90,14 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    Splitterss<<<numBlocks, blockSize>>>(d_splitters, d_samples, sample_size, p);
+    // Splitterss<<<numBlocks, blockSize>>>(d_splitters, d_samples, sample_size, p);
+    Splitterss<<<1, p-1>>>(d_splitters, d_samples, sample_size, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
     printArray<<<1, 1>>>(d_splitters, p-1);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
-
 
     int  *d_Blocks;
     checkCudaError(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
