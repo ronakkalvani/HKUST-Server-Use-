@@ -27,7 +27,7 @@
 
 int main() {
     int n1 = 1e2;
-    int n2 = 1;
+    int n2 = 12;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
