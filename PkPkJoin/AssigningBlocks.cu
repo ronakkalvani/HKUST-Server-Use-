@@ -17,7 +17,7 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
                 left = mid + 1;
             }
         }
-        output[tid] = (left < numSplitters) ? left : numSplitters - 1;  // 'left' is the partition index
+        output[tid] = (left < numSplitters) ? left : numSplitters;  // 'left' is the partition index
     }
 }
 
