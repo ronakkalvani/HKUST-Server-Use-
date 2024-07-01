@@ -13,7 +13,7 @@ __global__ void Assign(int * NewBlockId,int* segment_sum,int* d_split_counts_pre
 
 }
 
-__global__ void partitions(int* d_split_counts_prefixsum,int* d_partition_counts,int p) {
+__global__ void partitions(int* d_split_counts,int* d_partition_counts,int p) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (tid < p*p) {
