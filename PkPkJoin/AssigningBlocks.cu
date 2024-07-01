@@ -8,13 +8,13 @@ __global__ void findSplitsKernel(const int *data, int *output, const int *splitt
     if (tid < numData) {
         int item = data[tid];
         int left = 0;
-        int right = numSplitters - 1;
-        while (left <= right) {
-            int mid = (left + right) / 2;
-            if (splitters[mid] <= item) {
-                left = mid + 1;
+        int right = numSplitters;
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            if (splitters[mid] > item) {
+                right = mid;
             } else {
-                right = mid - 1;
+                left = mid + 1;
             }
         }
         output[tid] = left;  // 'left' is the partition index
