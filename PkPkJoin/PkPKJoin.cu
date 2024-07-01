@@ -94,7 +94,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    Splitterss<<<1, 1>>>(d_splitters, d_samples, sample_size, p);
+    Splitterss<<<numBlocks, blockSize>>>(d_splitters, d_samples, sample_size, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
