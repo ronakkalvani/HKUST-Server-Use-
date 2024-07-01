@@ -134,7 +134,7 @@ int main() {
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    printArray<<<1, 1>>>(d_split_counts, p*p);
+    printArray<<<1, 1>>>(d_split_counts_prefixsum, p*p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
