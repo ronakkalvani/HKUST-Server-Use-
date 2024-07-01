@@ -198,8 +198,6 @@ int main() {
     cudaFree(d_splitters);
     cudaFree(d_output);
     cudaFree(d_partition_starts);
-    cudaFree(d_partition_offsets);
-    cudaFree(d_partition_counts);
     cudaFree(d_final_array);
     cudaFree(d_results);
     cudaFree(d_hmap1);
