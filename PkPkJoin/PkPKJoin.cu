@@ -147,11 +147,11 @@ int main() {
 
     partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
-    printArray0<<<1, 1>>>(d_output, n);
+    printArray<<<1, 1>>>(d_output, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_partition_starts, p);
+    printArray<<<1, 1>>>(d_partition_starts, p);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
     
@@ -159,7 +159,7 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_final_array, n);
+    printArray<<<1, 1>>>(d_final_array, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
