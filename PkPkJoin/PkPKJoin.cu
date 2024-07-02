@@ -26,8 +26,8 @@
 
 
 int main() {
-    int n1 = 1e4;
-    int n2 = 1e4;
+    int n1 = 1e3;
+    int n2 = 1e3;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
@@ -148,13 +148,13 @@ int main() {
 
     partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
-    printArray0<<<1, 1>>>(d_output, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    // printArray<<<1, 1>>>(d_partition_starts, p);
+    // printArray<<<1, 1>>>(d_output, n);
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
+
+    printArray<<<1, 1>>>(d_partition_starts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
