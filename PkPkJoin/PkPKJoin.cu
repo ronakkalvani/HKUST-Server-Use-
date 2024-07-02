@@ -148,7 +148,7 @@ int main() {
 
     partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
-    printArray<<<1, 1>>>(d_output, n);
+    printArray0<<<1, 1>>>(d_output, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
