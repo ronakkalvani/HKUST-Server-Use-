@@ -6,7 +6,7 @@
 #include <cub/cub.cuh>
 #include <cmath>
 
-#define BLOCK_THREADS 16
+#define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 4*BLOCK_THREADS
 
@@ -26,7 +26,7 @@
 
 
 int main() {
-    int n1 = 1e6;
+    int n1 = 1e5;
     int n2 = 1e2;
 
     std::vector<int> keys1(n1);
