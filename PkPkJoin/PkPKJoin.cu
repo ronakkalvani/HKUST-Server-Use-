@@ -74,9 +74,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_sorted_data, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_sorted_data, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int blockSize = BLOCK_THREADS;
     int p = numBlocks;
@@ -99,26 +99,27 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_splitters, p-1);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_splitters, p-1);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_Blocks;
     checkCudaError(cudaMalloc(&d_Blocks, n * sizeof(int)), "Failed to allocate device memory for output");
 
     findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
-    printArray<<<1, 1>>>(d_Blocks, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_Blocks, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_segment_sum;
     checkCudaError(cudaMalloc(&d_segment_sum, n * sizeof(int)), "Failed to allocate device memory for output");
 
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_Blocks, d_segment_sum, n, blockSize);
-    printArray<<<1, 1>>>(d_segment_sum, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    
+    // printArray<<<1, 1>>>(d_segment_sum, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_split_counts;
     checkCudaError(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
@@ -130,9 +131,9 @@ int main() {
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    printArray<<<1, 1>>>(d_split_counts_prefixsum, p*p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_split_counts_prefixsum, p*p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int *d_output;
     checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
@@ -147,21 +148,21 @@ int main() {
 
     partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
-    printArray<<<1, 1>>>(d_output, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_output, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_partition_starts, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_partition_starts, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
     
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_final_array, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_final_array, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_results;
     CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
