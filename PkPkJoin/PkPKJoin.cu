@@ -141,20 +141,19 @@ int main() {
 
     int *d_partition_starts;
     CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
-    CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
 
-    printArray0<<<1, 1>>>(d_partition_starts, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    int* d_final_array;
+    CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
+
+    partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
     printArray0<<<1, 1>>>(d_output, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    int* d_final_array;
-    CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
-
-    partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts,d_partition_starts,p);
+    printArray0<<<1, 1>>>(d_partition_starts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
