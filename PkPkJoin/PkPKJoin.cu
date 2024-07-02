@@ -117,9 +117,9 @@ int main() {
 
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_Blocks, d_segment_sum, n, blockSize);
     
-    // printArray<<<1, 1>>>(d_segment_sum, n);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1, 1>>>(d_segment_sum, n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_split_counts;
     checkCudaError(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
