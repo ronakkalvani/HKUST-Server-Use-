@@ -143,6 +143,10 @@ int main() {
     CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
     CUDA_CHECK(cudaMemset(d_partition_starts, 0, p * sizeof(int)));
 
+    printArray0<<<1, 1>>>(d_partition_starts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
+
     printArray0<<<1, 1>>>(d_output, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
@@ -156,9 +160,9 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // printArray0<<<1, 1>>>(d_final_array, n);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray0<<<1, 1>>>(d_final_array, n);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_results;
     CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
