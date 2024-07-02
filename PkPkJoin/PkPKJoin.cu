@@ -26,7 +26,7 @@
 
 
 int main() {
-    int n1 = 1e2;
+    int n1 = 1e6;
     int n2 = 1e2;
 
     std::vector<int> keys1(n1);
@@ -39,7 +39,7 @@ int main() {
         keys2[i] = 3 * (i+1);
     }
 
-    int mx = 1e5;
+    int mx = 1e7;
     std::vector<int> hmap1(mx, 0);
     std::vector<int> hmap2(mx, 0);
 
