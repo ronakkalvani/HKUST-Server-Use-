@@ -6,7 +6,7 @@
 #include <cub/cub.cuh>
 #include <cmath>
 
-#define BLOCK_THREADS 16
+#define BLOCK_THREADS 8
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 4*BLOCK_THREADS 
 
@@ -72,7 +72,7 @@ int main() {
     BlockSortKernel<<<numBlocks, BLOCK_THREADS>>>(d_data, d_sorted_data, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
-    
+
     printArray<<<1, 1>>>(d_sorted_data, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
