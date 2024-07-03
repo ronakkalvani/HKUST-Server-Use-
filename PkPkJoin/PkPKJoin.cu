@@ -187,8 +187,8 @@ int main() {
     CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // for (int i = 0; i < 3 * n; i += 3) {
-    for (int i = 0; i < 101; i += 3) {
+    // for (int i = 0; i < 101; i += 3) {
+    for (int i = 0; i < 3 * n; i += 3) {
         if (h_results[i] != -1)
             std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
     }
