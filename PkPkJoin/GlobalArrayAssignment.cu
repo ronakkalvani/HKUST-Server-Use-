@@ -8,7 +8,7 @@ __global__ void Assign(int * NewBlockId,int* segment_sum,int* d_split_counts_pre
     if (tid < size) {
         int ind_in_cnt = blockIdx.x  + p * NewBlockId[tid];
         int final_ind = segment_sum[tid]+d_split_counts_prefixsum[ind_in_cnt];
-        if (d_dst[final_ind]!=0) {
+        if (d_dst[final_ind]!=-1) {
             printf("%d final index, %d segment, %d prefix, %d block, %d tid\n", final_ind,segment_sum[tid],d_split_counts_prefixsum[ind_in_cnt],NewBlockId[tid],tid);
         }
         d_dst[final_ind] = d_src[tid];
