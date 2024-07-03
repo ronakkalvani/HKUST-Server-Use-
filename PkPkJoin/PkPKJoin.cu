@@ -32,7 +32,7 @@ int main() {
     std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
-        keys1[i] = 2 * (i+1);
+        keys1[i] = 7 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
         keys2[i] = 3 * (i+1);
