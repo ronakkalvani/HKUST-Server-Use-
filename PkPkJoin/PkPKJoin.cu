@@ -39,8 +39,6 @@ int main() {
     for (int i = 0; i < n2; i++) {
         keys2[i] = 3*(i+1);
         // keys2[i] = (71*keys1[i-1]-3)%(n2+10);
-        
-
     }
 
     int mx = 1e7;
