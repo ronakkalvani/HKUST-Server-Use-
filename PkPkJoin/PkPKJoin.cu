@@ -25,17 +25,17 @@
 
 
 int main() {
-    int n1 = 1e3;
-    int n2 = 1e3;
+    int n1 = 1e2;
+    int n2 = 1e2;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
 
-    for (int i = 0; i < n1; i++) {
-        keys1[i] = 7 * (i+1);
+    for (int i = 1; i < n1; i++) {
+        keys1[i] = (53*keys1[i-1]-5)%(n1+10);
     }
     for (int i = 0; i < n2; i++) {
-        keys2[i] = 3 * (i+1);
+        keys2[i] = (71*keys1[i-1]-3)%(n2+10);
     }
 
     int mx = 1e7;
