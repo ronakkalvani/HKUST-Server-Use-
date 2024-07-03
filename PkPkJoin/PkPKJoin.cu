@@ -8,20 +8,20 @@
 
 #define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
-#define BLOCK_THREAD 4*BLOCK_THREADS
+#define BLOCK_THREAD 4*BLOCK_THREADS 
 
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
 
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
 
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
+#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
 
 
@@ -32,7 +32,7 @@ int main() {
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
 
-    for (int i = 0; i < n1; i++) {
+    for (i nt i = 0; i < n1; i++) {
         keys1[i] = 2 * (i+1);
     }
     for (int i = 0; i < n2; i++) {
@@ -218,11 +218,11 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 2*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 // int main() {
 //     int n1 = 1e3;
@@ -355,11 +355,11 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 2*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
+// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 // int main() {
 //     // int n1=9;
