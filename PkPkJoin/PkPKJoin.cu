@@ -137,7 +137,7 @@ int main() {
 
     int *d_output;
     checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
-    // CUDA_CHECK(cudaMemset(d_output, 0, n * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_output, 0, n * sizeof(int)));
 
     Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
 
@@ -183,15 +183,15 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    int h_results[3 * n];
-    CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // int h_results[3 * n];
+    // CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
-    // for (int i = 0; i < 101; i += 3) {
-    for (int i = 0; i < 3 * n; i += 3) {
-        if (h_results[i] != -1)
-            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    }
+    // // for (int i = 0; i < 101; i += 3) {
+    // for (int i = 0; i < 3 * n; i += 3) {
+    //     if (h_results[i] != -1)
+    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    // }
 
     // Free device memory
     cudaFree(d_data);
