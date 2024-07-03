@@ -23,8 +23,6 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-
-
 int main() {
     int n1 = 1e3;
     int n2 = 1e3;
