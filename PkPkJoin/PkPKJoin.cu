@@ -10,24 +10,24 @@
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 4*BLOCK_THREADS 
 
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
 
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
 
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
-#include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
+#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
 
 
 int main() {
-    int n1 = 1e5;
-    int n2 = 12;
+    int n1 = 1e3;
+    int n2 = 1e3;
 
     std::vector<int> keys1(n1);
     std::vector<int> keys2(n2);
@@ -131,9 +131,9 @@ int main() {
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    // printArray<<<1, 1>>>(d_split_counts, p*p);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    printArray<<<1, 1>>>(d_split_counts, p*p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     int *d_output;
     checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
@@ -148,21 +148,21 @@ int main() {
 
     partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
 
-    printArray0<<<1, 1>>>(d_output, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
-
-    // printArray<<<1, 1>>>(d_partition_starts, p);
+    // printArray<<<1, 1>>>(d_output, n);
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
+
+    printArray<<<1, 1>>>(d_partition_starts, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
     
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray0<<<1, 1>>>(d_final_array, n);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray0<<<1, 1>>>(d_final_array, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
 
     int* d_results;
     CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
@@ -218,11 +218,11 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 2*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 // int main() {
 //     int n1 = 1e3;
@@ -355,11 +355,11 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 2*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
-// #include "/csproject/yike/intern/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FindSplits.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/FinalSorting.cu"
+// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/Ronak/JoinAfterSort.cu"
 
 // int main() {
 //     // int n1=9;
