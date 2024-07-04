@@ -155,9 +155,9 @@ int main() {
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    printArray<<<1, 1>>>(d_partition_starts, p);
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
+    // printArray<<<1, 1>>>(d_partition_starts, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
     
     BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
@@ -185,15 +185,15 @@ int main() {
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // int h_results[3 * n];
-    // CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    int h_results[3 * n];
+    CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // // for (int i = 0; i < 101; i += 3) {
-    // for (int i = 0; i < 3 * n; i += 3) {
-    //     if (h_results[i] != -1)
-    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    // }
+    // for (int i = 0; i < 101; i += 3) {
+    for (int i = 0; i < 3 * n; i += 3) {
+        if (h_results[i] != -1)
+            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    }
 
     // Free device memory
     cudaFree(d_data);
