@@ -36,7 +36,7 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
 }
 
 int main() {
-    int blockSize = 512;
+    int blockSize = 16;
     int n = 1e4;  // Large dataset size
     std::vector<int> h_input(n);
 
