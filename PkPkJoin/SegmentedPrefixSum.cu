@@ -18,26 +18,22 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
     }
     __syncthreads();
 
+    // Initialize prefix sum within segments
+    if (global_tid < n) {
+        if (tid == 0 || shared[tid] != shared[tid - 1]) {
+            output[global_tid] = 0;
+        } else {
+            output[global_tid] = 1;
+        }
+    }
+    __syncthreads();
+
     // Perform prefix sum within segments in shared memory
     for (int stride = 1; stride < blockSize; stride *= 2) {
-        int temp;
-        if (tid >= stride && shared[tid] == shared[tid - stride]) {
-            temp = output[global_tid - stride] + 1;
-        } else {
-            temp = 0;
-        }
-        __syncthreads(); // Ensure all threads have computed their temporary values
-        if (tid >= stride && shared[tid] == shared[tid - stride]) {
-            output[global_tid] += temp;
+        if (global_tid < n && tid >= stride && shared[tid] == shared[tid - stride]) {
+            output[global_tid] += output[global_tid - stride];
         }
         __syncthreads();
-    }
-
-    // Write final values to the output array
-    if (tid > 0 && shared[tid] == shared[tid - 1]) {
-        output[global_tid] += output[global_tid - 1] + 1;
-    } else {
-        output[global_tid] = 0;
     }
 }
 
