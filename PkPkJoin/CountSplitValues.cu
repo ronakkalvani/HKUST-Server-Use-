@@ -56,7 +56,7 @@ __global__ void countSplits(int* split_indices, int* split_counts, int num_eleme
 int main() {
     const int num_elements = 90; // Use a smaller number for testing
     const int num_splits = 10;
-    const int block_size = 256;
+    const int block_size = 9;
     const int num_blocks = (num_elements + block_size - 1) / block_size;
 
     int* h_split_indices = new int[num_elements];
