@@ -30,8 +30,8 @@ __global__ void countSplits(int* split_indices, int* split_counts, int num_eleme
 int main() {
     const int num_elements = 1e5;
     const int block_size = 256;
-    const int num_splits = num_elements/block_size;
     const int num_blocks = (num_elements + block_size - 1) / block_size;
+    const int num_splits = num_blocks;
 
     int* h_split_indices = new int[num_elements];
     int* h_split_counts = new int[num_splits * num_blocks]();
