@@ -129,13 +129,15 @@ int main() {
     int numb = (p*p + (BLOCK_THREADS * ITEMS_PER_THREAD) - 1) / (BLOCK_THREADS * ITEMS_PER_THREAD);
     // countSplits<<<numBlocks, blockSize, p * sizeof(int)>>>(d_Blocks, d_split_counts, n, p);
     countSplits<<<numb, blockSize>>>(d_Blocks, d_split_counts, n, p);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
     int  *d_split_counts_prefixsum;
     checkCudaError(cudaMalloc(&d_split_counts_prefixsum, p * p * sizeof(int)), "Failed to allocate device memory for output");
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    printArray<<<1, 1>>>(d_split_counts, 500);
+    printArray<<<1, 1>>>(d_split_counts_prefixsum, 500);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
