@@ -5,7 +5,7 @@
 // typedef int KeyType;
 // typedef int ValueType;
 
-// Kernel to perform hash join-like operation on sorted data
+// Kernel to perform merge join-like operation on sorted data
 // __global__ void hashJoinKernel(const KeyType* keys, const ValueType* values1, const ValueType* values2, ValueType* results, int numElements)
 __global__ void JoinKernel(int * d_final_array, int* results, int numElements, int* hmap1, int* hmap2)
 {
