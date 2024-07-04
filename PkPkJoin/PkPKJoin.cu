@@ -201,7 +201,7 @@ int main() {
             std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
     }
 
-    Free device memory
+    // Free device memory
     cudaFree(d_data);
     cudaFree(d_sorted_data);
     cudaFree(d_samples);
