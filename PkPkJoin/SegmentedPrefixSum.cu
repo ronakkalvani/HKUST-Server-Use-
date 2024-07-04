@@ -36,23 +36,23 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
 }
 
 int main() {
-    // int blockSize = 512;
-    // int n = 1e4;  // Large dataset size
-    // std::vector<int> h_input(n);
+    int blockSize = 512;
+    int n = 1e4;  // Large dataset size
+    std::vector<int> h_input(n);
 
-    // for (int i = 0; i < n; ++i) {
-    //     if (i<100) h_input[i] = i /10;
-    //     else h_input[i] = i /100;
-    // }
+    for (int i = 0; i < n; ++i) {
+        if (i<100) h_input[i] = i /10;
+        else h_input[i] = i /100;
+    }
 
-    int blockSize = 8;
-    std::vector<int> h_input = {
-        0, 0, 0, 0, 0, 1, 1, 1,
-        0, 0, 0, 1, 1, 1, 1, 1,
-        0, 0, 1, 1, 1, 1, 1, 1
-    };
-    int n = h_input.size();
-    
+    // int blockSize = 8;
+    // std::vector<int> h_input = {
+    //     0, 0, 0, 0, 0, 1, 1, 1,
+    //     0, 0, 0, 1, 1, 1, 1, 1,
+    //     0, 0, 1, 1, 1, 1, 1, 1
+    // };
+    // int n = h_input.size();
+
     int *d_input, *d_output;
     cudaMalloc(&d_input, n * sizeof(int));
     cudaMalloc(&d_output, n * sizeof(int));
