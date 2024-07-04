@@ -23,8 +23,8 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-const int n1 = 1e5;
-const int n2 = 10;
+const int n1 = 1e6;
+const int n2 = 1e6;
 const int n = n1 + n2;
 
 int h_results[3 * n];
