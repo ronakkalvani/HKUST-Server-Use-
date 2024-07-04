@@ -36,7 +36,7 @@ int main() {
     int* h_split_indices = new int[num_elements];
     int* h_split_counts = new int[num_splits * num_blocks]();
     for (int i = 0; i < num_elements; ++i) {
-        h_split_indices[i] = i % num_splits;
+        h_split_indices[i] = i % block_size;
     }
 
     int* d_split_indices;
