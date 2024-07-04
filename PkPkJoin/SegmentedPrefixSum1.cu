@@ -40,16 +40,16 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
 }
 
 int main() {
-    int blockSize = 8;
-    std::vector<int> h_input = {
-        0, 0, 0, 0, 0, 1, 1, 1,
-        0, 0, 0, 1, 1, 1, 1, 1,
-        0, 0, 1, 1, 1, 1, 1, 1
-    };
-    int n = h_input.size();
-    // const int n = 10;
-    // const int blockSize = 4;
-    // int h_input[n] = {1, 1, 1, 2, 2, 3, 3, 3, 3, 4};
+    // int blockSize = 8;
+    // std::vector<int> h_input = {
+    //     0, 0, 0, 0, 0, 1, 1, 1,
+    //     0, 0, 0, 1, 1, 1, 1, 1,
+    //     0, 0, 1, 1, 1, 1, 1, 1
+    // };
+    // int n = h_input.size();
+    const int n = 10;
+    const int blockSize = 4;
+    int h_input[n] = {1, 1, 1, 2, 2, 3, 3, 3, 3, 4};
     int h_output[n];
 
     int *d_input, *d_output;
