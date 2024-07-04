@@ -125,6 +125,7 @@ int main() {
 
     int  *d_split_counts;
     checkCudaError(cudaMalloc(&d_split_counts, p * p * sizeof(int)), "Failed to allocate device memory for output");
+    cudaMemset(d_split_counts, 0, p * p * sizeof(int));
 
     int numb = (p*p + (BLOCK_THREADS * ITEMS_PER_THREAD) - 1) / (BLOCK_THREADS * ITEMS_PER_THREAD);
     countSplits<<<numb, blockSize, p * sizeof(int) >>>(d_Blocks, d_split_counts, n, p);
