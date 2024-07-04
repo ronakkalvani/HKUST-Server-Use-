@@ -15,7 +15,7 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
         if (tid == 0 || shared[tid] != shared[tid - 1]) {
             shared[tid] = 0;
         } else {
-            shared[tid] = shared[tid - 1] + 1;
+            shared[tid] = 1;
         }
     }
     __syncthreads();
