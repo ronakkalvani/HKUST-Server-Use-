@@ -1,3 +1,9 @@
+#include <cuda_runtime.h>
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
 __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize) {
     extern __shared__ int shared[];
 
