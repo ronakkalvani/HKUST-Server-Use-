@@ -24,18 +24,18 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
 const int n1 = 1e7;
-const int n2 = 1e6;
+const int n2 = 1e7;
 const int mx = 1e8;
+std::vector<int> keys1(n1);
+std::vector<int> keys2(n2);
 std::vector<int> hmap1(mx, 0);
 std::vector<int> hmap2(mx, 0);
 const int n = n1 + n2;
+std::vector<int> h_data(n);
 
 int h_results[3 * n];
 
 int main() {
-
-    std::vector<int> keys1(n1);
-    std::vector<int> keys2(n2);
 
     for (int i = 0; i < n1; i++) {
         // keys1[i] = (53*keys1[i-1]-5)%(n1+10);
@@ -54,7 +54,6 @@ int main() {
         hmap2[keys2[i]] = 500 + (rand() % 326);
     }
 
-    std::vector<int> h_data(n);
     for (int i = 0; i < n; i++) {
         if (i < n1) h_data[i] = keys1[i];
         else h_data[i] = keys2[i - n1];
