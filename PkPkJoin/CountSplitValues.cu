@@ -52,7 +52,7 @@ int main() {
 
     for (int s = 0; s < num_splits; ++s) {
         std::cout << "Split " << s << " counts:\n";
-        for (int b = 0; b < num_blocks; ++b) {
+        for (int b = 0; b < 10; ++b) {
             std::cout << "  Block " << b << ": " << h_split_counts[s * num_blocks + b] << "\n";
         }
     }
