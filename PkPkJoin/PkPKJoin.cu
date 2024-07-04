@@ -139,79 +139,79 @@ int main() {
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p*p);
 
-    printArray<<<1, 1>>>(d_split_counts_prefixsum, 500);
+    // printArray<<<1, 1>>>(d_split_counts_prefixsum, 500);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    int *d_output;
+    checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
+    CUDA_CHECK(cudaMemset(d_output, 0, n * sizeof(int)));
+
+    Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
+
+    int *d_partition_starts;
+    CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
+
+    int* d_final_array;
+    CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
+
+    partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
+
+    // printArray0<<<1, 1>>>(d_output, n);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+
+    // printArray<<<1, 1>>>(d_partition_starts, p);
+    // CUDA_CHECK(cudaGetLastError());
+    // CUDA_CHECK(cudaDeviceSynchronize());
+    
+    BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
     CUDA_CHECK(cudaGetLastError());
     CUDA_CHECK(cudaDeviceSynchronize());
 
-    // int *d_output;
-    // checkCudaError(cudaMalloc(&d_output, n* sizeof(int)), "Failed to allocate device memory for output");
-    // CUDA_CHECK(cudaMemset(d_output, 0, n * sizeof(int)));
-
-    // Assign<<<numBlocks, blockSize>>>(d_Blocks,d_segment_sum,d_split_counts_prefixsum,d_sorted_data,d_output,n,p);
-
-    // int *d_partition_starts;
-    // CUDA_CHECK(cudaMalloc(&d_partition_starts, p * sizeof(int)));
-
-    // int* d_final_array;
-    // CUDA_CHECK(cudaMalloc(&d_final_array, n * sizeof(int)));
-
-    // partitions<<<numBlocks, BLOCK_THREADS>>>(d_split_counts_prefixsum,d_partition_starts,p);
-
-    // // printArray0<<<1, 1>>>(d_output, n);
-    // // CUDA_CHECK(cudaGetLastError());
-    // // CUDA_CHECK(cudaDeviceSynchronize());
-
-    // // printArray<<<1, 1>>>(d_partition_starts, p);
-    // // CUDA_CHECK(cudaGetLastError());
-    // // CUDA_CHECK(cudaDeviceSynchronize());
-    
-    // BlockSortKernel2<<<numBlocks, BLOCK_THREAD>>>(d_output, d_final_array, d_partition_starts, p, n);
+    // printArray0<<<1, 1>>>(d_final_array, n);
     // CUDA_CHECK(cudaGetLastError());
     // CUDA_CHECK(cudaDeviceSynchronize());
 
-    // // printArray0<<<1, 1>>>(d_final_array, n);
-    // // CUDA_CHECK(cudaGetLastError());
-    // // CUDA_CHECK(cudaDeviceSynchronize());
+    int* d_results;
+    CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
+    CUDA_CHECK(cudaMemset(d_results, -1, 3 * n * sizeof(int)));
 
-    // int* d_results;
-    // CUDA_CHECK(cudaMalloc(&d_results, 3 * n * sizeof(int)));
-    // CUDA_CHECK(cudaMemset(d_results, -1, 3 * n * sizeof(int)));
+    int* d_hmap1;
+    CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
+    CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // int* d_hmap1;
-    // CUDA_CHECK(cudaMalloc(&d_hmap1, mx * sizeof(int)));
-    // CUDA_CHECK(cudaMemcpy(d_hmap1, hmap1.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    int* d_hmap2;
+    CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
+    CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // int* d_hmap2;
-    // CUDA_CHECK(cudaMalloc(&d_hmap2, mx * sizeof(int)));
-    // CUDA_CHECK(cudaMemcpy(d_hmap2, hmap2.data(), mx * sizeof(int), cudaMemcpyHostToDevice));
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
-    // CUDA_CHECK(cudaGetLastError());
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    int h_results[3 * n];
+    CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // int h_results[3 * n];
-    // CUDA_CHECK(cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost));
-    // CUDA_CHECK(cudaDeviceSynchronize());
+    // for (int i = 0; i < 101; i += 3) {
+    for (int i = 0; i < 3 * n; i += 3) {
+        if (h_results[i] != -1)
+            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    }
 
-    // // for (int i = 0; i < 101; i += 3) {
-    // for (int i = 0; i < 3 * n; i += 3) {
-    //     if (h_results[i] != -1)
-    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    // }
-
-    // Free device memory
-    // cudaFree(d_data);
-    // cudaFree(d_sorted_data);
-    // cudaFree(d_samples);
-    // cudaFree(d_splitters);
-    // cudaFree(d_output);
-    // cudaFree(d_partition_starts);
-    // cudaFree(d_final_array);
-    // cudaFree(d_results);
-    // cudaFree(d_hmap1);
-    // cudaFree(d_hmap2);
+    Free device memory
+    cudaFree(d_data);
+    cudaFree(d_sorted_data);
+    cudaFree(d_samples);
+    cudaFree(d_splitters);
+    cudaFree(d_output);
+    cudaFree(d_partition_starts);
+    cudaFree(d_final_array);
+    cudaFree(d_results);
+    cudaFree(d_hmap1);
+    cudaFree(d_hmap2);
 
     return 0;
 }
