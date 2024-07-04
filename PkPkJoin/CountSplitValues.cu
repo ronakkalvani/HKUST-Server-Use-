@@ -23,13 +23,39 @@ __global__ void countSplits(int* split_indices, int* split_counts, int num_eleme
 
     // Write shared memory counts to global memory
     for (int i = tid; i < num_splits; i += block_size) {
-        atomicAdd(&split_counts[i * gridDim.x + bid], shared_counts[i]);
+        atomicAdd(&split_counts[i + bid * num_splits], shared_counts[i]);
     }
 }
 
+// __global__ void countSplits(int* split_indices, int* split_counts, int num_elements, int num_splits) {
+//     extern __shared__ int shared_counts[];
+
+//     int tid = threadIdx.x;
+//     int bid = blockIdx.x;
+//     int block_size = blockDim.x;
+
+//     // Initialize shared memory
+//     for (int i = tid; i < num_splits; i += block_size) {
+//         shared_counts[i] = 0;
+//     }
+//     __syncthreads();
+
+//     // Count split indices in shared memory
+//     for (int i = tid + bid * block_size; i < num_elements; i += block_size * gridDim.x) {
+//         int split_idx = split_indices[i];
+//         atomicAdd(&shared_counts[split_idx], 1);
+//     }
+//     __syncthreads();
+
+//     // Write shared memory counts to global memory
+//     for (int i = tid; i < num_splits; i += block_size) {
+//         atomicAdd(&split_counts[i * gridDim.x + bid], shared_counts[i]);
+//     }
+// }
+
 int main() {
     const int num_elements = 1e6;
-    const int block_size = 1024;
+    const int block_size = 256;
     const int num_splits = num_elements/block_size;
     const int num_blocks = (num_elements + block_size - 1) / block_size;
 
