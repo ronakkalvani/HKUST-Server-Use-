@@ -25,6 +25,7 @@
 
 const int n1 = 1e7;
 const int n2 = 1e6;
+const int mx = 1e7;
 const int n = n1 + n2;
 
 int h_results[3 * n];
@@ -44,7 +45,6 @@ int main() {
         // keys2[i] = (71*keys1[i-1]-3)%(n2+10);
     }
 
-    int mx = 1e7;
     std::vector<int> hmap1(mx, 0);
     std::vector<int> hmap2(mx, 0);
 
