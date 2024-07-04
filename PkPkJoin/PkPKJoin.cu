@@ -200,8 +200,6 @@ int main() {
         if (h_results[i] != -1)
             std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
     }
-    CUDA_CHECK(cudaGetLastError());
-    CUDA_CHECK(cudaDeviceSynchronize());
 
     // Free device memory
     cudaFree(d_data);
