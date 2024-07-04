@@ -23,9 +23,9 @@
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
 #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
 
-const int n1 = 1e7;
-const int n2 = 1e7;
-const int mx = 1e8;
+const int n1 = 2*1e6;
+const int n2 = 2*1e6;
+const int mx = 1e7;
 std::vector<int> keys1(n1);
 std::vector<int> keys2(n2);
 std::vector<int> hmap1(mx, 0);
