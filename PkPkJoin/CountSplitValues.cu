@@ -46,7 +46,7 @@ __global__ void countSplits(int* split_indices, int* split_counts, int num_eleme
 //     cudaMemcpy(d_split_indices, h_split_indices, num_elements * sizeof(int), cudaMemcpyHostToDevice);
 //     cudaMemset(d_split_counts, 0, num_splits * num_blocks * sizeof(int));
 
-//     countSplits<<<num_blocks, block_size, num_splits * sizeof(int)>>>(d_split_indices, d_split_counts, num_elements, num_splits);
+    // countSplits<<<num_blocks, block_size, num_splits * sizeof(int)>>>(d_split_indices, d_split_counts, num_elements, num_splits);
 
 //     cudaMemcpy(h_split_counts, d_split_counts, num_splits * num_blocks * sizeof(int), cudaMemcpyDeviceToHost);
 
