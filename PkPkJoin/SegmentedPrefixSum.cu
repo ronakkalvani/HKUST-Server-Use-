@@ -26,12 +26,12 @@ __global__ void segmentedPrefixSum(int *input, int *output, int n, int blockSize
     }
 
     // Perform prefix sum within segments in shared memory
-    // for (int stride = 1; stride < blockSize; stride *= 2) {
-    //     __syncthreads();
-    //     if (tid >= stride && shared[tid] == shared[tid - stride]) {
-    //         output[global_tid] += output[global_tid - stride];
-    //     }
-    // }
+    for (int stride = 1; stride < blockSize; stride *= 2) {
+        __syncthreads();
+        if (tid >= stride && shared[tid] == shared[tid - stride]) {
+            output[global_tid] += output[global_tid - stride];
+        }
+    }
 }
 
 int main() {
