@@ -137,27 +137,27 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
     cudaFree(d_hmap2);
 }
 
-// int main() {
+int main() {
 
-//     for (int i = 0; i < n1; i++) {
-//         keys1[i] = 2 * (n1 - i + 1);
-//     }
-//     for (int i = 0; i < n2; i++) {
-//         keys2[i] = 3 * (n2 - i + 1);
-//     }
+    for (int i = 0; i < n1; i++) {
+        keys1[i] = 2 * (n1 - i + 1);
+    }
+    for (int i = 0; i < n2; i++) {
+        keys2[i] = 3 * (n2 - i + 1);
+    }
 
-//     for (int i = 0; i < n1; i++) {
-//         hmap1[keys1[i]] = rand() % 355;
-//     }
-//     for (int i = 0; i < n2; i++) {
-//         hmap2[keys2[i]] = 500 + (rand() % 326);
-//     }
+    for (int i = 0; i < n1; i++) {
+        hmap1[keys1[i]] = rand() % 355;
+    }
+    for (int i = 0; i < n2; i++) {
+        hmap2[keys2[i]] = 500 + (rand() % 326);
+    }
 
-//     // Process data and perform join
-//     PkPkJoin(keys1, keys2, hmap1, hmap2, h_results, n);
+    // Process data and perform join
+    PkPkJoin(keys1, keys2, hmap1, hmap2, h_results, n);
 
-//     return 0;
-// }
+    return 0;
+}
 
 
 // #include <iostream>
