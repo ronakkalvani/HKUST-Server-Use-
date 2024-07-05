@@ -31,7 +31,7 @@ std::vector<int> hmap1(mx, 0);
 std::vector<int> hmap2(mx, 0);
 int h_results[3 * n];
 
-void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n) {
+void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n1,int n2,int n) {
     // Allocate host memory
     std::vector<int> h_data(n);
     std::copy(keys1.begin(), keys1.end(), h_data.begin());
@@ -154,7 +154,7 @@ int main() {
     }
 
     // Process data and perform join
-    PkPkJoin(keys1, keys2, hmap1, hmap2, h_results, n);
+    PkPkJoin(keys1, keys2, hmap1, hmap2, h_results, n1, n2, n);
 
     return 0;
 }
