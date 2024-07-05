@@ -25,6 +25,11 @@ const int n1 = 1e6;
 const int n2 = 1e6;
 const int mx = 1e7;
 const int n = n1 + n2;
+std::vector<int> keys1(n1);
+std::vector<int> keys2(n2);
+std::vector<int> hmap1(mx, 0);
+std::vector<int> hmap2(mx, 0);
+int h_results[3 * n];
 
 void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n) {
     // Allocate host memory
@@ -133,10 +138,6 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 }
 
 int main() {
-    std::vector<int> keys1(n1);
-    std::vector<int> keys2(n2);
-    std::vector<int> hmap1(mx, 0);
-    std::vector<int> hmap2(mx, 0);
 
     for (int i = 0; i < n1; i++) {
         keys1[i] = 2 * (n1 - i + 1);
@@ -151,8 +152,6 @@ int main() {
     for (int i = 0; i < n2; i++) {
         hmap2[keys2[i]] = 500 + (rand() % 326);
     }
-
-    int h_results[3 * n];
 
     // Process data and perform join
     PkPkJoin(keys1, keys2, hmap1, hmap2, h_results, n);
