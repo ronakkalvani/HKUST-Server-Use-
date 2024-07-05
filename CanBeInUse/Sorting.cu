@@ -16,7 +16,10 @@ __global__ void print_sorted_data(int* device_data, int num_items)
 int main()
 {
     // Initialize host data
-    int h_data[] = {1, 5, 2, 4, 3};
+    int h_data[1000000];
+    for (int i=0;i<1000000;i++) {
+        h_data[i]=1000000-i;
+    }
     int num_items = sizeof(h_data) / sizeof(h_data[0]);
 
     // Initialize device data
@@ -38,8 +41,8 @@ int main()
     cub::DeviceRadixSort::SortKeys(d_temp_storage, temp_storage_bytes, d_data, d_sorted_data, num_items);
 
     // Print sorted data
-    print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
-    cudaDeviceSynchronize();
+    // print_sorted_data<<<1, 1>>>(d_sorted_data, num_items);
+    // cudaDeviceSynchronize();
 
     // Cleanup
     cudaFree(d_data);
