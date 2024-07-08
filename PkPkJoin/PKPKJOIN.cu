@@ -119,12 +119,12 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
 
-    // cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    // for (int i = 0; i < 3 * n; i += 3) {
-    //     if (h_results[i] != -1)
-    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    // }
+    for (int i = 0; i < 3 * n; i += 3) {
+        if (h_results[i] != -1)
+            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    }
 
     // Free device memory
     cudaFree(d_data);
