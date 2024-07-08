@@ -1,51 +1,52 @@
 Data set 1 size : 10^6
 Data set 2 size : 10^6
-Key mod value : 10^7
+Key mod value : 10^8
 
 NVPROF statistics while running the code
 
-==3780568== NVPROF is profiling process 3780568, command: PkPKJoin
-==3780568== Profiling application: PkPKJoin
-==3780568== Profiling result:
+==3785409== NVPROF is profiling process 3785409, command: PKPKJOIN
+==3785409== Profiling application: PKPKJOIN
+==3785409== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
- GPU activities:   81.52%  60.228ms         3  20.076ms  5.3462ms  27.770ms  [CUDA memcpy HtoD]
-                    6.81%  5.0341ms         1  5.0341ms  5.0341ms  5.0341ms  countSplits(int*, int*, int, int)
-                    5.43%  4.0122ms         1  4.0122ms  4.0122ms  4.0122ms  BlockSortKernel2(int*, int*, int*, int, int)
-                    1.80%  1.3290ms         1  1.3290ms  1.3290ms  1.3290ms  initCurand(curandStateXORWOW*, unsigned long, int)
-                    1.64%  1.2123ms         1  1.2123ms  1.2123ms  1.2123ms  void cub::DeviceScanKernel<cub::DeviceScanPolicy<int>::Policy600, int*, int*, cub::ScanTileState<int, bool=1>, cub::Sum, cub::detail::InputValue<int, int*>, int, int>(cub::DeviceScanPolicy<int>::Policy600, int*, int*, int, int, bool=1, cub::ScanTileState<int, bool=1>)
-                    0.99%  733.58us         1  733.58us  733.58us  733.58us  BlockSortKernel(int*, int*, int)
-                    0.88%  651.36us         3  217.12us  20.833us  573.70us  [CUDA memset]
-                    0.24%  175.08us         1  175.08us  175.08us  175.08us  segmentedPrefixSum(int*, int*, int, int)
-                    0.17%  126.06us         1  126.06us  126.06us  126.06us  JoinKernel(int*, int*, int, int*, int*)
-                    0.15%  111.69us         1  111.69us  111.69us  111.69us  Assign(int*, int*, int*, int*, int*, int, int)
-                    0.15%  107.30us         1  107.30us  107.30us  107.30us  findSplitsKernel(int const *, int*, int const *, int, int)
-                    0.07%  50.658us         1  50.658us  50.658us  50.658us  sampleElements(curandStateXORWOW*, int*, int*, int, int)
-                    0.03%  24.291us         5  4.8580us  4.7680us  5.0570us  void cub::RadixSortScanBinsKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, unsigned int>(cub::NullType*, int)
-                    0.03%  19.873us         3  6.6240us  6.4970us  6.7200us  void cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>*, bool=1 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**, bool=0*, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**, int, int, cub::GridEvenShare<cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**>)
-                    0.02%  15.553us         2  7.7760us  3.1040us  12.449us  void cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>*, bool=0 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**, bool=0*, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**, int, int, cub::GridEvenShare<cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**>)
-                    0.02%  15.073us         1  15.073us  15.073us  15.073us  partitions(int*, int*, int)
-                    0.02%  14.305us         1  14.305us  14.305us  14.305us  Splitterss(int*, int*, int, int)
-                    0.02%  12.449us         3  4.1490us  3.8400us  4.6090us  void cub::DeviceRadixSortUpsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, bool=1*, cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, int, int, cub::GridEvenShare<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *>)
-                    0.01%  10.464us         2  5.2320us  5.0880us  5.3760us  void cub::DeviceRadixSortUpsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, bool=0*, cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, int, int, cub::GridEvenShare<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *>)
-                    0.00%  2.0480us         1  2.0480us  2.0480us  2.0480us  void cub::DeviceScanInitKernel<cub::ScanTileState<int, bool=1>>(int, int)
-      API calls:   87.31%  2.46724s        28  88.116ms  4.2570us  2.46690s  cudaLaunchKernel
-                    9.62%  271.89ms        17  15.993ms  6.6030us  269.35ms  cudaMalloc
-                    2.26%  63.998ms         3  21.333ms  4.5284ms  31.168ms  cudaMemcpy
-                    0.38%  10.728ms        12  894.02us  4.5960us  6.5900ms  cudaFree
-                    0.36%  10.062ms      1140  8.8250us     138ns  2.0537ms  cuDeviceGetAttribute
-                    0.06%  1.6535ms         1  1.6535ms  1.6535ms  1.6535ms  cudaDeviceSynchronize
-                    0.00%  61.739us        10  6.1730us  3.9980us  13.971us  cuDeviceGetName
-                    0.00%  50.326us         3  16.775us  12.975us  23.001us  cudaMemset
-                    0.00%  26.165us        10  2.6160us  1.3040us  7.7320us  cuDeviceGetPCIBusId
-                    0.00%  23.948us        13  1.8420us     470ns  10.296us  cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
-                    0.00%  19.705us        98     201ns     133ns  5.0650us  cudaGetLastError
-                    0.00%  14.943us         1  14.943us  14.943us  14.943us  cudaFuncGetAttributes
-                    0.00%  5.5270us        34     162ns     131ns     283ns  cudaPeekAtLastError
-                    0.00%  5.1950us         9     577ns     326ns  1.5630us  cudaGetDevice
-                    0.00%  3.9940us        20     199ns     141ns     660ns  cuDeviceGet
-                    0.00%  3.3560us        10     335ns     279ns     580ns  cuDeviceTotalMem
-                    0.00%  2.9580us         3     986ns     480ns  1.5990us  cudaDeviceGetAttribute
-                    0.00%  2.7010us         3     900ns     291ns  1.8200us  cuDeviceGetCount
-                    0.00%  2.3520us        10     235ns     214ns     286ns  cuDeviceGetUuid
-                    0.00%     367ns         1     367ns     367ns     367ns  cuModuleGetLoadingMode
-                    0.00%     217ns         1     217ns     217ns     217ns  cudaGetDeviceCount
+ GPU activities:   97.44%  534.81ms         3  178.27ms  5.2992ms  264.77ms  [CUDA memcpy HtoD]
+                    0.89%  4.8801ms         1  4.8801ms  4.8801ms  4.8801ms  countSplits(int*, int*, int, int)
+                    0.73%  4.0189ms         1  4.0189ms  4.0189ms  4.0189ms  BlockSortKernel2(int*, int*, int*, int, int)
+                    0.23%  1.2761ms         1  1.2761ms  1.2761ms  1.2761ms  initCurand(curandStateXORWOW*, unsigned long, int)
+                    0.22%  1.2142ms         1  1.2142ms  1.2142ms  1.2142ms  void cub::DeviceScanKernel<cub::DeviceScanPolicy<int>::Policy600, int*, int*, cub::ScanTileState<int, bool=1>, cub::Sum, cub::detail::InputValue<int, int*>, int, int>(cub::DeviceScanPolicy<int>::Policy600, int*, int*, int, int, bool=1, cub::ScanTileState<int, bool=1>)
+                    0.14%  792.56us         1  792.56us  792.56us  792.56us  Assign(int*, int*, int*, int*, int*, int, int)
+                    0.13%  733.74us         1  733.74us  733.74us  733.74us  BlockSortKernel(int*, int*, int)
+                    0.12%  652.90us         3  217.63us  20.833us  575.26us  [CUDA memset]
+                    0.02%  136.07us         1  136.07us  136.07us  136.07us  segmentedPrefixSum(int*, int*, int, int)
+                    0.02%  110.85us         1  110.85us  110.85us  110.85us  findSplitsKernel(int const *, int*, int const *, int, int)
+                    0.01%  50.403us         1  50.403us  50.403us  50.403us  sampleElements(curandStateXORWOW*, int*, int*, int, int)
+                    0.01%  42.819us         1  42.819us  42.819us  42.819us  JoinKernel(int*, int*, int, int*, int*)
+                    0.00%  24.290us         5  4.8580us  4.7360us  5.1210us  void cub::RadixSortScanBinsKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, unsigned int>(cub::NullType*, int)
+                    0.00%  21.538us         2  10.769us  9.0250us  12.513us  void cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>*, bool=0 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**, bool=0*, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**, int, int, cub::GridEvenShare<cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, cub::NullType, unsigned int>**>)
+                    0.00%  19.745us         3  6.5810us  6.4640us  6.6560us  void cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>*, bool=1 const *, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**, bool=0*, cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**, int, int, cub::GridEvenShare<cub::DeviceRadixSortDownsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, cub::NullType, unsigned int>**>)
+                    0.00%  15.009us         1  15.009us  15.009us  15.009us  partitions(int*, int*, int)
+                    0.00%  14.305us         1  14.305us  14.305us  14.305us  Splitterss(int*, int*, int, int)
+                    0.00%  12.513us         3  4.1710us  3.9040us  4.6080us  void cub::DeviceRadixSortUpsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=1, bool=0, int, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, bool=1*, cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, int, int, cub::GridEvenShare<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *>)
+                    0.00%  10.464us         2  5.2320us  5.1200us  5.3440us  void cub::DeviceRadixSortUpsweepKernel<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800, bool=0, bool=0, int, unsigned int>(cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, bool=0*, cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *, int, int, cub::GridEvenShare<cub::DeviceRadixSortPolicy<int, cub::NullType, unsigned int>::Policy800 const *>)
+                    0.00%  2.0800us         1  2.0800us  2.0800us  2.0800us  void cub::DeviceScanInitKernel<cub::ScanTileState<int, bool=1>>(int, int)
+      API calls:   75.57%  2.55572s        28  91.276ms  3.9860us  2.55544s  cudaLaunchKernel
+                   15.89%  537.32ms         3  179.11ms  4.4682ms  268.42ms  cudaMemcpy
+                    7.84%  265.19ms        17  15.599ms  6.0940us  262.82ms  cudaMalloc
+                    0.36%  12.085ms        12  1.0071ms  9.4470us  6.4133ms  cudaFree
+                    0.29%  9.8906ms      1140  8.6750us     159ns  2.0199ms  cuDeviceGetAttribute
+                    0.05%  1.6618ms         1  1.6618ms  1.6618ms  1.6618ms  cudaDeviceSynchronize
+                    0.00%  69.403us         3  23.134us  12.629us  42.077us  cudaMemset
+                    0.00%  52.933us        10  5.2930us  3.5430us  13.267us  cuDeviceGetName
+                    0.00%  29.748us        13  2.2880us     509ns  13.739us  cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags
+                    0.00%  25.133us        10  2.5130us  1.3340us  7.7580us  cuDeviceGetPCIBusId
+                    0.00%  15.853us         1  15.853us  15.853us  15.853us  cudaFuncGetAttributes
+                    0.00%  15.261us        98     155ns     130ns     336ns  cudaGetLastError
+                    0.00%  6.0110us         9     667ns     322ns  2.4390us  cudaGetDevice
+                    0.00%  5.6820us        34     167ns     140ns     303ns  cudaPeekAtLastError
+                    0.00%  4.9500us        20     247ns     148ns     697ns  cuDeviceGet
+                    0.00%  3.6010us         3  1.2000us     495ns  2.1630us  cudaDeviceGetAttribute
+                    0.00%  3.2800us        10     328ns     277ns     557ns  cuDeviceTotalMem
+                    0.00%  2.2290us        10     222ns     179ns     338ns  cuDeviceGetUuid
+                    0.00%  1.4420us         3     480ns     247ns     936ns  cuDeviceGetCount
+                    0.00%     366ns         1     366ns     366ns     366ns  cuModuleGetLoadingMode
+                    0.00%     319ns         1     319ns     319ns     319ns  cudaGetDeviceCount
+
