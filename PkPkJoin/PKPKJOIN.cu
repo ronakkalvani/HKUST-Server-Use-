@@ -150,7 +150,7 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 int main() {
     // Generate unique random keys
     generate_unique_random_keys(keys1, n1, 1);
-    generate_unique_random_keys(keys2, n2, 1);
+    generate_unique_random_keys(keys2, n2, n1+1);
 
     for (int i = 0; i < n1; i++) {
         hmap1[keys1[i]] = rand() % 355;
