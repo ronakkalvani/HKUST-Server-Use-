@@ -1,12 +1,10 @@
 #include <iostream>
 #include <vector>
-#include <unordered_set>
 #include <algorithm>
-#include <random>
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 #include <cub/cub.cuh>
-#include <cmath>
+#include <random>
 
 #define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
@@ -33,30 +31,17 @@ std::vector<int> hmap1(mx, 0);
 std::vector<int> hmap2(mx, 0);
 int h_results[3 * n];
 
-void generateUniqueKeys(std::vector<int>& keys1, std::vector<int>& keys2, int n1, int n2, int max_value) {
-    std::unordered_set<int> unique_keys;
+// Function to generate unique random integers
+void generate_unique_random_keys(std::vector<int>& keys, int num_keys, int start_value) {
+    std::vector<int> temp_keys(num_keys);
+    std::iota(temp_keys.begin(), temp_keys.end(), start_value);
     std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, max_value);
-
-    while (unique_keys.size() < n1 + n2) {
-        int key = dis(gen);
-        unique_keys.insert(key);
-    }
-
-    auto it = unique_keys.begin();
-    for (int i = 0; i < n1; ++i) {
-        keys1[i] = *it;
-        ++it;
-    }
-
-    for (int i = 0; i < n2; ++i) {
-        keys2[i] = *it;
-        ++it;
-    }
+    std::mt19937 g(rd());
+    std::shuffle(temp_keys.begin(), temp_keys.end(), g);
+    std::copy(temp_keys.begin(), temp_keys.begin() + num_keys, keys.begin());
 }
 
-void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n1,int n2,int n) {
+void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n1, int n2, int n) {
     // Allocate host memory
     std::vector<int> h_data(n);
     std::copy(keys1.begin(), keys1.end(), h_data.begin());
@@ -79,7 +64,7 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
     int blockSize = BLOCK_THREADS;
     int p = numBlocks;
     int sample_size = p * int(log2(p));
-    int *d_samples, *d_splitters;
+    int* d_samples, * d_splitters;
     curandState* d_state;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
@@ -91,34 +76,34 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 
     Splitterss<<<numBlocks, blockSize>>>(d_splitters, d_samples, sample_size, p);
 
-    int *d_Blocks;
+    int* d_Blocks;
     cudaMalloc(&d_Blocks, n * sizeof(int));
 
-    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
+    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p - 1);
 
-    int *d_segment_sum;
+    int* d_segment_sum;
     cudaMalloc(&d_segment_sum, n * sizeof(int));
 
     segmentedPrefixSum<<<numBlocks, blockSize, blockSize * sizeof(int)>>>(d_Blocks, d_segment_sum, n, blockSize);
 
-    int *d_split_counts;
+    int* d_split_counts;
     cudaMalloc(&d_split_counts, p * p * sizeof(int));
     cudaMemset(d_split_counts, 0, p * p * sizeof(int));
 
     countSplits<<<numBlocks, blockSize, p * sizeof(int)>>>(d_Blocks, d_split_counts, n, p);
 
-    int *d_split_counts_prefixsum;
+    int* d_split_counts_prefixsum;
     cudaMalloc(&d_split_counts_prefixsum, p * p * sizeof(int));
 
     exclusive_prefix_sum(d_split_counts, d_split_counts_prefixsum, p * p);
 
-    int *d_output;
+    int* d_output;
     cudaMalloc(&d_output, n * sizeof(int));
     cudaMemset(d_output, 0, n * sizeof(int));
 
     Assign<<<numBlocks, blockSize>>>(d_Blocks, d_segment_sum, d_split_counts_prefixsum, d_sorted_data, d_output, n, p);
 
-    int *d_partition_starts;
+    int* d_partition_starts;
     cudaMalloc(&d_partition_starts, p * sizeof(int));
 
     int* d_final_array;
@@ -142,12 +127,12 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
 
-    cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
+    // cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i < 3 * n; i += 3) {
-        if (h_results[i] != -1)
-            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    }
+    // for (int i = 0; i < 3 * n; i += 3) {
+    //     if (h_results[i] != -1)
+    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    // }
 
     // Free device memory
     cudaFree(d_data);
@@ -163,7 +148,9 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 }
 
 int main() {
-    generateUniqueKeys(keys1, keys2, n1, n2, mx);
+    // Generate unique random keys
+    generate_unique_random_keys(keys1, n1, 1);
+    generate_unique_random_keys(keys2, n2, 1);
 
     for (int i = 0; i < n1; i++) {
         hmap1[keys1[i]] = rand() % 355;
@@ -177,6 +164,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
