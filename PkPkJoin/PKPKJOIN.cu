@@ -152,10 +152,11 @@ int main() {
         }
     }
 
+    std::uniform_int_distribution<> dis2(1, mx);
     std::unordered_set<int> unique_keys2;
 
     for (int i = 0; i < n2; i++) {
-        int key = dis(gen);
+        int key = dis2(gen);
         if (unique_keys2.insert(key).second) {
             keys2[i] = key;
         }
