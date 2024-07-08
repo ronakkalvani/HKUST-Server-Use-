@@ -140,22 +140,24 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 }
 
 int main() {
-    std::unordered_set<int> unique_keys;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(1, mx);
+    std::unordered_set<int> unique_keys;
 
-    for (int i = 0; i < n1; ) {
+    for (int i = 0; i < n1; i++) {
         int key = dis(gen);
         if (unique_keys.insert(key).second) {
-            keys1[i++] = key;
+            keys1[i] = key;
         }
     }
 
-    for (int i = 0; i < n1; ) {
+    std::unordered_set<int> unique_keys2;
+
+    for (int i = 0; i < n2; i++) {
         int key = dis(gen);
-        if (unique_keys.insert(key).second) {
-            keys2[i++] = key;
+        if (unique_keys2.insert(key).second) {
+            keys2[i] = key;
         }
     }
 
