@@ -4,7 +4,9 @@
 #include <cuda_runtime.h>
 #include <curand_kernel.h>
 #include <cub/cub.cuh>
+#include <cmath>
 #include <random>
+#include <unordered_set>
 
 #define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
@@ -30,16 +32,6 @@ std::vector<int> keys2(n2);
 std::vector<int> hmap1(mx, 0);
 std::vector<int> hmap2(mx, 0);
 int h_results[3 * n];
-
-// Function to generate unique random integers
-void generate_unique_random_keys(std::vector<int>& keys, int num_keys, int start_value) {
-    std::vector<int> temp_keys(num_keys);
-    std::iota(temp_keys.begin(), temp_keys.end(), start_value);
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(temp_keys.begin(), temp_keys.end(), g);
-    std::copy(temp_keys.begin(), temp_keys.begin() + num_keys, keys.begin());
-}
 
 void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, const std::vector<int>& hmap1, const std::vector<int>& hmap2, int* h_results, int n1, int n2, int n) {
     // Allocate host memory
@@ -127,12 +119,12 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 
     JoinKernel<<<numBlocks, BLOCK_THREADS>>>(d_final_array, d_results, n, d_hmap1, d_hmap2);
 
-    cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
+    // cudaMemcpy(h_results, d_results, 3 * n * sizeof(int), cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i < 3 * n; i += 3) {
-        if (h_results[i] != -1)
-            std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
-    }
+    // for (int i = 0; i < 3 * n; i += 3) {
+    //     if (h_results[i] != -1)
+    //         std::cout << "Key: " << h_results[i] << " Values: " << h_results[i + 1] << " " << h_results[i + 2] << std::endl;
+    // }
 
     // Free device memory
     cudaFree(d_data);
@@ -148,9 +140,24 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
 }
 
 int main() {
-    // Generate unique random keys
-    generate_unique_random_keys(keys1, n1, 1);
-    generate_unique_random_keys(keys2, n2, n1+1);
+    std::unordered_set<int> unique_keys;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(1, mx);
+
+    for (int i = 0; i < n1; ) {
+        int key = dis(gen);
+        if (unique_keys.insert(key).second) {
+            keys1[i++] = key;
+        }
+    }
+
+    for (int i = 0; i < n1; ) {
+        int key = dis(gen);
+        if (unique_keys.insert(key).second) {
+            keys2[i++] = key;
+        }
+    }
 
     for (int i = 0; i < n1; i++) {
         hmap1[keys1[i]] = rand() % 355;
