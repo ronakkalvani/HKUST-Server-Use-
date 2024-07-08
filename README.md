@@ -1,3 +1,3 @@
 # MPC Pk-Pk Join
 
-Here I will edit and write files for MPC join project which can be ran on HKUST GPU servers
+This repository contains cuda code for PkPK Join in RDMS using MPC in BSP sorting algorithm
