@@ -10,16 +10,16 @@
 #define ITEMS_PER_THREAD 1
 #define BLOCK_THREAD 4 * BLOCK_THREADS
 
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
-#include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SortDataBlockWise.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FindSplits.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/AssigningBlocks.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SegmentedPrefixSum.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/CountSplitValues.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/PrefixSum.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/GlobalArrayAssignment.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/DistributionAfterSplits.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FinalSorting.cu"
+#include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/JoinAfterSort.cu"
 
 const int n1 = 1e6;
 const int n2 = 1e6;
@@ -172,16 +172,16 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 4*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FindSplits.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/AssigningBlocks.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SegmentedPrefixSum.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/CountSplitValues.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/PrefixSum.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/GlobalArrayAssignment.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FinalSorting.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/JoinAfterSort.cu"
 
 // const int n1 = 1e6;
 // const int n2 = 1e6;
@@ -351,16 +351,16 @@ int main() {
 // #define ITEMS_PER_THREAD 1
 // #define BLOCK_THREAD 4*BLOCK_THREADS
 
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SortDataBlockWise.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FindSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/AssigningBlocks.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/SegmentedPrefixSum.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/CountSplitValues.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/PrefixSum.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/GlobalArrayAssignment.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/DistributionAfterSplits.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/FinalSorting.cu"
-// #include "/csproject/yike/intern/ronak/HKUST-Server-Use-/PkPkJoin/JoinAfterSort.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SortDataBlockWise.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FindSplits.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/AssigningBlocks.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/SegmentedPrefixSum.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/CountSplitValues.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/PrefixSum.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/GlobalArrayAssignment.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/DistributionAfterSplits.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/FinalSorting.cu"
+// #include "/csproject/yike/intern/ronak/MPC-PKPKJOIN/PkPkJoin/JoinAfterSort.cu"
 
 // const int n1 = 1e6;
 // const int n2 = 1e6;
