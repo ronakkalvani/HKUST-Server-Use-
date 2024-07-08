@@ -5,8 +5,8 @@
 #include <curand_kernel.h>
 #include <cub/cub.cuh>
 #include <cmath>
-#include <random>
 #include <unordered_set>
+#include <random>
 
 #define BLOCK_THREADS 256
 #define ITEMS_PER_THREAD 1
@@ -56,7 +56,7 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
     int blockSize = BLOCK_THREADS;
     int p = numBlocks;
     int sample_size = p * int(log2(p));
-    int* d_samples, * d_splitters;
+    int* d_samples, *d_splitters;
     curandState* d_state;
     cudaMalloc(&d_samples, sample_size * sizeof(int));
     cudaMalloc(&d_splitters, (p - 1) * sizeof(int));
@@ -71,7 +71,7 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
     int* d_Blocks;
     cudaMalloc(&d_Blocks, n * sizeof(int));
 
-    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p - 1);
+    findSplitsKernel<<<numBlocks, blockSize>>>(d_sorted_data, d_Blocks, d_splitters, n, p-1);
 
     int* d_segment_sum;
     cudaMalloc(&d_segment_sum, n * sizeof(int));
@@ -139,28 +139,24 @@ void PkPkJoin(const std::vector<int>& keys1, const std::vector<int>& keys2, cons
     cudaFree(d_hmap2);
 }
 
-int main() {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, mx);
+void generateUniqueKeys(std::vector<int>& keys, int mx) {
     std::unordered_set<int> unique_keys;
+    std::mt19937 rng(std::random_device{}());
+    std::uniform_int_distribution<int> dist(1, mx - 1);
 
-    for (int i = 0; i < n1; i++) {
-        int key = dis(gen);
-        if (unique_keys.insert(key).second) {
-            keys1[i] = key;
-        }
+    for (int i = 0; i < keys.size(); i++) {
+        int key;
+        do {
+            key = dist(rng);
+        } while (unique_keys.find(key) != unique_keys.end());
+        unique_keys.insert(key);
+        keys[i] = key;
     }
+}
 
-    std::uniform_int_distribution<> dis2(1, mx);
-    std::unordered_set<int> unique_keys2;
-
-    for (int i = 0; i < n2; i++) {
-        int key = dis2(gen);
-        if (unique_keys2.insert(key).second) {
-            keys2[i] = key;
-        }
-    }
+int main() {
+    generateUniqueKeys(keys1, mx);
+    generateUniqueKeys(keys2, mx);
 
     for (int i = 0; i < n1; i++) {
         hmap1[keys1[i]] = rand() % 355;
@@ -174,6 +170,7 @@ int main() {
 
     return 0;
 }
+
 
 
 
