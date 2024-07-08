@@ -25,7 +25,7 @@
 
 const int n1 = 1e6;
 const int n2 = 1e6;
-const int mx = 1e7;
+const int mx = 1e8;
 const int n = n1 + n2;
 std::vector<int> keys1(n1);
 std::vector<int> keys2(n2);
