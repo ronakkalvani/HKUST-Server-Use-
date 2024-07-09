@@ -2,7 +2,7 @@ Data set 1 size : 10^6
 Data set 2 size : 10^6
 Key mod value : 10^8
 
-NVPROF statistics while running the code
+NVPROF statistics while running the code on randomly generated data set
 
 ==3785409== NVPROF is profiling process 3785409, command: PKPKJOIN
 ==3785409== Profiling application: PKPKJOIN
@@ -49,4 +49,39 @@ NVPROF statistics while running the code
                     0.00%  1.4420us         3     480ns     247ns     936ns  cuDeviceGetCount
                     0.00%     366ns         1     366ns     366ns     366ns  cuModuleGetLoadingMode
                     0.00%     319ns         1     319ns     319ns     319ns  cudaGetDeviceCount
+
+Crystal library statistics on same data set
+
+==3786656== NVPROF is profiling process 3786656, command: anyfile
+{"time_memset":0.031168,"time_build":296.066,"time_probe":0.211168}
+{"num_dim":1000000,"num_fact":1000000,"radix":0,"time_partition_build":0,"time_partition_probe":0,"time_partition_total":0,"time_build":296.066,"time_probe":0.211168,"time_extra":0.031168,"time_join_total":296.309}
+==3786656== Profiling application: anyfile
+==3786656== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   91.26%  10.717ms         4  2.6793ms  2.6776ms  2.6802ms  [CUDA memcpy HtoD]
+                    6.90%  810.25us         1  810.25us  810.25us  810.25us  void build_kernel<int=128, int=4>(int*, int*, int, int*, int)
+                    1.68%  197.80us         1  197.80us  197.80us  197.80us  void probe_kernel<int=128, int=4>(int*, int*, int, int*, int, __int64*)
+                    0.16%  18.593us         2  9.2960us  1.4400us  17.153us  [CUDA memset]
+      API calls:   50.83%  295.28ms         2  147.64ms  11.869us  295.27ms  cudaLaunchKernel
+                   45.27%  263.00ms         6  43.834ms  141.28us  261.81ms  cudaMalloc
+                    1.74%  10.124ms         4  2.5310ms  1.9767ms  2.8489ms  cudaMemcpy
+                    1.68%  9.7874ms      1140  8.5850us     137ns  2.0829ms  cuDeviceGetAttribute
+                    0.23%  1.3461ms         4  336.52us  6.5660us  801.21us  cudaEventSynchronize
+                    0.18%  1.0747ms         5  214.94us  179.62us  265.58us  cudaFree
+                    0.01%  77.355us         2  38.677us  5.1440us  72.211us  cudaMemset
+                    0.01%  54.811us        10  5.4810us  3.6430us  13.683us  cuDeviceGetName
+                    0.01%  35.246us         9  3.9160us  2.1610us  8.3800us  cudaEventRecord
+                    0.00%  26.509us        10  2.6500us  1.2820us  7.0470us  cuDeviceGetPCIBusId
+                    0.00%  25.217us         2  12.608us  1.3310us  23.886us  cudaEventCreate
+                    0.00%  24.596us         6  4.0990us  1.5690us  11.039us  cudaEventCreateWithFlags
+                    0.00%  23.406us        12  1.9500us     489ns  9.1270us  cudaGetDevice
+                    0.00%  16.366us        51     320ns     131ns  6.1930us  cudaGetLastError
+                    0.00%  6.7070us         4  1.6760us     978ns  2.4250us  cudaEventElapsedTime
+                    0.00%  6.5960us         5  1.3190us     958ns  1.8130us  cudaEventDestroy
+                    0.00%  3.8810us        20     194ns     143ns     673ns  cuDeviceGet
+                    0.00%  3.2820us        10     328ns     269ns     577ns  cuDeviceTotalMem
+                    0.00%  2.7340us         3     911ns     231ns  1.8670us  cuDeviceGetCount
+                    0.00%  2.1820us        10     218ns     189ns     296ns  cuDeviceGetUuid
+                    0.00%     355ns         1     355ns     355ns     355ns  cuModuleGetLoadingMode
+
 
