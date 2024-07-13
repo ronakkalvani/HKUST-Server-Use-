@@ -1,6 +1,7 @@
 #include <cuda_runtime.h>
 #include <iostream>
 
+// CUDA kernel to copy data from one array to another
 __global__ void Assign(int * NewBlockId,int* segment_sum,int* d_split_counts_prefixsum,int* d_src, int* d_dst, int size,int p) {
     int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
